@@ -61,6 +61,13 @@ jobs:
           path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton-fvt.yaml
           retention-days: 30
 
+      - name: Upload the Tekton definitions (GitOps)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibm-mas-tekton-gitops.yaml
+          path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton-gitops.yaml
+          retention-days: 30
+
       - name: Fetch Artifactory token from IBM Cloud Secrets Manager
         uses: ./.github/actions/fetch-artifactory-token
 
@@ -70,6 +77,7 @@ jobs:
         run: |
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-gitops.yaml
 
   build-python:
     name: Build Python Package
@@ -101,6 +109,10 @@ jobs:
         with:
           name: ibm-mas-tekton.yaml
           path: ${{ github.workspace }}/python/src/mas/cli/templates/
+
+      - name: Bundle pre-install RBAC manifests
+        id: bundle-rbac
+        run: $GITHUB_WORKSPACE/build/bin/bundle-preinstall-rbac.sh
 
       - name: Install
         id: install

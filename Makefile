@@ -24,16 +24,21 @@ all: python tekton
 clean-python:
 ifeq ($(CLEAN),yes)
 	rm -rf dist
+	rm -rf python/src/mas/cli/rbac/preinstall
 endif
 
 .PHONY: python
-python: clean-python pytest dist/mas_cli-100.0.0.tar.gz
+python: clean-python pytest python/src/mas/cli/rbac/preinstall dist/mas_cli-100.0.0.tar.gz
 
 .PHONY: pytest
 pytest:
 ifeq ($(TEST),yes)
 	.venv/bin/pytest python/tests
 endif
+
+# Bundle the pre-install RBAC manifests into the package (needed for uvx; the container image has its own copy)
+python/src/mas/cli/rbac/preinstall:
+	build/bin/bundle-preinstall-rbac.sh
 
 dist/mas_cli-100.0.0.tar.gz:
 	.venv/bin/python -m build
@@ -73,7 +78,7 @@ tekton/target:
 .PHONY: pytest-tekton
 pytest-tekton:
 ifeq ($(TEST),yes)
-	.venv/bin/pytest tekton/test_schema.py -v
+	.venv/bin/pytest tekton/test_schema.py tekton/test_bundles.py -v
 endif
 
 

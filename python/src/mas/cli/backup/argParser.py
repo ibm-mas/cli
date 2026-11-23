@@ -90,6 +90,7 @@ manageAppArgGroup.add_argument(
 )
 manageAppArgGroup.add_argument("--manage-db2-namespace", dest="manage_db2_namespace", required=False, help="Manage Db2 namespace (default: db2u)")
 manageAppArgGroup.add_argument("--manage-db2-instance-name", dest="manage_db2_instance_name", required=False, help="Manage Db2 instance name")
+manageAppArgGroup.add_argument("--manage-db2-dbname", dest="manage_db2_dbname", required=False, help="Manage Db2 database name (default: BLUDB)")
 manageAppArgGroup.add_argument(
     "--manage-db2-backup-type",
     dest="manage_db2_backup_type",
@@ -131,6 +132,9 @@ facilitiesAppArgGroup.add_argument(
     "--facilities-db2-namespace", dest="facilities_db2_namespace", required=False, help="Facilities Db2 namespace (default: db2u)"
 )
 facilitiesAppArgGroup.add_argument("--facilities-db2-instance-name", dest="facilities_db2_instance_name", required=False, help="Facilities Db2 instance name")
+facilitiesAppArgGroup.add_argument(
+    "--facilities-db2-dbname", dest="facilities_db2_dbname", required=False, help="Facilities Db2 database name (default: BLUDB)"
+)
 facilitiesAppArgGroup.add_argument(
     "--facilities-db2-backup-type",
     dest="facilities_db2_backup_type",

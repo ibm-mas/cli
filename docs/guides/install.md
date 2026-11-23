@@ -27,6 +27,7 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index).  The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](provision-aws.md)
+- [AWS ROSA](provision-rosa.md)
 - [IBM Cloud](provision-roks.md)
 - [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
@@ -194,11 +195,11 @@ The registry will be setup running on port 32500.  For more details on this step
 ### Mirror Container Images
 Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:
 
-- **direct** mirrors images directly from the source registry to your private registry
-- **to-filesystem** mirrors images from the source to a local directory
-- **from-filesystem** mirrors images from a local directory to your private registry
+- **m2m** mirrors images directly from the source registry to your private registry
+- **m2d** mirrors images from the source registry to a local directory
+- **d2m** mirrors images from a local directory to your private registry
 
-For full details on this process review the [image mirroring](image-mirroring.md) guide.
+For full details on this process review the [image mirroring](mirroring-v2.md) guide.
 
 
 ### Configure OpenShift to use your Private Registry
@@ -250,13 +251,15 @@ The interactive install will guide you through a series of questioned designed t
       <p>MAS requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:</p>
       <ul>
         <li>IBMCloud Storage (ibmc-block-gold & ibmc-file-gold-gid)</li>
+        <li>IBMCloud VPC Storage (ibmc-vpc-block-10iops-tier & ibmc-vpc-file-1000-iops)</li>
         <li>OpenShift Container Storage (ocs-storagecluster-ceph-rbd & ocs-storagecluster-cephfs)</li>
         <li>External OpenShift Container Storage (ocs-external-storagecluster-ceph-rbd & ocs-external-storagecluster-cephfs)</li>
+        <li>Longhorn (longhorn)</li>
         <li>NFS Client (nfs-client)</li>
         <li>Azure Managed Storage (managed-premium & azurefiles-premium)</li>
-        <li>AWS Storage (gp3-cs & efs)</li>
+        <li>AWS Storage (gp3-csi & efs)</li>
       </ul>
-      <p>The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used, in the case of NFS the same storage class will be used for both `ReadWriteOnce` and `ReadWriteMany` volumes.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes if you wish.</p>
+      <p>The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used, in the case of Longhorn and NFS the same storage class will be used for both `ReadWriteOnce` and `ReadWriteMany` volumes.  A storage provider is only auto-detected when both of its storage classes exist in the cluster: if only one of the paired classes is available (for example `gp3-csi` without `efs` on an AWS cluster), no provider is detected and you will be prompted to select both storage classes yourself.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes if you wish.</p>
       <p>When selecting your own storage classes you will be presented with a list of those available and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.  Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Provide a License File and Entitlement Key">
@@ -340,10 +343,18 @@ The interactive install will guide you through a series of questioned designed t
         <li>Assist and Predict are only available for install if Monitor is selected</li>
         <li>From MAS 9.1 onwards, Assist will be rebranded as Collaborate in the MAS UI. It will still appear as Assist in the MAS CLI and within the OpenShift Cluster, but from the MAS UI it will appear as Collaborate.</li>
         <li><strong>NEW UPDATE:</strong> AI Service is now available as an installation option during the application selection step.</li>
+        <li><strong>NEW UPDATE:</strong> Maximo Cluster Performance Insights (MCPI) can be enabled during installation for MAS 9.2 or later (using the <code>--install-mcpi</code> flag or via the interactive prompt).</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">
       <p>Some Maximo applications support additional configuration, you will be taken through the configuration options for each application that you chose to install.</p>
+      <h4>NEW UPDATE: Maximo Cluster Performance Insights (MCPI)</h4>
+      <p><strong>NEW UPDATE:</strong> Starting with MAS 9.2.0, you can configure Maximo Cluster Performance Insights (MCPI) during installation:</p>
+      <ul>
+        <li><strong>Interactive Mode:</strong> When installing MAS 9.2 or later, you will be prompted whether to install MCPI.</li>
+        <li><strong>Non-Interactive Mode:</strong> Use the <code>--install-mcpi</code> flag to enable MCPI during installation. Note that <code>--install-mcpi</code> is only supported for MAS channel 9.2.x and later.</li>
+        <li><strong>Post-Installation:</strong> MCPI can also be configured on an existing MAS 9.2+ instance at any time using the <code>mas configure-mcpi</code> command (see <a href="../commands/configure-mcpi.md">configure-mcpi reference</a>).</li>
+      </ul>
       <h4>NEW UPDATE: Maximo Manage - AI Service Binding</h4>
       <p><strong>NEW UPDATE:</strong> When installing Maximo Manage, you can optionally bind it to an AI Service Tenant. This integration enables AI capabilities within Manage through the AI Config Application.</p>
       <ul>
@@ -437,12 +448,12 @@ The engine that performs all tasks is written in Ansible, you can directly use t
 - Optional dependency installation:
     - Apache Kafka
     - IBM Maximo AI Service
+    - IBM Maximo Cluster Performance Insights (MCPI)
     - IBM Db2
     - IBM Cloud Pak for Data Platform and Services
         - Watson Studio Local
         - Watson Machine Learning
         - Analytics Engine (Apache Spark)
-        - Cognos Analytics
     - Grafana
 - Suite core services installation
 - Suite application installation

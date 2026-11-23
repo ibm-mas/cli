@@ -19,6 +19,22 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# McpiCfg resource applied by the suite-config task (Jinja2 variables are resolved by kubernetes.core.k8s template)
+MCPI_CONFIG_FILENAME = "mcpi-system.yaml"
+MCPI_CONFIG_TEMPLATE = """---
+apiVersion: config.mas.ibm.com/v1
+kind: McpiCfg
+metadata:
+  name: "{{ mas_instance_id }}-mcpi-system"
+  namespace: "mas-{{ mas_instance_id }}-core"
+  labels:
+    mas.ibm.com/configScope: system
+    mas.ibm.com/instanceId: "{{ mas_instance_id }}"
+spec:
+  displayName: "Maximo Cluster Performance Insights"
+  config:
+    enabled: true
+"""
 
 if TYPE_CHECKING:
     from prompt_toolkit.completion import WordCompleter
@@ -29,6 +45,7 @@ class AdditionalConfigsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
+        installMcpi: bool
         _interactiveMode: bool
         localConfigDir: str | None
         noConfirm: bool
@@ -118,6 +135,16 @@ class AdditionalConfigsMixin:
             additionalConfigsSecret = self.addFilesToSecret(secret, self.localConfigDir, "yaml")
             logger.debug(additionalConfigsSecret)
             self.additionalConfigsSecret = additionalConfigsSecret
+
+        # MCPI is enabled by an McpiCfg resource applied by the suite-config task, so inject it into the secret
+        if self.installMcpi:
+            if self.additionalConfigsSecret is None:
+                self.additionalConfigsSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-additional-configs"}}
+            secretData = self.additionalConfigsSecret.setdefault("data", {})
+            # A user supplied file with the same name takes precedence
+            if MCPI_CONFIG_FILENAME not in secretData:
+                secretData[MCPI_CONFIG_FILENAME] = b64encode(MCPI_CONFIG_TEMPLATE.encode("ascii")).decode("ascii")
+                print_formatted_text(f"Maximo Cluster Performance Insights (MCPI) configuration will be applied: {MCPI_CONFIG_FILENAME}")
 
     def podTemplates(self) -> None:
         if self.isInteractiveMode and self.showAdvancedOptions:

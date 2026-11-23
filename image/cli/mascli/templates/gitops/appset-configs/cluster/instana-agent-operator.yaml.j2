@@ -10,3 +10,7 @@ instana_agent_operator:
   env:
     {{ INSTANA_AGENT_OPERATOR_ENV | indent }}
 {%- endif %}
+{%- if INSTANA_AGENT_OPERATOR_POD_TEMPLATE is defined and INSTANA_AGENT_OPERATOR_POD_TEMPLATE %}
+  pod_template:
+    {{ INSTANA_AGENT_OPERATOR_POD_TEMPLATE | indent }}
+{%- endif %}

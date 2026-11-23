@@ -1,3 +1,7 @@
+---
+widescreen: true
+---
+
 IBM Maximo Operator Catalog
 -------------------------------------------------------------------------------
 This catalog is a **curated** catalog, the Maximo Application Suite team take a snapshot of the online IBM Operator Catalog and test compatibility of all dependent IBM operators with supported releases of Maximo Application Suite; this allows the team to intercept any breaking changes that may have evaded other teams' testing before they reach your cluster.
@@ -6,7 +10,7 @@ This catalog is a **curated** catalog, the Maximo Application Suite team take a 
 All versions of the catalog are available **indefinitely**, but they have a useful lifespan limited by the support statements of the packages available in the catalog and the OCP release the catalog is certified on.  We **never** remove catalog images from the IBM Container Registry (ICR); even the [first](v8-220717-amd64.md) Maximo Operator Catalog ever published is still available today, however it's usefulness is questionable due to the end of life of all compatible OCP releases.
 
 ### CLI Support
-The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror-images, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
+The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
 
 
 ### Catalog Directory
@@ -28,6 +32,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
       <thead>
         <tr>
           <th style="min-width: 200px;">Catalog</th>
+          <th>Latest MAS Version</th>
           <th>OCP</th>
           <th>CPD</th>
           <th>MongoDB</th>
@@ -40,6 +45,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
       <tr>
@@ -47,10 +53,20 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
+          <td><span style="font-weight: bold">v9-261105</span><br/><a href="v9-261105-amd64/">amd64</a> | <a href="v9-261105-s390x/">s390x</a> | <a href="v9-261105-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-261105-amd64</td>
+          <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.4.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
+        </tr>
+        <tr>
           <td><span style="font-weight: bold">v9-261029</span><br/><a href="v9-261029-amd64/">amd64</a> | <a href="v9-261029-s390x/">s390x</a> | <a href="v9-261029-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-261029-amd64</td>
           <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.4.0</td>
           <td>7.0 - 8.0</td>
@@ -58,6 +74,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-261007</span><br/><a href="v9-261007-amd64/">amd64</a> | <a href="v9-261007-s390x/">s390x</a> | <a href="v9-261007-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-261007-amd64</td>
           <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.3.1</td>
           <td>7.0 - 8.0</td>
@@ -65,6 +82,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260924</span><br/><a href="v9-260924-amd64/">amd64</a> | <a href="v9-260924-s390x/">s390x</a> | <a href="v9-260924-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260924-amd64</td>
           <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.3.1</td>
           <td>7.0 - 8.0</td>
@@ -72,6 +90,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260827</span><br/><a href="v9-260827-amd64/">amd64</a> | <a href="v9-260827-s390x/">s390x</a> | <a href="v9-260827-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260827-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.3.1</td>
           <td>7.0 - 8.0</td>
@@ -79,6 +98,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260730</span><br/><a href="v9-260730-amd64/">amd64</a> | <a href="v9-260730-s390x/">s390x</a> | <a href="v9-260730-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260730-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
@@ -86,27 +106,31 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260625</span><br/><a href="v9-260625-amd64/">amd64</a> | <a href="v9-260625-s390x/">s390x</a> | <a href="v9-260625-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260625-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 21.10.0</td>
+          <td>21.10.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260527</span><br/><a href="v9-260527-amd64/">amd64</a> | <a href="v9-260527-s390x/">s390x</a> | <a href="v9-260527-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260527-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 21.5.0</td>
+          <td>21.5.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260430</span><br/><a href="v9-260430-amd64/">amd64</a> | <a href="v9-260430-s390x/">s390x</a> | <a href="v9-260430-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260430-amd64</td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
           <td>20.2.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260326</span><br/><a href="v9-260326-amd64/">amd64</a> | <a href="v9-260326-s390x/">s390x</a> | <a href="v9-260326-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260326-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
@@ -114,6 +138,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260226</span><br/><a href="v9-260226-amd64/">amd64</a> | <a href="v9-260226-s390x/">s390x</a> | <a href="v9-260226-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260226-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
@@ -121,6 +146,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260129</span><br/><a href="v9-260129-amd64/">amd64</a> | <a href="v9-260129-s390x/">s390x</a> | <a href="v9-260129-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-260129-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
@@ -135,6 +161,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
       <thead>
         <tr>
           <th style="min-width: 200px;">Catalog</th>
+          <th>Latest MAS Version</th>
           <th>OCP</th>
           <th>CPD</th>
           <th>MongoDB</th>
@@ -144,6 +171,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
       <tbody>
         <tr>
           <td><span style="font-weight: bold">v9-251231</span><br/><a href="v9-251231-amd64/">amd64</a> | <a href="v9-251231-s390x/">s390x</a> | <a href="v9-251231-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-251231-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
@@ -151,6 +179,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-251224</span><br/><a href="v9-251224-amd64/">amd64</a> | <a href="v9-251224-s390x/">s390x</a> | <a href="v9-251224-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-251224-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
@@ -158,6 +187,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-251127</span><br/><a href="v9-251127-amd64/">amd64</a> | <a href="v9-251127-s390x/">s390x</a> | <a href="v9-251127-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-251127-amd64</td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>7.0 - 8.0</td>
@@ -165,6 +195,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-251030</span><br/><a href="v9-251030-amd64/">amd64</a> | <a href="v9-251030-s390x/">s390x</a> | <a href="v9-251030-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-251030-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -172,6 +203,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-251010</span><br/><a href="v9-251010-amd64/">amd64</a> | <a href="v9-251010-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-251010-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -179,6 +211,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250925</span><br/><a href="v9-250925-amd64/">amd64</a> | <a href="v9-250925-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-250925-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -186,6 +219,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250902</span><br/><a href="v9-250902-amd64/">amd64</a> | <a href="v9-250902-s390x/">s390x</a> | <a href="v9-250902-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-250902-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -193,6 +227,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250828</span><br/><a href="v9-250828-amd64/">amd64</a> | <a href="v9-250828-s390x/">s390x</a> | <a href="v9-250828-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-250828-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -200,6 +235,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250731</span><br/><a href="v9-250731-amd64/">amd64</a> | <a href="v9-250731-s390x/">s390x</a> | <a href="v9-250731-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-250731-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -207,6 +243,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250624</span><br/><a href="v9-250624-amd64/">amd64</a> | <a href="v9-250624-s390x/">s390x</a> | <a href="v9-250624-ppc64le/">ppc64le</a></td>
+          <td>:::mas-catalog-mas-core-versions v9-250624-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -214,6 +251,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250501</span><br/><a href="v9-250501-amd64/">amd64</a> | <a href="v9-250501-s390x/">s390x</a> | N/A</td>
+          <td>:::mas-catalog-mas-core-versions v9-250501-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -221,6 +259,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250403</span><br/><a href="v9-250403-amd64/">amd64</a> | <a href="v9-250403-s390x/">s390x</a> | N/A</td>
+          <td>:::mas-catalog-mas-core-versions v9-250403-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -228,6 +267,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250306</span><br/><a href="v9-250306-amd64/">amd64</a> | <a href="v9-250306-s390x/">s390x</a> | N/A</td>
+          <td>:::mas-catalog-mas-core-versions v9-250306-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -235,6 +275,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250206</span><br/><a href="v9-250206-amd64/">amd64</a> | <a href="v9-250206-s390x/">s390x</a> | N/A</td>
+          <td>:::mas-catalog-mas-core-versions v9-250206-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -242,6 +283,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-250109</span><br/><a href="v9-250109-amd64/">amd64</a> | <a href="v9-250109-s390x/">s390x</a> | N/A</td>
+          <td>:::mas-catalog-mas-core-versions v9-250109-amd64</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -255,6 +297,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     <thead>
     <tr>
     <th>Catalog</th>
+    <th>Latest MAS Version</th>
     <th>OCP</th>
     <th>CPD</th>
     <th>MongoDB</th>
@@ -264,6 +307,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     <tbody>
     <tr>
     <td><span style="font-weight: bold">v9-241205</span><br/><a href="v9-241205-amd64/">amd64</a> | <a href="v9-241205-s390x/">s390x</a></td>
+    <td>:::mas-catalog-mas-core-versions v9-241205-amd64</td>
     <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
     <td>5.0.0</td>
     <td>6.0 - 7.0</td>
@@ -271,6 +315,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><span style="font-weight: bold">v9-241107</span><br/><a href="v9-241107-amd64/">amd64</a> | <a href="v9-241107-s390x/">s390x</a></td>
+    <td>:::mas-catalog-mas-core-versions v9-241107-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>6.0 - 7.0</td>
@@ -278,6 +323,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v9-241003-amd64/"><span style="font-weight: bold">v9-241003-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v9-241003-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
@@ -285,6 +331,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v9-240827-amd64/"><span style="font-weight: bold">v9-240827-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v9-240827-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
@@ -292,6 +339,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v9-240730-amd64/"><span style="font-weight: bold">v9-240730-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v9-240730-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
@@ -299,6 +347,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v9-240625-amd64/"><span style="font-weight: bold">v9-240625-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v9-240625-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
@@ -306,6 +355,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v8-240528-amd64/"><span style="font-weight: bold">v8-240528-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v8-240528-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
@@ -313,6 +363,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v8-240430-amd64/"><span style="font-weight: bold">v8-240430-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v8-240430-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
@@ -320,6 +371,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v8-240405-amd64/"><span style="font-weight: bold">v8-240405-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v8-240405-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
@@ -327,6 +379,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v8-240326-amd64/"><span style="font-weight: bold">v8-240326-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v8-240326-amd64</td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
@@ -334,6 +387,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v8-240227-amd64/"><span style="font-weight: bold">v8-240227-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v8-240227-amd64</td>
     <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
@@ -341,6 +395,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     </tr>
     <tr>
     <td><a href="v8-240130-amd64/"><span style="font-weight: bold">v8-240130-amd64</span></a></td>
+    <td>:::mas-catalog-mas-core-versions v8-240130-amd64</td>
     <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
@@ -354,6 +409,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     <thead>
     <tr>
     <th>Catalog</th>
+    <th>Latest MAS Version</th>
     <th>OCP</th>
     <th>CLI</th>
     <th>Support Notes</th>
@@ -362,96 +418,112 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
     <tbody>
     <tr>
     <td><a href="v8-231228-amd64/">v8-231228-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-231228-amd64</td>
     <td>4.11 - 4.12</td>
     <td>8.2.2</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-231128-amd64/">v8-231128-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-231128-amd64</td>
     <td>4.11 - 4.12</td>
     <td>8.2.2</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-231031-amd64/">v8-231031-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-231031-amd64</td>
     <td>4.11 - 4.12</td>
     <td>7.12.1</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-231004-amd64/">v8-231004-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-231004-amd64</td>
     <td>4.11 - 4.12</td>
     <td>7.12.1</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230926-amd64/">v8-230926-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230926-amd64</td>
     <td>4.11 - 4.12</td>
     <td>7.12.1</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230829-amd64/">v8-230829-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230829-amd64</td>
     <td>4.10 - 4.12</td>
     <td>7.12.1</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230725-amd64/">v8-230725-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230725-amd64</td>
     <td>4.10 - 4.12</td>
     <td>7.12.1</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230721-amd64/">v8-230721-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230721-amd64</td>
     <td>4.10 - 4.12</td>
     <td>7.12.1</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230627-amd64/">v8-230627-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230627-amd64</td>
     <td>4.10 - 4.12</td>
     <td>5.5.0</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230616-amd64/">v8-230616-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230616-amd64</td>
     <td>4.10 - 4.12</td>
     <td>5.5.0</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230526-amd64/">v8-230526-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230526-amd64</td>
     <td>4.10</td>
     <td>5.5.0</td>
     <td>OCP 4.10 EOS September 10, 2023</td>
     </tr>
     <tr>
     <td><a href="v8-230518-amd64/">v8-230518-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230518-amd64</td>
     <td>4.10</td>
     <td>5.5.0</td>
     <td>OCP 4.10 EOS September 10, 2023</td>
     </tr>
     <tr>
     <td><a href="v8-230414-amd64/">v8-230414-amd64</a></td>
+    <td>:::mas-catalog-mas-core-versions v8-230414-amd64</td>
     <td>4.8 - 4.10</td>
     <td>5.5.0</td>
     <td>OCP 4.10 EOS September 10, 2023</td>
     </tr>
     <tr>
     <td><a href="v8-230314-amd64/">v8-230314-amd64</a></td>
+    <td style="font-style: italic">N/A</td>
     <td>4.8 - 4.10</td>
     <td>4.3.1</td>
     <td>OCP 4.10 EOS September 10, 2023</td>
     </tr>
     <tr>
     <td><a href="v8-230217-amd64/">v8-230217-amd64</a></td>
+    <td style="font-style: italic">N/A</td>
     <td>4.8 - 4.10</td>
     <td>4.3.1</td>
     <td>OCP 4.10 EOS September 10, 2023</td>
     </tr>
     <tr>
     <td><a href="v8-230111-amd64/">v8-230111-amd64</a></td>
+    <td style="font-style: italic">N/A</td>
     <td>4.8 - 4.10</td>
     <td>4.3.1</td>
     <td>OCP 4.10 EOS September 10, 2023</td>
@@ -530,7 +602,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 #### Disconnected Install
 > I want to run a disconnected environment using a private mirror registry
 
-The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
+The MAS CLI [mirror](../guides/mirroring-v2.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
 
 
 ### Dynamic Catalog

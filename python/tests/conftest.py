@@ -18,6 +18,11 @@ import pytest
 import logging
 from unittest import mock
 from unittest.mock import MagicMock
+from prompt_toolkit.output import DummyOutput
+import prompt_toolkit.output.defaults
+
+# Prevent prompt_toolkit NoConsoleScreenBufferError on Windows non-console environments
+prompt_toolkit.output.defaults.create_output = lambda *args, **kwargs: DummyOutput()
 
 
 def pytest_configure(config):
@@ -72,6 +77,13 @@ def mock_logging_handlers():
     # Patch RotatingFileHandler to return our mock handler
     with mock.patch("logging.handlers.RotatingFileHandler", return_value=mock_handler):
         yield mock_handler
+
+
+@pytest.fixture(autouse=True, scope="function")
+def mock_prompt_toolkit_output():
+    """Mock prompt_toolkit print_formatted_text to prevent Windows console screen buffer errors."""
+    with mock.patch("prompt_toolkit.shortcuts.utils.print_formatted_text"):
+        yield
 
 
 # Made with Bob

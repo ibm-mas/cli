@@ -37,6 +37,7 @@ You should already have a target OpenShift cluster ready to install AI Service i
 The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](provision-aws.md)
+- [AWS ROSA](provision-rosa.md)
 - [IBM Cloud](provision-roks.md)
 - [IBM DevIT FYRE (Internal)](provision-fyre.md)
 

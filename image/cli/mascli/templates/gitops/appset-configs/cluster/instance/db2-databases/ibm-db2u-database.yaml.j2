@@ -124,6 +124,7 @@ auto_backup: {{ AUTO_BACKUP }}
 db2_audit_retention_days: {{ DB2_AUDIT_RETENTION_DAYS }}
 {% endif %}
 {% if BACKUP %}
+db2_backup_day_of_week: {{ DB2_BACKUP_DAY_OF_WEEK }}
 db2_backup_bucket_name: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_NAME }}>
 db2_backup_bucket_endpoint: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_ENDPOINT }}>
 db2_backup_bucket_access_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY }}>

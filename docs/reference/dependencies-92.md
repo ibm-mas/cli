@@ -116,9 +116,6 @@ Maximo Application Suite 9.2
       <div class="mas-arch-node mas-arch-opt" tabindex="0">Cloud Object Storage
         <span class="mas-arch-tip"><div class="mas-arch-tip-kind">Required dependency</div><div class="mas-arch-tip-name">Cloud Object Storage</div>S3-compatible object storage used to store work instruction media assets, images, and collaboration content.</span>
       </div>
-      <div class="mas-arch-node mas-arch-opt mas-arch-cpd" tabindex="0">Cognos Analytics
-        <span class="mas-arch-tip"><div class="mas-arch-tip-kind">Optional dependency</div><div class="mas-arch-tip-name">IBM Cognos</div>IBM Cognos Analytics can substitute BIRT as the reporting engine for Maximo Manage, providing enterprise-grade dashboards and self-service reporting capabilities.</span>
-      </div>
     </div>
     <!-- ── Group: Maximo Optimizer ───────────────────────────────────────── -->
     <div class="mas-arch-group" id="mas-arch-g-opt">

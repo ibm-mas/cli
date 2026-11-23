@@ -335,14 +335,12 @@ class ManageSettingsMixin:
     def _manageSettingsCP4D(self) -> None:
         self.printDescription(
             [
-                f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",
-                " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>",
+                "Integration with Watson Studio Local provides additional support for the Health application in Maximo Manage: ",
             ]
         )
-        self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
         self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_wsl_flag")
 
-        if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
+        if self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
             self.configCP4D()
 
     def _manageSettingsOther(self) -> None:
@@ -393,7 +391,6 @@ class ManageSettingsMixin:
                     "  - Demo data",
                     "  - Base and additional languages",
                     "  - Server timezone",
-                    "  - Cognos integration (install Cloud Pak for Data)",
                     "  - Watson Studio Local integration (install Cloud Pak for Data)",
                 ]
             )

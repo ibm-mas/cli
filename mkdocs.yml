@@ -11,15 +11,17 @@ nav:
   - "OpenShift Management":
       - "IBM Cloud ROKS": guides/provision-roks.md
       - "AWS (IPI)": guides/provision-aws.md
+      - "AWS ROSA": guides/provision-rosa.md
       - "IBM DevIT FYRE": guides/provision-fyre.md
       - "Airgap Configuration": guides/configure-airgap.md
   - "Image Mirroring":
       - "Private Registry": guides/private-registry.md
-      - "Image Mirroring (IBM)": guides/image-mirroring.md
       - "Image Mirroring (Red Hat)": commands/mirror-redhat-images.md
+      - "Image Mirroring (v2)": guides/mirroring-v2.md
   - "Install and Configure":
       - "Install": guides/install.md
       - "Uninstall": guides/uninstall.md
+      - "Configure MCPI": commands/configure-mcpi.md
       - "OIDC Config Tool": commands/configtool-oidc.md
       - "AI Service Install": guides/aiservice-install.md
   - "Update and Upgrade":
@@ -38,10 +40,10 @@ nav:
       - "Image Validation": guides/image-validation.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
+      - "Nov 05 2026": catalogs/v9-261105-amd64.md
       - "Oct 29 2026": catalogs/v9-261029-amd64.md
       - "Sep 24 2026": catalogs/v9-260924-amd64.md
       - "Aug 27 2026": catalogs/v9-260827-amd64.md
-      - "Jul 30 2026": catalogs/v9-260730-amd64.md
   - "Reference":
       - "Dependencies (9.2)": reference/dependencies-92.md
       - "Dependencies (9.1)": reference/dependencies-91.md
@@ -94,13 +96,14 @@ plugins:
         "guides/backup-and-restore.md": "guides/backup.md"
         "guides/mas-pods-explained.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-pod-details"
         "guides/choosing-the-right-catalog.md": "catalogs/index.md"
-        "commands/mirror-images.md": "guides/image-mirroring.md"
+        "commands/mirror-images.md": "guides/mirroring-v2.md"
+        "guides/image-mirroring.md": "guides/mirroring-v2.md"
         "commands/install.md": "guides/install.md"
         "commands/update.md": "guides/update.md"
         "commands/upgrade.md": "guides/upgrade.md"
         "commands/provision-fyre.md": "guides/provision-fyre.md"
         "commands/provision-roks.md": "guides/provision-roks.md"
-        "commands/provision-rosa.md": "guides/provision-roks.md"
+        "commands/provision-rosa.md": "guides/provision-rosa.md"
         "commands/provision-aws.md": "guides/provision-aws.md"
         "commands/configure-airgap.md": "guides/configure-airgap.md"
         "commands/setup-registry.md": "guides/private-registry.md"
