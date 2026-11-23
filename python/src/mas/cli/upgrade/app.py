@@ -557,6 +557,8 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # Stage 2: Apply pre-install RBAC (if needed)
         if self.applyPreInstallMASRBAC and self.detectedMode:
             label = "Apply pre-install MAS RBAC"
+            # Resolve before the stage starts so a failure is reported cleanly
+            rbacRootDir = self.getPreinstallRBACRootDir()
             reporter.start(label)
             self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
             applyPreInstallMASRBAC(
@@ -565,6 +567,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
                 masInstanceId=instanceId,
                 adminMode=self.detectedMode,
                 selectedApps=self.selectedAppsForRBAC,
+                rbacRootDir=rbacRootDir,
             )
             reporter.success(label, f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {self.detectedMode})")
 
