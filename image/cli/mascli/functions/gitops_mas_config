@@ -982,7 +982,7 @@ function gitops_mas_config() {
       fi
       echo_reset_dim "JDBC_CREDENTIALS_SECRET_ID ................ ${COLOR_MAGENTA}$JDBC_CREDENTIALS_SECRET_ID"
 
-      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+      if [ "${JDBC_TYPE}" == "incluster-db2" ] || [ "${JDBC_TYPE}" == "external-db2" ]; then
         # Create a secret in SM containing the username/password for this specific DB2 database instance.
         # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
         export DB2_SECRET_FILE=$TEMP_DIR/db2-secret.json
