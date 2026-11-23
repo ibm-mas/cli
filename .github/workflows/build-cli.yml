@@ -8,11 +8,6 @@ on:
   release:
     types: [ published ]
 
-env:
-  IBM_CLOUD_APIKEY: ${{ secrets.IBM_CLOUD_APIKEY }}
-  ARTIFACTORY_SECRET_ID: ${{ secrets.ARTIFACTORY_SECRET_ID }}
-  SECRET_MANAGER_URL: ${{ secrets.SECRET_MANAGER_URL }}
-
 # Ensure only one build at a time for any branch, cancelling any in-progress builds
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -67,17 +62,6 @@ jobs:
           name: ibm-mas-tekton-gitops.yaml
           path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton-gitops.yaml
           retention-days: 30
-
-      - name: Fetch Artifactory token from IBM Cloud Secrets Manager
-        uses: ./.github/actions/fetch-artifactory-token
-
-      - name: Upload definition to Artifactory
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-        run: |
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-gitops.yaml
 
   build-python:
     name: Build Python Package
@@ -233,13 +217,8 @@ jobs:
 
       # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
-      - name: Fetch Artifactory token from IBM Cloud Secrets Manager
-        uses: ./.github/actions/fetch-artifactory-token
-
       - name: Build the container image
         id: docker-build
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
         run: |
           echo "GITHUB_REF=$GITHUB_REF"
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
@@ -304,13 +283,8 @@ jobs:
 
       # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
-      - name: Fetch Artifactory token from IBM Cloud Secrets Manager
-        uses: ./.github/actions/fetch-artifactory-token
-
       - name: Build the container image
         id: docker-build
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
         run: |
           echo "GITHUB_REF=$GITHUB_REF"
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
@@ -326,6 +300,17 @@ jobs:
 
           # Push the images
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
+
+      - name: Upload OSCAP reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: oscap-reports-cli
+          path: |
+            ${{ github.workspace }}/.oscap/*-report.html
+            ${{ github.workspace }}/.oscap/*-results.xml
+          if-no-files-found: ignore
+          retention-days: 30
 
   build-s390x-container:
     name: Build Container Image (s390x)
@@ -375,13 +360,8 @@ jobs:
 
       # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
-      - name: Fetch Artifactory token from IBM Cloud Secrets Manager
-        uses: ./.github/actions/fetch-artifactory-token
-
       - name: Build the container image
         id: docker-build
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
         run: |
           echo "GITHUB_REF=$GITHUB_REF"
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
@@ -446,13 +426,8 @@ jobs:
 
       # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
-      - name: Fetch Artifactory token from IBM Cloud Secrets Manager
-        uses: ./.github/actions/fetch-artifactory-token
-
       - name: Build the container image
         id: docker-build
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
         run: |
           echo "GITHUB_REF=$GITHUB_REF"
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"

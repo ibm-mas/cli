@@ -34,7 +34,7 @@ echo "REPOSITORY ........ $REPOSITORY"
 echo "DOCKER_TAG ........ $DOCKER_TAG"
 echo "TARGET_PLATFORMS .. $TARGET_PLATFORMS"
 
-echo_h2 "Publishing manifest to Artifactory ($TARGET_PLATFORMS)"
+echo_h2 "Publishing manifest ($TARGET_PLATFORMS)"
 MANIFEST_CMD="docker manifest create $FQ_IMAGE_WITH_TAG"
 
 for TARGET_PLATFORM in $TARGET_PLATFORMS; do
