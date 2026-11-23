@@ -14,16 +14,15 @@ from typing import Dict, Callable
 
 # Prompts offered by the wizards' optional command-script conveniences
 # (clipboard copy / save-as-script for the generated non-interactive command),
-# plus the OLM install plan approval prompts (answered with the defaults:
-# Automatic mode, which then skips the timeout prompt).  Tests don't register
-# these, so they are answered by default rather than failing the run; a test
-# can still register its own pattern for them, which takes precedence.  These
-# matches are not counted in verify_all_prompts_matched.
+# plus the OLM install plan approval timeout prompt (only asked when Manual
+# mode is selected; the mode itself is a select-list dialog, not a prompt()).
+# Tests don't register these, so they are answered by default rather than
+# failing the run; a test can still register its own pattern for them, which
+# takes precedence.  These matches are not counted in verify_all_prompts_matched.
 OPTIONAL_PROMPT_DEFAULTS: Dict[str, Callable[[str], str]] = {
     r".*Copy this command to your clipboard.*": lambda message: "n",
     r".*Save this command as a script file.*": lambda message: "n",
     r".*Script file name.*": lambda message: "",
-    r".*Select the install plan approval mode.*": lambda message: "1",
     r".*Seconds to wait for each install plan approval.*": lambda message: "7200",
 }
 

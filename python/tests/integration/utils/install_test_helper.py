@@ -22,6 +22,22 @@ from mas.cli.install.app import InstallApp
 from utils.prompt_tracker import create_prompt_handler
 
 
+def answerSelectDialog(**kwargs):
+    """Build a mocked radiolist_dialog that answers with the pre-selected default.
+
+    Select-list prompts (PromptMixin.promptForSelect) run a full-screen
+    dialog that cannot be driven from a non-TTY test; the harness patches
+    mas.cli.displayMixins.radiolist_dialog with this side effect so every
+    select list accepts its pre-selected choice (e.g. Automatic for the OLM
+    install plan approval mode).
+    """
+    selected = kwargs.get("default")
+    if selected is None:
+        values = kwargs.get("values") or []
+        selected = values[0][0] if values else None
+    return MagicMock(run=lambda: selected)
+
+
 class InstallTestConfig:
     """Configuration for an install test scenario."""
 
@@ -261,7 +277,15 @@ class InstallTestHelper:
         prompt_session_instance.prompt.side_effect = wrapped_prompt_handler
         app_prompt.side_effect = wrapped_prompt_handler
 
-    def run_install_test(self):
+    # Select-list dialogs (PromptMixin.promptForSelect) run a full-screen
+    # radiolist dialog that cannot be driven from a non-TTY test.  The patch
+    # is applied via a decorator (rather than in the big with block inside
+    # run_install_test) because that block already sits at the compiler's
+    # static nesting limit; the mock is configured to answer every select
+    # list with its pre-selected choice (e.g. Automatic for the OLM install
+    # plan approval mode).
+    @mock.patch("mas.cli.displayMixins.radiolist_dialog")
+    def run_install_test(self, radiolist_dialog):
         """
         Run the install test with all mocks configured.
 
@@ -318,6 +342,10 @@ class InstallTestHelper:
                 launch_install_pipeline.return_value = "https://pipeline.test.maximo.ibm.com"
                 is_sno.return_value = self.config.is_sno
                 configure_ingress.return_value = True
+
+                # Select-list dialogs (promptForSelect) answer with the
+                # pre-selected default, e.g. Automatic for the OLM approval mode
+                radiolist_dialog.side_effect = answerSelectDialog
 
                 # Configure PromptSession mock
                 prompt_session_instance = MagicMock()
