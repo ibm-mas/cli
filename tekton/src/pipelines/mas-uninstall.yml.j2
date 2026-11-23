@@ -10,6 +10,19 @@ spec:
       default: IfNotPresent
       description: Tekton Pipeline image pull policy (for ibmmas/cli images)
 
+    # OLM install plan approval: "Manual" pauses roles at every install plan
+    # awaiting human approval. Empty = Automatic (with the approval mode
+    # mismatch fast-fail active by default)
+    # -------------------------------------------------------------------------
+    - name: olm_approval_mode
+      type: string
+      default: ""
+      description: OLM install plan approval mode (Automatic or Manual); empty defaults to Automatic
+    - name: olm_approval_timeout
+      type: string
+      default: ""
+      description: Seconds to wait for each individual install plan approval under Manual mode (collection default 7200)
+
     # Registry Credentials Secret
     # -------------------------------------------------------------------------
     # Uninstall tasks do not use IBM_ENTITLEMENT_KEY or ARTIFACTORY_TOKEN at

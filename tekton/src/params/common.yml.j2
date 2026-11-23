@@ -30,6 +30,19 @@
   default: ""
   description: Slack channel(s) for notifications (comma-separated for multiple channels)
 
+# OLM install plan approval: "Manual" pauses roles at every install plan awaiting
+# human approval (see the ansible-devops OLM manual approvals documentation). Empty
+# = Automatic (the collection treats an empty env value as unset, which resolves
+# to Automatic with the approval mode mismatch fast-fail active by default).
+- name: olm_approval_mode
+  type: string
+  default: ""
+  description: OLM install plan approval mode (Automatic or Manual); empty defaults to Automatic
+- name: olm_approval_timeout
+  type: string
+  default: ""
+  description: Seconds to wait for each individual install plan approval under Manual mode (collection default 7200)
+
 {% if application is not defined %}
 
 # MAS Configuration

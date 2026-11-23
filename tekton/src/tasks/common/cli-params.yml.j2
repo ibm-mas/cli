@@ -33,3 +33,13 @@
   type: string
   description: Optional string parameter, either true or false (defaults to false), defines whether the suite will be configured to use redhat service mesh for networking
   default: ""
+
+# OLM install plan approval (empty = Automatic, with the mismatch fast-fail active)
+- name: olm_approval_mode
+  type: string
+  description: OLM install plan approval mode (Automatic or Manual); empty defaults to Automatic
+  default: ""
+- name: olm_approval_timeout
+  type: string
+  description: Seconds to wait for each individual install plan approval under Manual mode (collection default 7200)
+  default: ""

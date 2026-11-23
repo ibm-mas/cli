@@ -20,6 +20,7 @@ from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..common.commandBuilder import offerCommandScript
+from ..common.olmApprovals import OlmApprovalDetectionMixin, resolveOlmApprovalTimeout
 from .argBuilder import updateArgBuilderMixin
 from .argParser import updateArgParser
 from .dependencies import DetectResult, _DEPENDENCY_CHECKS as _DEPENDENCY_CHECKS_REGISTRY
@@ -37,7 +38,7 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
+class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmApprovalDetectionMixin):
     """Orchestrator for the ``mas-cli update`` command.
 
     The ``update()`` method drives both the non-interactive path (``--catalog``
@@ -74,6 +75,9 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         self.mongoTargetVersion: Optional[str] = None
         self.db2CurrentMajorVersion: Optional[int] = None
         self.db2TargetMajorVersion: Optional[int] = None
+        # Aggregate OLM install plan approval mode detected over the update
+        # scope (whole cluster), as returned by getClusterApprovalMode
+        self.olmApprovalStatus: Optional[dict] = None
 
     def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
         """
@@ -245,6 +249,18 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         self.db2TargetMajorVersion = None
         self.isInteractiveMode = self.args.mas_catalog_version is None
 
+        # OLM approval timeout: flag > OLM_APPROVAL_TIMEOUT environment
+        # variable > omitted (the collection's 7200s default then applies).
+        # The approval mode itself is not a flag on update: it is a property
+        # of the cluster, detected over the whole update scope (the catalog
+        # digest change rolls every subscription) by detectOLMApprovalMode()
+        try:
+            olmApprovalTimeout = resolveOlmApprovalTimeout(self.args.olm_approval_timeout)
+        except ValueError as e:
+            self.fatalError(f"Error: {e}")
+        if olmApprovalTimeout is not None:
+            self.setParam("olm_approval_timeout", str(olmApprovalTimeout))
+
         if self.args.mas_catalog_version:
             # Non-interactive mode
             logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
@@ -287,6 +303,11 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
 
                 # Arguments that we don't need to do anything with
                 elif key in ["no_confirm", "help"]:
+                    pass
+
+                # Handled by the OLM approval timeout resolver at the start
+                # of update() (flag > environment variable > omitted)
+                elif key == "olm_approval_timeout":
                     pass
 
                 # Db2 License file has special handling
@@ -333,6 +354,12 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                 self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
         self.checkRoutingModeForUpdate()
+
+        # Detect the aggregate OLM install plan approval mode over the whole
+        # cluster (the update's blast radius) and pass the effective mode to
+        # the PipelineRun so the approval gates behave consistently with the
+        # cluster
+        self.detectOLMApprovalMode()
 
         self.printH1("Dependency Update Checks")
         self.runDependencyChecks()
@@ -395,6 +422,11 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         else:
             aiServiceDataScienceMigration = "Migrate from ODH to RHOAI"
         self.printSummary("AI Service Data Science Platform", aiServiceDataScienceMigration)
+
+        self.printH2("OLM Install Plan Approval")
+        self.printSummary("Approval Mode", self.olmApprovalSummary())
+        if self.getParam("olm_approval_timeout") != "":
+            self.printSummary("Approval Timeout (seconds)", self.getParam("olm_approval_timeout"))
 
         if not self.noConfirm:
             print()
@@ -594,6 +626,11 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         isAiServiceInstalled = self.reviewAiServiceInstance()
         if not isMasInstalled and not isAiServiceInstalled:
             self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
+
+        # Detect the aggregate OLM install plan approval mode over the whole
+        # cluster so the TUI review screen can report it and the launch step
+        # passes the effective mode to the PipelineRun
+        self.detectOLMApprovalMode()
 
     # ------------------------------------------------------------------
     # Dependency detection

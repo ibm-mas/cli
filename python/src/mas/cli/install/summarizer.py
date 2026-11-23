@@ -643,8 +643,18 @@ class InstallSummarizerMixin:
             self.printSummary("Channel", "Disabled")
 
     def installSummary(self) -> None:
-        pass
-        # self.printH2("Install Process")
+        self.printH2("OLM Install Plan Approval")
+        if self.getParam("olm_approval_mode") != "":
+            self.printParamSummary("Approval Mode", "olm_approval_mode")
+        else:
+            # Omitted from the PipelineRun: the pipeline default applies
+            self.printSummary("Approval Mode", "Automatic")
+        if self.getParam("olm_approval_mode") == "Manual":
+            if self.getParam("olm_approval_timeout") != "":
+                self.printParamSummary("Approval Timeout (seconds)", "olm_approval_timeout")
+            else:
+                # Omitted from the PipelineRun: the collection default applies
+                self.printSummary("Approval Timeout (seconds)", "7200")
 
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")

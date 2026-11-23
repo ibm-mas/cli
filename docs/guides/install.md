@@ -435,6 +435,42 @@ ignore_epilog: true
 :::
 
 
+OLM Install Plan Approval
+-------------------------------------------------------------------------------
+By default the Operator Lifecycle Manager (OLM) applies every install plan automatically: as soon as an operator update is generated for a subscription, it is installed without any human involvement.  If your change process requires a human to review and approve each operator change before it is applied, install with `--olm-approval-mode Manual`:
+
+```bash
+mas install --olm-approval-mode Manual --olm-approval-timeout 7200 ...
+```
+
+Under Manual mode the install pauses at every install plan awaiting your approval: the task logs display what is pending, what it will change, and the `oc patch` command to grant approval (you can also approve via the OpenShift Console: **Installed Operators** → the operator → **Subscription** → **Approval required**).  The automation never approves on your behalf — it waits for the out-of-band approval, showing a status line with the approval deadline every five minutes, then resumes automatically once the approval is given.  Install plans are never silently skipped.
+
+The timeout (`--olm-approval-timeout`, in seconds) budgets **each individual approval wait**, not the whole install: a long installation with several sequential approval gates can take longer in total.  The default is 7200 seconds (2 hours); when the timeout expires the waiting task fails with the approve commands repeated in the error message.
+
+### Environment Variables
+The mode and timeout can also be provided via environment variables — useful when the approval policy is set once for all of your automation.  The command line flags take precedence when both are set:
+
+| Variable               | Description                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| `OLM_APPROVAL_MODE`    | `Automatic` or `Manual`; when unset the mode is chosen via the flag or wizard prompt |
+| `OLM_APPROVAL_TIMEOUT` | Seconds to wait for each individual install plan approval under Manual mode       |
+
+```bash
+export OLM_APPROVAL_MODE=Manual
+export OLM_APPROVAL_TIMEOUT=7200
+```
+
+In the interactive wizard the approval mode is prompted for (defaulting to `Automatic`, with the `OLM_APPROVAL_MODE` environment variable picked up as the default), and when `Manual` is selected the timeout is prompted for as well.
+
+### The default (Automatic) fails fast
+`--olm-approval-mode Automatic` and omitting the flag are the same thing: install plans are applied without pausing.  Because an install plan waiting for approval in an Automatic context used to hang the operator readiness waits, the install now **fails fast** when a subscription it manages is already set to `Manual` or install plans are pending — with an error naming the subscription and the `OLM_APPROVAL_MODE=Manual` remedy, rather than a hang.  If you are installing against a cluster that already uses manual approvals, install with `--olm-approval-mode Manual`.
+
+!!! note
+    OLM approval mode gates **individual install plans inside the pipeline tasks**.  It is independent of the `--approval-core` / `--approval-{application}` checkpoint workflow, which gates whole pipeline stages between ConfigMaps — the two mechanisms can be used together.
+
+For the full details of how the collection implements the approval waits (including the behavior of mixed-approval namespaces that OLM's auto-created dependency subscriptions can produce), see the [ansible-devops OLM manual approvals documentation](https://ibm-mas.github.io/ansible-devops/olm-manual-approvals/).
+
+
 How It Works
 -------------------------------------------------------------------------------
 The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops), the collection is also available to install directly from [Ansible Galaxy](https://galaxy.ansible.com/ibm/mas_devops), the install supports the following actions:

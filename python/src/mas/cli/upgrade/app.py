@@ -24,6 +24,7 @@ from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..common.commandBuilder import offerCommandScript
+from ..common.olmApprovals import OlmApprovalDetectionMixin, resolveOlmApprovalTimeout
 from ..validators import InstanceIDValidator, StorageClassValidator
 from .argBuilder import upgradeArgBuilderMixin
 from .argParser import upgradeArgParser
@@ -55,7 +56,7 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
+class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmApprovalDetectionMixin):
     """Orchestrator for the ``mas-cli upgrade`` command.
 
     The ``upgrade()`` method drives both the non-interactive path
@@ -104,6 +105,9 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # Pipeline storage class resolved by configPipelineStorageClass()
         self.pipelineStorageClass: Optional[str] = None
         self.pipelineStorageAccessMode: Optional[str] = None
+        # Aggregate OLM install plan approval mode detected over the upgrade
+        # scope (the mas-{instance_id}-* namespaces)
+        self.olmApprovalStatus: Optional[dict] = None
 
     def prepareUpgrade(self) -> None:
         """Detect the upgrade path and validate compatibility for the selected instance.
@@ -285,6 +289,11 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # existing config-pvc created at install time) so the review screen
         # summary and the generated non-interactive command include it
         self.configPipelineStorageClass(instanceId)
+
+        # Detect the aggregate OLM install plan approval mode over the
+        # instance's namespaces so the review screen can report it and the
+        # launch step passes the effective mode to the PipelineRun
+        self.detectOLMApprovalMode(namespacePrefix=f"mas-{instanceId}-")
 
     def licenseAcceptancePending(self) -> bool:
         """Return True when the target release's license still needs accepting.
@@ -925,6 +934,18 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
 
+        # OLM approval timeout: flag > OLM_APPROVAL_TIMEOUT environment
+        # variable > omitted (the collection's 7200s default then applies).
+        # The approval mode itself is not a flag on upgrade: it is a property
+        # of the cluster, detected over the instance's namespaces by
+        # detectOLMApprovalMode() below
+        try:
+            olmApprovalTimeout = resolveOlmApprovalTimeout(args.olm_approval_timeout)
+        except ValueError as e:
+            self.fatalError(f"Error: {e}")
+        if olmApprovalTimeout is not None:
+            self.setParam("olm_approval_timeout", str(olmApprovalTimeout))
+
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
@@ -1157,6 +1178,12 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
         self.configPipelineStorageClass(instanceId)
 
+        # Detect the aggregate OLM install plan approval mode over the
+        # instance's namespaces (the upgrade's blast radius) and pass the
+        # effective mode to the PipelineRun so the approval gates behave
+        # consistently with the cluster
+        self.detectOLMApprovalMode(namespacePrefix=f"mas-{instanceId}-")
+
         # Show the equivalent non-interactive command before the review screen
         self.masInstanceId = instanceId
         nonInteractiveCommand = self.buildCommand()
@@ -1178,6 +1205,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Class .......... {self.pipelineStorageClass}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Access Mode .... {self.pipelineStorageAccessMode}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>OLM Approval Mode ............... {self.olmApprovalSummary()}</LightSlateGrey>"))
 
         if not self.noConfirm:
             print()

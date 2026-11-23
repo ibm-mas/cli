@@ -264,4 +264,7 @@ optionalParams = [
     # Slack Integration
     "slack_token",
     "slack_channel",
+    # OLM Install Plan Approval
+    "olm_approval_mode",
+    "olm_approval_timeout",
 ]

@@ -33,6 +33,7 @@ from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
 from ..common.commandBuilder import offerCommandScript
+from ..common.olmApprovals import DEFAULT_OLM_APPROVAL_TIMEOUT, resolveOlmApprovalMode, resolveOlmApprovalTimeout
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
@@ -472,6 +473,52 @@ class InstallApp(
                     else:
                         self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
                         self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
+
+    @logMethodCall
+    def configOLMApprovals(self) -> None:
+        """Prompt for the OLM install plan approval mode (interactive mode).
+
+        The mode chosen here is how the install sets things up: Manual pauses
+        every role at an install plan awaiting approval (the collection never
+        approves on the user's behalf), Automatic applies install plans
+        without pausing and fails fast on a Manual mismatch. A value already
+        resolved from the --olm-approval-mode flag or the OLM_APPROVAL_MODE
+        environment variable is offered as the default.
+        """
+        self.printH1("OLM Install Plan Approval")
+        self.printDescription(
+            [
+                "Manual approval pauses the install at every OLM install plan awaiting your approval:",
+                "the tasks display what is pending and the oc command to approve it, then wait for the",
+                "approval to be given out-of-band. Automatic (the default) applies install plans",
+                "without pausing, and fails fast when a managed subscription is already Manual or",
+                "install plans are pending.",
+            ]
+        )
+        currentMode = self.getParam("olm_approval_mode")
+        if currentMode in ("Automatic", "Manual"):
+            defaultIndex = ("Automatic", "Manual").index(currentMode) + 1
+        else:
+            defaultIndex = 1
+        mode = self.promptForListSelect(
+            "Select the install plan approval mode:",
+            ["Automatic", "Manual"],
+            "olm_approval_mode",
+            default=defaultIndex,
+        )
+
+        if mode == "Manual":
+            currentTimeout = self.getParam("olm_approval_timeout")
+            if currentTimeout not in (None, ""):
+                defaultTimeout = int(currentTimeout)
+            else:
+                defaultTimeout = DEFAULT_OLM_APPROVAL_TIMEOUT
+            self.promptForInt(
+                "Seconds to wait for each install plan approval:",
+                "olm_approval_timeout",
+                default=defaultTimeout,
+                min=1,
+            )
 
     @logMethodCall
     def arcgisSettings(self) -> None:
@@ -2195,6 +2242,7 @@ class InstallApp(
         self.configAi()  # Configure AI Service integration
 
         self.configGrafana()
+        self.configOLMApprovals()
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode
@@ -2858,6 +2906,22 @@ class InstallApp(
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
+
+        # OLM install plan approval: flag > OLM_APPROVAL_MODE/OLM_APPROVAL_TIMEOUT
+        # environment variable > omitted. Resolved here (before the interactive
+        # prompts) so an invalid environment variable fails fast, and so the
+        # wizard prompt offers the resolved value as the default. When neither
+        # is set the params are omitted and the pipeline defaults (Automatic)
+        # apply
+        try:
+            olmApprovalMode = resolveOlmApprovalMode(args.olm_approval_mode)
+            olmApprovalTimeout = resolveOlmApprovalTimeout(args.olm_approval_timeout)
+        except ValueError as e:
+            self.fatalError(f"Error: {e}")
+        if olmApprovalMode is not None:
+            self.setParam("olm_approval_mode", olmApprovalMode)
+        if olmApprovalTimeout is not None:
+            self.setParam("olm_approval_timeout", str(olmApprovalTimeout))
 
         # Handle --use-cli-digest parameter which can be:
         # - False (not provided)

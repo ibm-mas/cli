@@ -386,6 +386,10 @@ INSTALL_COMMAND_ARGS = [
     CommandArg(dest="approval_visualinspection"),
     CommandArg(dest="approval_facilities"),
     CommandArg(dest="approval_aiservice"),
+    # OLM Install Plan Approval
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="olm_approval_mode"),
+    CommandArg(dest="olm_approval_timeout"),
     # Slack
     # -----------------------------------------------------------------------------
     CommandArg(dest="slack_channel"),

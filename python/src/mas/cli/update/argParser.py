@@ -212,6 +212,17 @@ otherArgGroup.add_argument(
     metavar="{IfNotPresent,Always}",
 )
 otherArgGroup.add_argument(
+    "--olm-approval-timeout",
+    dest="olm_approval_timeout",
+    required=False,
+    help=(
+        "Seconds to wait for each individual OLM install plan approval when the cluster uses manual approval "
+        "(default 7200 = 2 hours). The approval mode itself is not chosen here: it is detected from the cluster's "
+        "subscriptions. Can also be set via the OLM_APPROVAL_TIMEOUT environment variable"
+    ),
+    type=int,
+)
+otherArgGroup.add_argument(
     "-h",
     "--help",
     action="help",

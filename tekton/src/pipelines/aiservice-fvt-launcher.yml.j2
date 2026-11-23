@@ -8,6 +8,18 @@ spec:
     - name: image_pull_policy
       type: string
 
+    # OLM install plan approval: "Manual" pauses roles at every install plan
+    # awaiting human approval. Empty = Automatic (with the approval mode
+    # mismatch fast-fail active by default)
+    - name: olm_approval_mode
+      type: string
+      default: ""
+      description: OLM install plan approval mode (Automatic or Manual); empty defaults to Automatic
+    - name: olm_approval_timeout
+      type: string
+      default: ""
+      description: Seconds to wait for each individual install plan approval under Manual mode (collection default 7200)
+
     - name: aiservice_instance_id
       type: string
 

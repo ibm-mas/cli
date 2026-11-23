@@ -215,6 +215,64 @@ def test_pipeline_taskrefs_resolvable(bundle_file, bundle_key, bundle_resources)
                 )
 
 
+def _role_steps(task_spec: Dict) -> List[Dict]:
+    """Return the steps of a task spec that invoke run-role.sh (the ansible role runner)."""
+    return [step for step in task_spec.get("steps", []) if any("run-role.sh" in part for part in step.get("command", []) or [])]
+
+
+def test_run_role_tasks_declare_olm_approval_env():
+    """Every task whose steps invoke run-role.sh must plumb the OLM approval params.
+
+    The OLM install plan approval mode reaches the ansible collection via the
+    OLM_APPROVAL_MODE / OLM_APPROVAL_TIMEOUT environment variables, which are
+    bound to the olm_approval_mode / olm_approval_timeout task params (either
+    in the stepTemplate or per-step). Tasks that run roles but miss this
+    plumbing silently ignore the approval mode, so this test prevents new
+    tasks (or refactors that drop the common cli-env partials) from
+    regressing the coverage.
+    """
+    expected_env = {
+        "OLM_APPROVAL_MODE": "$(params.olm_approval_mode)",
+        "OLM_APPROVAL_TIMEOUT": "$(params.olm_approval_timeout)",
+    }
+    checked = 0
+    failures: List[str] = []
+
+    for task_file in sorted(TASKS_DIR.glob("*.yaml")):
+        with open(task_file, "r") as f:
+            doc = yaml.safe_load(f)
+        if not isinstance(doc, dict) or doc.get("kind") != "Task":
+            continue
+
+        spec = doc.get("spec", {})
+        role_steps = _role_steps(spec)
+        if not role_steps:
+            continue
+        checked += 1
+        task_name = doc.get("metadata", {}).get("name")
+
+        # The task must declare the params the env entries bind to
+        declared_params = {p.get("name") for p in spec.get("params", [])}
+        for param in ("olm_approval_mode", "olm_approval_timeout"):
+            if param not in declared_params:
+                failures.append(f"{task_name}: task does not declare the {param} param")
+
+        # Every role-running step must see the env entries (from its own env
+        # block or the task's stepTemplate), bound to the params
+        template_env = {e.get("name"): e.get("value") for e in (spec.get("stepTemplate", {}) or {}).get("env", []) or []}
+        for step in role_steps:
+            step_env = {e.get("name"): e.get("value") for e in step.get("env", []) or []}
+            effective = {**template_env, **step_env}
+            for env_name, expected_value in expected_env.items():
+                if env_name not in effective:
+                    failures.append(f"{task_name} / step {step.get('name')}: missing the {env_name} env entry")
+                elif effective[env_name] != expected_value:
+                    failures.append(f"{task_name} / step {step.get('name')}: {env_name} is not bound to {expected_value} (found {effective[env_name]})")
+
+    assert checked, "No run-role.sh tasks found in tekton/target — did the build run?"
+    assert not failures, "Tasks running ansible roles without the OLM approval plumbing:\n  " + "\n  ".join(sorted(set(failures)))
+
+
 if __name__ == "__main__":
     # Allow running directly for quick validation
     import sys

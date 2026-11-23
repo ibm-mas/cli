@@ -99,6 +99,10 @@ def buildUpgradeReview(appInstance: Any) -> str:
         _row("Storage Class", getattr(appInstance, "pipelineStorageClass", None)),
         _row("Access Mode", getattr(appInstance, "pipelineStorageAccessMode", None)),
         "",
+        "## OLM Install Plan Approval",
+        "",
+        _row("Approval Mode", appInstance.olmApprovalSummary()),
+        "",
     ]
     return "\n".join(lines)
 
