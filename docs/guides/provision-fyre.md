@@ -162,6 +162,26 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
   --no-confirm
 ```
 
+### Quota-Efficient Development Cluster
+Minimise disk quota consumption on development and test clusters by overriding the default base disk sizes (250 GB per worker, 100 GB per master):
+
+```bash
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
+  -u $FYRE_USERNAME \
+  -a $FYRE_APIKEY \
+  -p 225 \
+  -q product_group \
+  -c dev-cluster \
+  -v 4.15 \
+  --worker-count 3 \
+  --worker-cpu 8 \
+  --worker-memory 32 \
+  --worker-base-disk 40 \
+  --master-base-disk 40 \
+  --storage nfs \
+  --no-confirm
+```
+
 ### Cluster with ODF Storage
 Configuration with OpenShift Data Foundation for production-like storage:
 
@@ -222,6 +242,8 @@ Command Reference
 - `--worker-cpu FYRE_WORKER_CPU` - CPUs per worker node (default: 8)
 - `--worker-memory FYRE_WORKER_MEMORY` - Memory per worker in GB (default: 32)
 - `--worker-additional-disks FYRE_WORKER_ADDITIONAL_DISKS` - Comma-separated disk sizes in GB (optional)
+- `--worker-base-disk FYRE_WORKER_BASE_DISK` - Base disk size in GB per worker node, 40-500 (default: 250, optional, product_group quota only)
+- `--master-base-disk FYRE_MASTER_BASE_DISK` - Base disk size in GB per master node, 40-500 (default: 100, optional, product_group quota only)
 - `--fyre-cluster-size FYRE_CLUSTER_SIZE` - Quick burn size: `medium` or `large` (optional)
 
 ### Storage Configuration

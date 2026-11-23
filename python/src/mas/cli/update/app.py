@@ -1559,6 +1559,9 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
 
         # Stage 2: Apply pre-install RBAC (if needed)
         if self.applyPreInstallMASRBAC and self.instancesNeedingRBAC:
+            # Resolve before any output so a failure is reported cleanly
+            rbacRootDir = self.getPreinstallRBACRootDir()
+
             if progressCallback is None:
                 # CLI path: print header
                 print()
@@ -1580,6 +1583,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                     masInstanceId=instanceId,
                     adminMode=adminMode,
                     selectedApps=selectedApps,
+                    rbacRootDir=rbacRootDir,
                 )
                 reporter.success(label, f"Pre-install RBAC applied for {instanceId} ({targetVersion}, mode: {adminMode})")
 
