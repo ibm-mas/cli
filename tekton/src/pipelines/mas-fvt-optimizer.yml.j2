@@ -534,6 +534,46 @@ spec:
         - name: configs
           workspace: shared-configs
 
+    # 11.1 Run "api_model_endpoints"
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-model-endpoints
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: fvt_test_suite
+          value: api_model_endpoints
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.fvt_digest_manage_pytest)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - fvt-optimizer-model-endpoints-ctf
+
     # 12. Run "api_job_endpoints" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer-job-endpoints-ctf
@@ -570,7 +610,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-model-endpoints-ctf
+        - fvt-optimizer-model-endpoints
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -654,7 +694,7 @@ spec:
         - name: configs
           workspace: shared-configs
       runAfter:
-        - moprojects
+        - fvt-optimizer-project-endpoints-ctf
 
     # 15. Run "optimizer-api-endpoints"
     # -----------------------------------------------------------------------------
