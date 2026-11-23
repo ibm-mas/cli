@@ -145,6 +145,20 @@ class YesNoValidator(Validator):
             raise ValidationError(message="Enter a valid response: y(es), n(o)", cursor_position=len(response))
 
 
+class ListOptionValidator(Validator):
+    def __init__(self, options: List[str]) -> None:
+        self.options: List[str] = options
+
+    def validate(self, document: Document) -> None:
+        """
+        Validate that a response is one of a fixed set of options (as offered
+        by a WordCompleter drop-down)
+        """
+        response = document.text
+        if response not in self.options:
+            raise ValidationError(message=f"Enter one of: {', '.join(self.options)}", cursor_position=len(response))
+
+
 class IntValidator(Validator):
     def __init__(self, min: int | None, max: int | None) -> None:
         self.min: int | None = min

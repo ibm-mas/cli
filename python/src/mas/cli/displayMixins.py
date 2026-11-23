@@ -11,7 +11,6 @@
 from os import getenv
 from prompt_toolkit import prompt, print_formatted_text, HTML, PromptSession
 from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.shortcuts import radiolist_dialog
 from prompt_toolkit.validation import Validator
 from typing import List, Union, Optional
 
@@ -224,38 +223,6 @@ class PromptMixin:
         # List indices are 0 origin, so we need to subtract 1 from the selection made to arrive at the correct value
         result = options[selection - 1]
         if param is not None:
-            self.setParam(param, result)  # type: ignore
-        return result
-
-    def promptForSelect(self, message: str, options: List[str], param: Optional[str] = None, default: Optional[str] = None) -> Optional[str]:
-        """Prompt for a single selection from a short list of options.
-
-        The options are presented as a select list (arrow keys to move, Enter
-        to accept) with the default choice pre-selected, so there is nothing
-        to type and no numbering to translate. Prefer this over
-        promptForListSelect for short option sets.
-
-        Args:
-            message: The question shown above the list.
-            options: The selectable options.
-            param: Optional params key to store the selection under.
-            default: The pre-selected option (the first option when None).
-
-        Returns:
-            The selected option, or None when the dialog is cancelled (Esc).
-        """
-        if not options:
-            raise ValueError("promptForSelect requires at least one option")
-        if default is None or default not in options:
-            default = options[0]
-
-        result = radiolist_dialog(
-            text=message,
-            values=[(option, f"{option} (default)" if option == default else option) for option in options],
-            default=default,
-        ).run()
-
-        if result is not None and param is not None:
             self.setParam(param, result)  # type: ignore
         return result
 

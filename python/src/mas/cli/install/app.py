@@ -49,6 +49,7 @@ from mas.cli.validators import (
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
+    ListOptionValidator,
     NotEmptyValidator,
     FileExistsValidator,
 )
@@ -481,9 +482,11 @@ class InstallApp(
         The mode chosen here is how the install sets things up: Manual pauses
         every role at an install plan awaiting approval (the collection never
         approves on the user's behalf), Automatic applies install plans
-        without pausing and fails fast on a Manual mismatch. A value already
-        resolved from the --olm-approval-mode flag or the OLM_APPROVAL_MODE
-        environment variable is offered as the pre-selected choice.
+        without pausing and fails fast on a Manual mismatch. The prompt
+        follows the catalog selection pattern: the options are offered as a
+        completion drop-down, with the default (or a value resolved from the
+        --olm-approval-mode flag / the OLM_APPROVAL_MODE environment
+        variable) pre-filled so pressing enter accepts it.
         """
         self.printH1("OLM Install Plan Approval")
         self.printDescription(
@@ -493,20 +496,15 @@ class InstallApp(
         )
         currentMode = self.getParam("olm_approval_mode")
         defaultMode = currentMode if currentMode in ("Automatic", "Manual") else "Automatic"
-        mode = self.promptForSelect(
+        self.promptForString(
             "Select the install plan approval mode",
-            ["Automatic", "Manual"],
             "olm_approval_mode",
             default=defaultMode,
+            completer=WordCompleter(["Automatic", "Manual"]),
+            validator=ListOptionValidator(["Automatic", "Manual"]),
         )
-        if mode is None:
-            # The dialog was cancelled (Esc): treat it like any other
-            # unanswered required prompt and abort the install
-            logger.info("OLM install plan approval mode selection was cancelled, aborting")
-            exit(1)
-        print_formatted_text(HTML(f"<LightSlateGrey>OLM install plan approval mode: {mode}</LightSlateGrey>"))
 
-        if mode == "Manual":
+        if self.getParam("olm_approval_mode") == "Manual":
             self.printDescription(
                 [
                     "The timeout budgets each individual approval wait (not the whole install): when it expires, the waiting task fails with the approve commands repeated in the error message."
