@@ -289,10 +289,6 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                 elif key in ["no_confirm", "help"]:
                     pass
 
-                # Handled by detectMinioToCeph()
-                elif key == "migrate_minio_to_ceph":
-                    pass
-
                 # Db2 License file has special handling
                 elif key == "db2_license_file":
                     if value is not None and value != "":
