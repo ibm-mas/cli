@@ -1,0 +1,126 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: gitops-backup-restore-pipeline
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: cluster_url
+      type: string
+    - name: region_name
+      type: string
+    - name: backup_enabled
+      type: string
+      default: 'false'
+    - name: restore_enabled
+      type: string
+      default: 'false'
+    - name: catalog_build_id
+      type: string
+      default: ""
+    - name: catalog_version
+      type: string
+      default: ""
+    - name: atlas_cluster_name
+      type: string
+      default: ""
+    - name: atlas_project_id
+      type: string
+      default: ""
+    - name: db2u_config
+      type: string
+      default: ""
+    - name: sls_service
+      type: string
+      default: ""
+
+
+  workspaces:
+    - name: configs
+    - name: shared-gitops-configs
+
+  tasks:
+
+    # Task 1: Invoke Backup AAP
+    # -------------------------------------------------------------------------
+    - name: gitops-backup-aap
+      when:
+        - input: "$(params.backup_enabled)"
+          operator: in
+          values: ["true"]
+      taskRef:
+        name: gitops-backup-aap
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: region_name
+          value: $(params.region_name)
+        - name: backup_enabled
+          value: $(params.backup_enabled)
+        - name: restore_enabled
+          value: $(params.restore_enabled)
+        - name: catalog_build_id
+          value: $(params.catalog_build_id)
+        - name: catalog_version
+          value: $(params.catalog_version)
+        - name: atlas_cluster_name
+          value: $(params.atlas_cluster_name)
+        - name: atlas_project_id
+          value: $(params.atlas_project_id)
+        - name: db2u_config
+          value: $(params.db2u_config)
+        - name: sls_service
+          value: $(params.sls_service)
+
+
+    # Task 2: Invoke Restore AAP
+    # -------------------------------------------------------------------------
+    - name: gitops-restore-aap
+      when:
+        - input: "$(params.restore_enabled)"
+          operator: in
+          values: ["true"]
+      taskRef:
+        name: gitops-restore-aap
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: region_name
+          value: $(params.region_name)
+        - name: backup_enabled
+          value: $(params.backup_enabled)
+        - name: restore_enabled
+          value: $(params.restore_enabled)
+        - name: catalog_build_id
+          value: $(params.catalog_build_id)
+        - name: catalog_version
+          value: $(params.catalog_version)
+        - name: atlas_cluster_name
+          value: $(params.atlas_cluster_name)
+        - name: atlas_project_id
+          value: $(params.atlas_project_id)
+        - name: db2u_config
+          value: $(params.db2u_config)
+        - name: sls_service
+          value: $(params.sls_service)
