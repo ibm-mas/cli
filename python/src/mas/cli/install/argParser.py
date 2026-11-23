@@ -23,7 +23,7 @@ DB2_TYPES = ["db2wh", "db2oltp"]
 TAINT_EFFECTS = ["NoSchedule", "PreferNoSchedule", "NoExecute"]
 UPGRADE_TYPES = ["regularUpgrade", "onlineUpgrade"]
 ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
-ATTACHMENT_MODES = ["cr", "db"]
+ATTACHMENT_MODES = ["cr"]
 FACILITIES_SIZES = ["small", "medium", "large"]
 FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
@@ -809,7 +809,7 @@ manageArgGroup.add_argument(
     required=False,
     help="How attachment properties will be configured in Manage",
     choices=ATTACHMENT_MODES,
-    metavar="{cr,db}",
+    metavar="{cr}",
 )
 
 manageArgGroup.add_argument(
