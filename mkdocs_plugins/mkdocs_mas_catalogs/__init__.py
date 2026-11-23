@@ -3,9 +3,11 @@
 import sys
 from pathlib import Path
 import re
-from mkdocs.plugins import BasePlugin
+from mkdocs.plugins import BasePlugin, get_plugin_logger
 
 __version__ = "0.1.0"
+
+log = get_plugin_logger("mas_catalogs")
 
 # Try to import from installed package first
 try:
@@ -31,9 +33,13 @@ class MASCatalogsPlugin(BasePlugin):
     - :::mas-catalog-ocp-compatibility-matrix - Renders the OCP compatibility matrix
     - :::mas-catalog-whats-new - Renders the What's New section
     - :::mas-catalog-known-issues - Renders the Known Issues section
+    - :::mas-catalog-mas-core-versions <catalog-tag> - Renders the latest MAS Core versions in a catalog
 
     The catalog tag is automatically detected from the page filename.
     For example, in v9-251127-amd64.md, the tag is v9-251127-amd64
+    The :::mas-catalog-mas-core-versions directive is the exception to this,
+    it accepts the catalog tag as an argument so that it can be used on any
+    page (for example in the catalog directory table on the index page)
     """
 
     def on_page_markdown(self, markdown, page, config, files):
@@ -75,6 +81,11 @@ class MASCatalogsPlugin(BasePlugin):
             lambda m: self._render_known_issues(catalog_tag),
             markdown,
         )
+        markdown = re.sub(
+            r":::mas-catalog-mas-core-versions[ \t]+([A-Za-z0-9._-]+)",
+            lambda m: self._render_mas_core_versions(m.group(1)),
+            markdown,
+        )
 
         return markdown
 
@@ -93,6 +104,49 @@ class MASCatalogsPlugin(BasePlugin):
     `python-devops/src/mas/devops/data/catalogs/{catalog_tag}.yaml`
 """,
             )
+
+    def _render_mas_core_versions(self, catalog_tag):
+        """Render the latest MAS Core versions available in a catalog."""
+        catalog, error = self._get_catalog_data(catalog_tag)
+        if error:
+            # This directive is designed for use inside tables, so there's
+            # no way to render a full error admonition without breaking the
+            # table layout; log the problem and keep the cell minimal
+            log.warning(f"Unable to load MAS Core versions for catalog {catalog_tag}")
+            return "N/A"
+
+        mas_core_versions = catalog.get("mas_core_version", {})
+        if not mas_core_versions:
+            log.warning(f"No MAS Core versions defined for catalog {catalog_tag}")
+            return "N/A"
+
+        # Only include generally available releases: skip pre-release channels
+        # (for example 9.3.x-feature) and streams that this catalog does not
+        # support at all (empty version strings)
+        versions = []
+        for channel, version in mas_core_versions.items():
+            if channel.endswith("-feature"):
+                continue
+            if not version or "-pre" in str(version):
+                continue
+            versions.append(str(version))
+
+        if not versions:
+            log.warning(f"No GA MAS Core versions defined for catalog {catalog_tag}")
+            return "N/A"
+
+        # Sort from newest to oldest, based on the major.minor.patch version
+        def version_key(version):
+            parts = []
+            for part in version.split(".")[:3]:
+                try:
+                    parts.append(int(part))
+                except ValueError:
+                    return parts
+            return parts
+
+        versions.sort(key=version_key, reverse=True)
+        return ", ".join(versions)
 
     def _render_details(self, catalog_tag):
         """Render the Details section."""

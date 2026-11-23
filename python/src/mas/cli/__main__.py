@@ -71,73 +71,102 @@ def main() -> None:
             from mas.cli.install.app import InstallApp
 
             app = InstallApp()
+            app.printBanner()
             raise SystemExit(app.install(argv[2:]))
         if function == "aiservice-install":
             from mas.cli.aiservice.install.app import AiServiceInstallApp
 
             app = AiServiceInstallApp()
+            app.printBanner()
             raise SystemExit(app.install(argv[2:]))
         if function == "aiservice-upgrade":
             from mas.cli.aiservice.upgrade.app import AiServiceUpgradeApp
 
             app = AiServiceUpgradeApp()
+            app.printBanner()
             raise SystemExit(app.upgrade(argv[2:]))
         if function == "uninstall":
             from mas.cli.uninstall.app import UninstallApp
 
             app = UninstallApp()
+            app.printBanner()
             raise SystemExit(app.uninstall(argv[2:]))
         if function == "update":
+            if not any(arg.startswith("-") for arg in argv[2:]):
+                # Bare invocation — launch the Textual TUI workflow. Any
+                # command-line flags fall through to the classic CLI path so
+                # that nothing the TUI does not yet support is silently ignored.
+                from mas.cli.tui.shell import serveTuiMode
+
+                serveTuiMode("update", argv[2:])
+                return
             from mas.cli.update.app import UpdateApp
 
             app = UpdateApp()
+            app.printBanner()
             raise SystemExit(app.update(argv[2:]))
         if function == "upgrade":
+            if not any(arg.startswith("-") for arg in argv[2:]):
+                # Bare invocation — launch the Textual TUI workflow. Any
+                # command-line flags fall through to the classic CLI path so
+                # that nothing the TUI does not yet support is silently ignored.
+                from mas.cli.tui.shell import serveTuiMode
+
+                serveTuiMode("upgrade", argv[2:])
+                return
             from mas.cli.upgrade.app import UpgradeApp
 
             app = UpgradeApp()
+            app.printBanner()
             app.upgrade(argv[2:])
             return
         if function == "backup":
             from mas.cli.backup.app import BackupApp
 
             app = BackupApp()
+            app.printBanner()
             app.backup(argv[2:])
             return
         if function == "restore":
             from mas.cli.restore.app import RestoreApp
 
             app = RestoreApp()
+            app.printBanner()
             app.restore(argv[2:])
             return
         if function == "mirror":
             from mas.cli.mirror.app import MirrorApp
 
             app = MirrorApp()
+            app.printBanner()
             app.mirror(argv[2:])
             return
         if function == "setup-rbac":
             from mas.cli.setup_rbac.app import SetupRBACApp
 
             app = SetupRBACApp()
+            app.printBanner()
             app.setupRBAC(argv[2:])
             return
         if function == "pre-install":
             from mas.cli.pre_install.app import SetupPreinstallRBACApp
 
             app = SetupPreinstallRBACApp()
+            app.printBanner()
             app.setupPreinstallRBAC(argv[2:])
             return
         if function == "configure-mcpi":
             from mas.cli.configure_mcpi.app import ConfigureMcpiApp
 
             app = ConfigureMcpiApp()
+            app.printBanner()
             app.configureMcpi(argv[2:])
             return
         if function == "must-gather":
             from mas.cli.must_gather.app import MustGatherApp
 
             app = MustGatherApp()
+            app.printBanner()
             app.mustGather(argv[2:])
             return
         if function == "catalogs":

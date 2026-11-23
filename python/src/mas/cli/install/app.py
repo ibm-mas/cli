@@ -3113,6 +3113,7 @@ class InstallApp(
                     self.fatalError("Installation failed")
 
             if self.applyPreInstallMASRBAC:
+                rbacRootDir = self.getPreinstallRBACRootDir()
                 with Halo(text="Applying pre-install MAS RBAC", spinner=self.spinner) as h:
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
@@ -3120,6 +3121,7 @@ class InstallApp(
                         masInstanceId=self.getParam("mas_instance_id"),
                         adminMode=self.mas_admin_mode,
                         selectedApps=self.getSelectedApps(),
+                        rbacRootDir=rbacRootDir,
                     )
                     h.stop_and_persist(symbol=self.successIcon, text="Pre-install MAS RBAC applied")
 
