@@ -11,6 +11,13 @@ spec:
       type: string
       default: ""
 
+    # OLM approval gate: enabled only where waiting for manual install plan
+    # approvals is the job (the update pipeline's post-update-verify). Off
+    # (False) in every verification-only context.
+    - name: verify_subscription_approvals
+      type: string
+      default: "False"
+
   steps:
     # Verify Cluster
     # -------------------------------------------------------------------------
@@ -79,6 +86,8 @@ spec:
         value: "False"
       - name: VERIFY_SUBSCRIPTIONS
         value: "True"
+      - name: VERIFY_SUBSCRIPTION_APPROVALS
+        value: $(params.verify_subscription_approvals)
       - name: VERIFY_WORKLOADS
         value: "False"
       - name: VERIFY_INGRESS

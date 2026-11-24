@@ -11,6 +11,10 @@
       value: $(params.skip_pre_check)
     - name: devops_suite_name
       value: {{ devops_suite_name }}
+    # OLM approval gate (False everywhere except the update pipeline's
+    # post-update-verify, where waiting for manual approvals is the job)
+    - name: verify_subscription_approvals
+      value: "{{ verify_subscription_approvals | default('False') }}"
   when:
     - input: "$(params.skip_pre_check)"
       operator: notin

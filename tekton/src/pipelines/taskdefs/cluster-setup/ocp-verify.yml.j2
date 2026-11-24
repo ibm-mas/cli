@@ -17,6 +17,10 @@
       value: "{{ verify_catalogsources | default('True') }}"
     - name: verify_subscriptions
       value: "{{ verify_subscriptions | default('True') }}"
+    # OLM approval gate: off in every verification-only context (the install
+    # pipeline never enables it)
+    - name: verify_subscription_approvals
+      value: "{{ verify_subscription_approvals | default('False') }}"
     - name: verify_workloads
       value: "{{ verify_workloads | default('True') }}"
     - name: verify_ingress

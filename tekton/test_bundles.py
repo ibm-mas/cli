@@ -220,6 +220,80 @@ def _role_steps(task_spec: Dict) -> List[Dict]:
     return [step for step in task_spec.get("steps", []) if any("run-role.sh" in part for part in step.get("command", []) or [])]
 
 
+def _load_yaml(path: Path) -> Dict:
+    with open(path, "r") as f:
+        doc = yaml.safe_load(f)
+    assert isinstance(doc, dict), f"{path} did not parse as a single YAML document"
+    return doc
+
+
+def _task_param(task: Dict, name: str):
+    """Return the value of a pipeline task's param, or None when not set."""
+    for param in task.get("params", []) or []:
+        if param.get("name") == name:
+            return param.get("value")
+    return None
+
+
+def test_ocp_verify_tasks_declare_approval_gate_param():
+    """Both ocp-verify tasks declare verify_subscription_approvals, defaulting to False.
+
+    The OLM approval gate (the cluster-wide wait for manual install plan
+    approvals) must be off in every verification-only context: pre-flight and
+    final checks must not invite an approval workflow. The gate reaches the
+    ocp_verify role through the VERIFY_SUBSCRIPTION_APPROVALS env var, bound
+    to this task param.
+    """
+    task_files = sorted(TASKS_DIR.glob("ocp-verify*.yaml"))
+    assert task_files, "No ocp-verify* tasks found in tekton/target — did the build run?"
+
+    for task_file in task_files:
+        doc = _load_yaml(task_file)
+        task_name = doc.get("metadata", {}).get("name")
+        params = {p.get("name"): p for p in doc.get("spec", {}).get("params", [])}
+
+        gate = params.get("verify_subscription_approvals")
+        assert gate is not None, f"{task_name}: missing the verify_subscription_approvals param"
+        assert gate.get("default") == "False", f"{task_name}: verify_subscription_approvals must default to False (found {gate.get('default')})"
+
+        # The env binding must exist wherever VERIFY_SUBSCRIPTIONS is bound
+        # (the ocp-verify-all task binds it per-step; ocp-verify in the
+        # stepTemplate)
+        doc_text = task_file.read_text()
+        assert "VERIFY_SUBSCRIPTION_APPROVALS" in doc_text, f"{task_name}: VERIFY_SUBSCRIPTION_APPROVALS env is not bound to the param"
+
+
+def test_approval_gate_enabled_only_in_update_post_verify():
+    """The approval gate is enabled in exactly one place: mas-update's post-update-verify.
+
+    The catalog digest update rolls every subscription on the cluster
+    implicitly, so post-update-verify is the one context where waiting for
+    the manual approvals is the job. Every other ocp-verify usage (pre and
+    post checks in install, update and upgrade pipelines) must leave the
+    gate off.
+    """
+    enabled = []
+    for pipeline_file in sorted(PIPELINES_DIR.glob("*.yaml")):
+        doc = _load_yaml(pipeline_file)
+        if doc.get("kind") != "Pipeline":
+            continue
+        pipeline_name = doc.get("metadata", {}).get("name")
+        for task in doc.get("spec", {}).get("tasks", []) or []:
+            value = _task_param(task, "verify_subscription_approvals")
+            if value is not None and str(value).lower() == "true":
+                enabled.append(f"{pipeline_name}/{task.get('name')}")
+
+    assert enabled == ["mas-update/post-update-verify"], f"The approval gate must be enabled only in mas-update's post-update-verify, found: {enabled}"
+
+    # And within mas-update, the other two ocp-verify-all usages are off
+    update = _load_yaml(PIPELINES_DIR / "mas-update.yaml")
+    tasks = {task["name"]: task for task in update["spec"]["tasks"]}
+    for task_name in ("pre-update-check", "post-deps-update-verify"):
+        value = _task_param(tasks[task_name], "verify_subscription_approvals")
+        assert value == "False", f"mas-update/{task_name}: the approval gate must be off (found {value})"
+    assert _task_param(tasks["post-update-verify"], "verify_subscription_approvals") == "True"
+
+
 def test_run_role_tasks_declare_olm_approval_env():
     """Every task whose steps invoke run-role.sh must plumb the OLM approval params.
 

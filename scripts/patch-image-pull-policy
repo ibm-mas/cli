@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
+# Patch the imagePullPolicy of every step of every Tekton Task in a namespace.
+#
+# The CLI-generated tasks default their steps to
+#   imagePullPolicy: $(params.image_pull_policy)
+# which resolves from the pipeline's image_pull_policy param at run time. When
+# a task image tag is mutable (for example quay.io/ibmmas/cli:latest on a
+# development branch), re-running a failed pipeline can reuse a stale image
+# cached on the cluster's nodes; patching the tasks to Always forces a re-pull
+# for the next run without regenerating or reapplying the whole bundle:
+#
+#   scripts/patch-image-pull-policy --namespace mas-parkerda-pipelines --image-pull-policy Always
+#
+# The patch is additive per step ("add" replaces the value when present and
+# creates it when absent), so tasks whose steps have no imagePullPolicy are
+# handled too. Tasks with no steps are skipped.
+
+set -euo pipefail
+
+OC="${OC:-oc}"
+
+usage() {
+    cat <<EOF
+Patch the imagePullPolicy of every step of every Tekton Task in a namespace.
+
+Usage:
+  $(basename "$0") --namespace <namespace> --image-pull-policy <policy>
+
+Options:
+  -n, --namespace <namespace>        Namespace containing the Tekton Tasks
+  -p, --image-pull-policy <policy>   One of: Always, IfNotPresent, Never
+  -h, --help                         Show this help
+
+Environment:
+  OC        Cluster client binary to use (defaults to "oc"; set KUBECTL=1
+            style wrappers by exporting OC="kubectl" if preferred)
+
+Example:
+  $(basename "$0") -n mas-parkerda-pipelines -p Always
+EOF
+}
+
+NAMESPACE=""
+POLICY=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -n|--namespace)
+            [[ $# -lt 2 ]] && { echo "Error: $1 requires a value" >&2; exit 1; }
+            NAMESPACE="$2"; shift 2 ;;
+        -p|--image-pull-policy)
+            [[ $# -lt 2 ]] && { echo "Error: $1 requires a value" >&2; exit 1; }
+            POLICY="$2"; shift 2 ;;
+        -h|--help)
+            usage; exit 0 ;;
+        *)
+            echo "Error: unknown argument: $1" >&2; usage >&2; exit 1 ;;
+    esac
+done
+
+if [[ -z "$NAMESPACE" ]]; then
+    echo "Error: --namespace is required" >&2
+    usage >&2
+    exit 1
+fi
+if [[ -z "$POLICY" ]]; then
+    echo "Error: --image-pull-policy is required" >&2
+    usage >&2
+    exit 1
+fi
+case "$POLICY" in
+    Always|IfNotPresent|Never) ;;
+    *)
+        echo "Error: --image-pull-policy must be one of Always, IfNotPresent, Never (found '$POLICY')" >&2
+        exit 1 ;;
+esac
+
+# Fail early on an unreadable cluster rather than midway through the tasks
+"$OC" get namespace "$NAMESPACE" >/dev/null
+
+echo "Patching imagePullPolicy to '$POLICY' for all steps of all Tasks in $NAMESPACE"
+
+TASKS=$("$OC" get tasks -n "$NAMESPACE" -o name)
+if [[ -z "$TASKS" ]]; then
+    echo "No Tasks found in $NAMESPACE, nothing to do"
+    exit 0
+fi
+
+PATCHED=0
+SKIPPED=0
+for TASKREF in $TASKS; do
+    TASK="${TASKREF#task.tekton.dev/}"
+
+    # One name per line; empty output means the task has no steps
+    STEP_NAMES=$("$OC" get task "$TASK" -n "$NAMESPACE" -o jsonpath='{range .spec.steps[*]}{.name}{"\n"}{end}')
+    if [[ -z "$STEP_NAMES" ]]; then
+        echo "  $TASK: no steps, skipping"
+        SKIPPED=$((SKIPPED + 1))
+        continue
+    fi
+    STEP_COUNT=$(echo "$STEP_NAMES" | wc -l)
+
+    # A JSON patch with one "add" per step: "add" replaces an existing
+    # imagePullPolicy and creates a missing one, so both shapes are safe
+    PATCH="["
+    SEPARATOR=""
+    for ((I = 0; I < STEP_COUNT; I++)); do
+        PATCH+="${SEPARATOR}{\"op\":\"add\",\"path\":\"/spec/steps/${I}/imagePullPolicy\",\"value\":\"${POLICY}\"}"
+        SEPARATOR=","
+    done
+    PATCH+="]"
+
+    "$OC" patch task "$TASK" -n "$NAMESPACE" --type json -p "$PATCH" >/dev/null
+    echo "  $TASK: patched $STEP_COUNT step(s)"
+    PATCHED=$((PATCHED + 1))
+done
+
+echo "Done: $PATCHED task(s) patched, $SKIPPED skipped (no steps) in $NAMESPACE"
