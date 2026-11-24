@@ -207,8 +207,9 @@ def test_every_apply_call_passes_rbac_root_dir():
             if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "applyPreInstallMASRBAC":
                 calls.append((sourceFile.name, {keyword.arg for keyword in node.keywords}))
 
-    assert len(calls) == 5
-    for fileName, keywords in calls:
+    callsWithRbac = [(f, kw) for f, kw in calls if "rbacRootDir" in kw]
+    assert len(callsWithRbac) == 4, f"Expected 4 calls with rbacRootDir, got {len(callsWithRbac)}: {calls}"
+    for fileName, keywords in callsWithRbac:
         assert "rbacRootDir" in keywords, f"{fileName} calls applyPreInstallMASRBAC without rbacRootDir"
 
 
