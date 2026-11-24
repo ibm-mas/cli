@@ -559,12 +559,14 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
             label = "Apply pre-install MAS RBAC"
             reporter.start(label)
             self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
+            rbacRootDir = self.getPreinstallRBACRootDir()
             applyPreInstallMASRBAC(
                 dynClient=self.dynamicClient,
                 masVersion=".".join(self.nextChannel.split(".")[:2]),
                 masInstanceId=instanceId,
                 adminMode=self.detectedMode,
                 selectedApps=self.selectedAppsForRBAC,
+                rbacRootDir=rbacRootDir,
             )
             reporter.success(label, f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {self.detectedMode})")
 
