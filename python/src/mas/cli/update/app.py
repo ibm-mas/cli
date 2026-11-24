@@ -1274,13 +1274,6 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
             try:
                 subAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
                 subs = subAPI.get().to_dict()["items"]
-                try:
-                    k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
-                except (ResourceNotFoundError, NotFoundError):
-                    apiVersion = "kafka.strimzi.io/v1beta2"
-                    k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
-                instances = k8sAPI.get().to_dict()["items"]
-                logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
 
                 for sub in subs:
                     if sub["spec"]["name"] == "amq-streams":
