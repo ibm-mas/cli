@@ -213,10 +213,6 @@ spec:
       type: string
       description: Set true if you want to configure JMS queues. It is false by default.
       default: "" # default is handled by ansible-devops
-    - name: mas_manage_attachment_configuration_mode
-      type: string
-      description: Manage attachment configuration mode (cr or db)
-      default: ""
     - name: mas_manage_attachments_provider
       type: string
       description: Manage attachment provider (filestorage, ibm, aws)
@@ -556,8 +552,6 @@ spec:
           value: $(params.mas_app_settings_default_jms)
         - name: MAS_POD_TEMPLATES_DIR
           value: /workspace/pod-templates
-        - name: MAS_MANAGE_ATTACHMENT_CONFIGURATION_MODE
-          value: $(params.mas_manage_attachment_configuration_mode)
         - name: MAS_MANAGE_ATTACHMENTS_PROVIDER
           value: $(params.mas_manage_attachments_provider)
         - name: IMAGESTITCHING_STORAGE_CLASS
