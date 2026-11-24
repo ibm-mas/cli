@@ -23,7 +23,6 @@ DB2_TYPES = ["db2wh", "db2oltp"]
 TAINT_EFFECTS = ["NoSchedule", "PreferNoSchedule", "NoExecute"]
 UPGRADE_TYPES = ["regularUpgrade", "onlineUpgrade"]
 ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
-ATTACHMENT_MODES = ["cr", "db"]
 FACILITIES_SIZES = ["small", "medium", "large"]
 FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
@@ -803,15 +802,6 @@ manageArgGroup.add_argument(
     choices=ATTACHMENT_PROVIDERS,
     metavar="{filestorage,ibm,aws}",
 )
-manageArgGroup.add_argument(
-    "--manage-attachments-mode",
-    dest="mas_manage_attachment_configuration_mode",
-    required=False,
-    help="How attachment properties will be configured in Manage",
-    choices=ATTACHMENT_MODES,
-    metavar="{cr,db}",
-)
-
 manageArgGroup.add_argument(
     "--manage-aiservice-instance-id",
     dest="manage_bind_aiservice_instance_id",
