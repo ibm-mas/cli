@@ -226,7 +226,6 @@ INSTALL_COMMAND_ARGS = [
     CommandArg(dest="mas_app_settings_secondary_langs", when=_installManage),
     CommandArg(dest="mas_app_settings_server_timezone", when=_installManage),
     CommandArg(dest="mas_manage_attachments_provider", when=_installManage),
-    CommandArg(dest="mas_manage_attachment_configuration_mode", when=_installManage),
     CommandArg(
         dest="mas_appws_bindings_health_wsl_flag", const=True, when=lambda app: _installManage(app) and _isTrue("mas_appws_bindings_health_wsl_flag")(app)
     ),
