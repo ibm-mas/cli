@@ -445,7 +445,7 @@ mas install --olm-approval-mode Manual --olm-approval-timeout 7200 ...
 
 Under Manual mode the install pauses at every install plan awaiting your approval: the task logs display what is pending, what it will change, and the `oc patch` command to grant approval (you can also approve via the OpenShift Console: **Installed Operators** → the operator → **Subscription** → **Approval required**).  The automation never approves on your behalf — it waits for the out-of-band approval, showing a status line with the approval deadline every five minutes, then resumes automatically once the approval is given.  Install plans are never silently skipped.
 
-The timeout (`--olm-approval-timeout`, in seconds) budgets **each individual approval wait**, not the whole install: a long installation with several sequential approval gates can take longer in total.  The default is 7200 seconds (2 hours); when the timeout expires the waiting task fails with the approve commands repeated in the error message.
+The timeout (`--olm-approval-timeout`, in seconds) budgets **each individual approval wait**, not the whole install: a long installation with several sequential approval gates can take longer in total.  It is a timeout for the approval however the approval is issued — a human granting it under Manual mode, or OLM granting it itself under Automatic mode (where the budget covers OLM's approval plus the resulting rollout to the channel head).  The default is 7200 seconds (2 hours); when the timeout expires the waiting task fails with the approve commands repeated in the error message (under Manual) or the list of subscriptions that have not reached their channel head (under Automatic).
 
 ### Environment Variables
 The mode and timeout can also be provided via environment variables — useful when the approval policy is set once for all of your automation.  The command line flags take precedence when both are set:
@@ -453,7 +453,7 @@ The mode and timeout can also be provided via environment variables — useful w
 | Variable               | Description                                                                       |
 | ---------------------- | --------------------------------------------------------------------------------- |
 | `OLM_APPROVAL_MODE`    | `Automatic` or `Manual`; when unset the mode is chosen via the flag or wizard prompt |
-| `OLM_APPROVAL_TIMEOUT` | Seconds to wait for each individual install plan approval under Manual mode       |
+| `OLM_APPROVAL_TIMEOUT` | Seconds to wait for each individual install plan approval, however it is issued (human under Manual, OLM under Automatic) |
 
 ```bash
 export OLM_APPROVAL_MODE=Manual

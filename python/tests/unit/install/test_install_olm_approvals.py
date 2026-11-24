@@ -137,7 +137,12 @@ class TestInstallOlmApprovalFlags:
 
 
 class TestInstallOlmApprovalPrompt:
-    """Tests for the interactive configOLMApprovals prompt."""
+    """Tests for the interactive configOLMApprovals prompt.
+
+    The wizard uses promptForString with a word completer and a list-option
+    validator (not a select dialog), so the fakes mirror that signature:
+    promptForString(message, param=None, default="", **kwargs).
+    """
 
     def test_manual_selection_prompts_for_timeout(self):
         """GIVEN the user selects Manual in the wizard
@@ -145,12 +150,12 @@ class TestInstallOlmApprovalPrompt:
         THEN the timeout is prompted with the collection default of 7200s
         """
 
-        def selectManual(message, options, param=None, default=None):
+        def selectManual(message, param=None, default="", **kwargs):
             app.setParam(param, "Manual")
             return "Manual"
 
         app = make_app()
-        app.promptForSelect = MagicMock(side_effect=selectManual)
+        app.promptForString = MagicMock(side_effect=selectManual)
         app.promptForInt = MagicMock(return_value=7200)
 
         app.configOLMApprovals()
@@ -165,12 +170,12 @@ class TestInstallOlmApprovalPrompt:
         THEN no timeout is prompted (it only applies to Manual mode)
         """
 
-        def selectAutomatic(message, options, param=None, default=None):
+        def selectAutomatic(message, param=None, default="", **kwargs):
             app.setParam(param, "Automatic")
             return "Automatic"
 
         app = make_app()
-        app.promptForSelect = MagicMock(side_effect=selectAutomatic)
+        app.promptForString = MagicMock(side_effect=selectAutomatic)
         app.promptForInt = MagicMock()
 
         app.configOLMApprovals()
@@ -178,31 +183,31 @@ class TestInstallOlmApprovalPrompt:
         assert app.getParam("olm_approval_mode") == "Automatic"
         app.promptForInt.assert_not_called()
 
-    def test_resolved_mode_is_the_pre_selected_choice(self):
+    def test_resolved_mode_is_the_prompt_default(self):
         """GIVEN the mode was already resolved from the flag or environment
         WHEN configOLMApprovals runs
-        THEN the select list offers that mode as the pre-selected choice
+        THEN the prompt offers that mode as the pre-filled default
         """
         app = make_app({"olm_approval_mode": "Manual"})
-        app.promptForSelect = MagicMock(return_value="Manual")
+        app.promptForString = MagicMock(return_value="Manual")
         app.promptForInt = MagicMock(return_value=7200)
 
         app.configOLMApprovals()
 
-        assert app.promptForSelect.call_args.kwargs["default"] == "Manual"
+        assert app.promptForString.call_args.kwargs["default"] == "Manual"
 
     def test_unresolved_mode_defaults_to_automatic(self):
         """GIVEN no mode was resolved before the wizard prompt
         WHEN configOLMApprovals runs
-        THEN Automatic is the pre-selected choice
+        THEN Automatic is the pre-filled default
         """
         app = make_app()
-        app.promptForSelect = MagicMock(return_value="Automatic")
+        app.promptForString = MagicMock(return_value="Automatic")
         app.promptForInt = MagicMock()
 
         app.configOLMApprovals()
 
-        assert app.promptForSelect.call_args.kwargs["default"] == "Automatic"
+        assert app.promptForString.call_args.kwargs["default"] == "Automatic"
         app.promptForInt.assert_not_called()
 
     def test_resolved_timeout_is_the_prompt_default(self):
@@ -211,28 +216,17 @@ class TestInstallOlmApprovalPrompt:
         THEN the timeout prompt offers the resolved value, not 7200
         """
 
-        def selectManual(message, options, param=None, default=None):
+        def selectManual(message, param=None, default="", **kwargs):
             app.setParam(param, "Manual")
             return "Manual"
 
         app = make_app({"olm_approval_mode": "Manual", "olm_approval_timeout": "300"})
-        app.promptForSelect = MagicMock(side_effect=selectManual)
+        app.promptForString = MagicMock(side_effect=selectManual)
         app.promptForInt = MagicMock(return_value=300)
 
         app.configOLMApprovals()
 
         assert app.promptForInt.call_args.kwargs["default"] == 300
-
-    def test_cancelled_dialog_aborts_the_install(self):
-        """GIVEN the user cancels the selection dialog (Esc)
-        WHEN configOLMApprovals runs
-        THEN the install is aborted
-        """
-        app = make_app()
-        app.promptForSelect = MagicMock(return_value=None)
-
-        with pytest.raises(SystemExit):
-            app.configOLMApprovals()
 
 
 # ---------------------------------------------------------------------------

@@ -507,7 +507,7 @@ class InstallApp(
         if self.getParam("olm_approval_mode") == "Manual":
             self.printDescription(
                 [
-                    "The timeout budgets each individual approval wait (not the whole install): when it expires, the waiting task fails with the approve commands repeated in the error message."
+                    "The timeout budgets each individual approval wait (not the whole install), however the approval is issued: by you under Manual mode, or by OLM itself under Automatic mode. When it expires, the waiting task fails with the approve commands repeated in the error message."
                 ]
             )
             currentTimeout = self.getParam("olm_approval_timeout")
