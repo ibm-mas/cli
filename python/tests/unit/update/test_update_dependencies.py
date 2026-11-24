@@ -74,11 +74,11 @@ def test_dependency_checks_class_variable_on_mixin():
 
 
 def test_dependency_checks_contains_expected_entries():
-    """Test that _DEPENDENCY_CHECKS has all nine expected entries.
+    """Test that _DEPENDENCY_CHECKS has all eleven expected entries.
 
     GIVEN UpdateApp._DEPENDENCY_CHECKS
     WHEN the method names are extracted
-    THEN all nine detector methods are represented.
+    THEN all eleven detector methods are represented.
     """
     methods = {item.method for item in UpdateApp._DEPENDENCY_CHECKS}
     expectedMethods = {
@@ -88,6 +88,7 @@ def test_dependency_checks_contains_expected_entries():
         "detectGrafana4",
         "detectODH",
         "detectRHOAIv2",
+        "detectMinioToCeph",
         "detectMongoDb",
         "detectDb2u",
         "detectKafka",

@@ -231,32 +231,23 @@ def test_round_trip_external_database():
             assert app.params[param] not in script
 
 
-def test_round_trip_minio_vs_s3():
-    """GIVEN minio credentials are provided
+def test_round_trip_ceph_vs_s3():
+    """GIVEN install_ceph=true is set
     WHEN the generated command is parsed
-    THEN --install-minio is set and the external S3 flags are not emitted
+    THEN --install-ceph is emitted and the external S3 flags are not emitted
     """
-    app = make_app(
-        params={
-            "minio_root_user": "minio-user",  # pragma: allowlist secret
-            "minio_root_password": "minio-secret",  # pragma: allowlist secret
-            "aiservice_s3_accesskey": "s3-key",  # pragma: allowlist secret
-            "aiservice_s3_secretkey": "s3-secret",  # pragma: allowlist secret
-        }
-    )
+    app = make_app(params={"install_ceph": "true"})
     script = app.buildCommand()
     args, exports, referenced, _ = parse_generated_command(script)
 
-    assert args.install_minio_aiservice == "true"
-    assert args.minio_root_user == "secret-minio_root_user"
+    assert args.install_ceph == "true"
     assert args.aiservice_s3_accesskey is None
     assert args.aiservice_s3_secretkey is None
-    assert "MINIO_ROOT_USER" in referenced and "MINIO_ROOT_USER" in exports
     assert "AISERVICE_S3_ACCESSKEY" not in referenced
 
 
 def test_round_trip_external_s3():
-    """GIVEN an external S3-compatible object store without minio
+    """GIVEN an external S3-compatible object store (not ceph)
     WHEN the generated command is parsed
     THEN the S3 flags round-trip and the keys stay env-masked
     """
@@ -272,7 +263,7 @@ def test_round_trip_external_s3():
     script = app.buildCommand()
     args, exports, referenced, _ = parse_generated_command(script)
 
-    assert args.install_minio_aiservice is None  # not emitted: --install-minio only with minio credentials
+    assert args.install_ceph is None  # not emitted: --install-ceph only when install_ceph=true
     assert args.aiservice_s3_accesskey == "secret-aiservice_s3_accesskey"
     assert args.aiservice_s3_host == "s3.example.com"
     assert args.aiservice_s3_port == "443"

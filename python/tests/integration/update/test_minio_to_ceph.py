@@ -34,6 +34,7 @@ CEPH_URL = "https://s3.openshift-storage.svc:443"
 def runUpdate(tmpdir, instances, argv, prompt_handlers=None):
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers or {},
+        target_catalog_version="v9-261105-amd64",
         aiservice_instances=instances,
         argv=argv,
         timeout_seconds=30,
@@ -46,21 +47,21 @@ def runUpdate(tmpdir, instances, argv, prompt_handlers=None):
 def test_non_interactive_with_flag_migrates_instances_on_minio(tmpdir):
     """--migrate-minio-to-ceph selects only the instances that use MinIO"""
     instances = [aiservice("onminio", MINIO_URL), aiservice("onceph", CEPH_URL)]
-    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-260129-amd64", "--no-confirm", "--migrate-minio-to-ceph"])
+    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-261105-amd64", "--no-confirm", "--migrate-minio-to-ceph"])
     assert selected == "onminio"
 
 
 def test_non_interactive_without_flag_leaves_minio_alone(tmpdir):
     """Without the flag nothing is migrated, MinIO users are only warned"""
     instances = [aiservice("onminio", MINIO_URL)]
-    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-260129-amd64", "--no-confirm"])
+    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-261105-amd64", "--no-confirm"])
     assert selected == ""
 
 
 def test_non_interactive_nothing_on_minio(tmpdir):
     """The flag does nothing when no instance uses MinIO"""
     instances = [aiservice("onceph", CEPH_URL)]
-    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-260129-amd64", "--no-confirm", "--migrate-minio-to-ceph"])
+    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-261105-amd64", "--no-confirm", "--migrate-minio-to-ceph"])
     assert selected == ""
 
 

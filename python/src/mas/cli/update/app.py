@@ -286,7 +286,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                         self.setParam(key, value)
 
                 # Arguments that we don't need to do anything with
-                elif key in ["no_confirm", "help"]:
+                elif key in ["no_confirm", "help", "migrate_minio_to_ceph"]:
                     pass
 
                 # Db2 License file has special handling
@@ -842,7 +842,8 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                 ]
             )
 
-            if self.noConfirm or self.yesOrNo("Migrate the AI Service object storage from MinIO to Ceph"):
+            flagSet = getattr(self.args, "migrate_minio_to_ceph", False)
+            if (self.noConfirm and flagSet) or (not self.noConfirm and self.yesOrNo("Migrate the AI Service object storage from MinIO to Ceph")):
                 self.setParam("aiservice_s3_migration_instance_ids", ",".join(onMinio))
                 return DetectResult(ok=True, message=f"AI Service instances scheduled for MinIO → Ceph migration: {', '.join(onMinio)}")
             else:

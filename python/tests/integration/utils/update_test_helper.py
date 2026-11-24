@@ -454,13 +454,20 @@ class UpdateTestHelper:
                 mocks["get_cluster_version"].return_value = self.config.ocp_version
                 mocks["is_cluster_version_in_range"].return_value = True
 
-                # Catalog info
-                mocks["get_catalog"].return_value = {
+                # Catalog info — include ceph field for ceph-era catalogs (v9-261105+)
+                catalogData = {
                     "ocp_compatibility": ["4.16", "4.17", "4.18"],
                     "mongo_extras_version_default": "6.0.5",
                     "cpd_product_version_default": "5.2.0",
                     "db2_channel_default": self.config.db2u_target_version,
                 }
+                try:
+                    catalogDate = int(self.config.target_catalog_version.split("-")[1])
+                    if catalogDate >= 261105:
+                        catalogData["aiservice_s3_provider_default"] = "ceph"
+                except (IndexError, ValueError):
+                    pass
+                mocks["get_catalog"].return_value = catalogData
 
                 # Pipeline setup
                 mocks["install_pipelines"].return_value = True
