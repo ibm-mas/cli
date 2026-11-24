@@ -157,3 +157,17 @@ Check `tests/unit/roles/<role>/` for coverage of the removed tasks (e.g. `aiserv
 - `applySubscription` internal waits (startingCSV pinning semantics are intentional).
 - Any new configurable constant — `OLM_APPROVAL_TIMEOUT` is the only timeout; the cluster-wide settle keeps its existing fixed 600s constants.
 - CLI-side waiting/log-streaming (fire-and-forget by design).
+
+## Implementation addendum (2026-11-24)
+
+Gap found during implementation and fixed in the same change (user-approved):
+`aiservice_upgrade/tasks/tenant/upgrade.yml` had no approval gate at all, and
+its post-patch state check required `AtLatestKnown` unconditionally — under
+Manual approval a tenant upgrade would hang there. The gate was added and the
+state check + 5-minute pause removed, matching the other upgrade flows. The
+role-test harness (`tests/unit/roles/mocks/`) gained PackageManifest support
+(discovery routes for `packages.operators.coreos.com/v1`, an
+`add_package_manifest` helper) and the fake server's subscription PATCH
+handler now models the rollout the gate waits for (`installedCSV` promotes to
+`currentCSV`), so the tenant role test exercises the real convergence gate
+end-to-end against the fake cluster.
