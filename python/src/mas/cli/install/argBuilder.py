@@ -67,16 +67,10 @@ _db2Any = _db2Action("db2_action_system", "db2_action_manage", "db2_action_facil
 
 # Kafka is configured (the Kafka-related flags are only meaningful then)
 _kafka = _ne("kafka_provider", "")
-
-# An external S3-compatible object store is used (rather than the in-cluster Minio deployed by --install-minio)
-_externalS3 = lambda app: app.getParam("minio_root_user") == ""  # noqa: E731
-
 # CIS enhanced security options are only prompted for when enhanced security is enabled
 _cis = _eq("dns_provider", "cis")
 _cisEnhanced = lambda app: _cis(app) and _isTrue("cis_enhanced_security")(app)  # noqa: E731
 
-# Minio credentials are only valid as a pair
-_minio = lambda app: app.getParam("minio_root_user") != "" and app.getParam("minio_root_password") != ""  # noqa: E731
 
 _installManage = _attrTruthy("installManage")
 
@@ -262,13 +256,22 @@ INSTALL_COMMAND_ARGS = [
     CommandArg(dest="aiservice_db_username", env_var="AISERVICE_DB_USERNAME", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_db_password", env_var="AISERVICE_DB_PASSWORD", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_db_ca_cert", when=_attrTruthy("installAIService")),
-    CommandArg(dest="aiservice_s3_accesskey", env_var="AISERVICE_S3_ACCESSKEY", when=lambda app: _attrTruthy("installAIService")(app) and _externalS3(app)),
-    CommandArg(dest="aiservice_s3_secretkey", env_var="AISERVICE_S3_SECRETKEY", when=lambda app: _attrTruthy("installAIService")(app) and _externalS3(app)),
-    CommandArg(dest="aiservice_s3_host", when=lambda app: _attrTruthy("installAIService")(app) and _externalS3(app)),
-    CommandArg(dest="aiservice_s3_port", when=lambda app: _attrTruthy("installAIService")(app) and _externalS3(app)),
-    CommandArg(dest="aiservice_s3_ssl", when=lambda app: _attrTruthy("installAIService")(app) and _externalS3(app)),
-    CommandArg(dest="aiservice_s3_region", when=lambda app: _attrTruthy("installAIService")(app) and _externalS3(app)),
-    CommandArg(dest="aiservice_s3_bucket_prefix", when=lambda app: _attrTruthy("installAIService")(app) and _externalS3(app)),
+    CommandArg(dest="install_ceph", const=True, when=lambda app: _attrTruthy("installAIService")(app) and _isTrue("install_ceph")(app)),
+    CommandArg(
+        dest="aiservice_s3_accesskey",
+        env_var="AISERVICE_S3_ACCESSKEY",
+        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app),
+    ),
+    CommandArg(
+        dest="aiservice_s3_secretkey",
+        env_var="AISERVICE_S3_SECRETKEY",
+        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app),
+    ),
+    CommandArg(dest="aiservice_s3_host", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
+    CommandArg(dest="aiservice_s3_port", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
+    CommandArg(dest="aiservice_s3_ssl", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
+    CommandArg(dest="aiservice_s3_region", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
+    CommandArg(dest="aiservice_s3_bucket_prefix", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
     CommandArg(dest="aiservice_s3_tenants_bucket", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_s3_templates_bucket", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_odh_model_deployment_type", when=_attrTruthy("installAIService")),
@@ -291,11 +294,6 @@ INSTALL_COMMAND_ARGS = [
     CommandArg(dest="aiservice_watsonxai_username", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_watsonxai_version", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_watsonxai_on_prem", when=_attrTruthy("installAIService")),
-    CommandArg(dest="install_minio_aiservice", const=True, when=lambda app: _attrTruthy("installAIService")(app) and _ne("minio_root_user", "")(app)),
-    CommandArg(dest="minio_root_user", env_var="MINIO_ROOT_USER", when=lambda app: _attrTruthy("installAIService")(app) and _ne("minio_root_user", "")(app)),
-    CommandArg(
-        dest="minio_root_password", env_var="MINIO_ROOT_PASSWORD", when=lambda app: _attrTruthy("installAIService")(app) and _ne("minio_root_password", "")(app)
-    ),
     CommandArg(dest="tenant_entitlement_type", when=_attrTruthy("installAIService")),
     CommandArg(dest="tenant_entitlement_start_date", when=_attrTruthy("installAIService")),
     CommandArg(dest="tenant_entitlement_end_date", when=_attrTruthy("installAIService")),

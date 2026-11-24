@@ -652,7 +652,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.printH2("Storage Configuration")
 
-        cephSupported = self.chosenCatalog.get("aiservice_s3_provider_default") == "ceph"
+        chosenCatalog = getattr(self, "chosenCatalog", None) or {}
+        cephSupported = chosenCatalog.get("aiservice_s3_provider_default") == "ceph"
 
         if cephSupported:
             self.printDescription(

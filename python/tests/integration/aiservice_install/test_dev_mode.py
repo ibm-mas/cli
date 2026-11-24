@@ -80,8 +80,16 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. Storage Configuration (Ceph)
-        ".*Install Ceph.*": lambda msg: "y",
+        # 10. Storage Configuration (S3 — dev-mode catalog has no ceph field)
+        ".*Storage access key.*": lambda msg: "testAccessKey",
+        ".*Storage secret key.*": lambda msg: "testSecretKey",
+        ".*Storage host.*": lambda msg: "minio-service.minio.svc",
+        ".*Storage port.*": lambda msg: "80",
+        ".*Storage ssl.*": lambda msg: "false",
+        ".*Storage region.*": lambda msg: "",
+        ".*Storage bucket prefix.*": lambda msg: "test",
+        ".*Storage tenants bucket.*": lambda msg: "km-tenants",
+        ".*Storage templates bucket.*": lambda msg: "km-templates",
         # 11. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
         # 12. WatsonX Integration
@@ -149,8 +157,16 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. Storage Configuration (Ceph)
-        ".*Install Ceph.*": lambda msg: "y",
+        # 10. Storage Configuration (S3 — dev-mode catalog has no ceph field)
+        ".*Storage access key.*": lambda msg: "testAccessKey",
+        ".*Storage secret key.*": lambda msg: "testSecretKey",
+        ".*Storage host.*": lambda msg: "minio-service.minio.svc",
+        ".*Storage port.*": lambda msg: "80",
+        ".*Storage ssl.*": lambda msg: "false",
+        ".*Storage region.*": lambda msg: "",
+        ".*Storage bucket prefix.*": lambda msg: "test",
+        ".*Storage tenants bucket.*": lambda msg: "km-tenants",
+        ".*Storage templates bucket.*": lambda msg: "km-templates",
         # 11. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
         # 12. WatsonX Integration
