@@ -20,14 +20,14 @@ import calendar
 from kubernetes.dynamic.exceptions import NotFoundError
 from urllib3.exceptions import MaxRetryError
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.document import Document
+from prompt_toolkit.validation import ValidationError
 
 from tabulate import tabulate
-
-from halo import Halo
 
 from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
@@ -98,6 +98,63 @@ class InstallApp(
 ):
     enableKafkaImageProcessor: bool
 
+    def __init__(self) -> None:
+        """Initialise InstallApp with safe defaults for all instance variables.
+
+        All attributes read by the TUI execution path (which constructs
+        ``InstallApp()`` directly without calling ``install()``) are set here.
+        The ``install()`` method overwrites these as needed.
+        """
+        super().__init__()
+        self.noConfirm: bool = False
+        self.skipPreCheck: bool = False
+        self.licenseAccepted: bool = False
+        self.devMode: bool = False
+        self.skipGrafanaInstall: bool = False
+        self.isInteractiveMode: bool = False
+        self.mas_admin_mode: str = ""
+        self.applyPreInstallMASRBAC: bool = False
+        self.operationalMode: int = 1
+        self.storageClassProvider: str = "custom"
+        self.pipelineStorageClass: Optional[str] = None
+        self.pipelineStorageAccessMode: Optional[str] = None
+        self.installManage: bool = False
+        self.installIoT: bool = False
+        self.installMonitor: bool = False
+        self.installAssist: bool = False
+        self.installPredict: bool = False
+        self.installInspection: bool = False
+        self.installOptimizer: bool = False
+        self.installFacilities: bool = False
+        self.installAIService: bool = False
+        self.installArcgis: bool = False
+        self.installMcpi: bool = False
+        self.isManageFoundation: bool = False
+        self.manageAppName: Optional[str] = None
+        self.showAdvancedOptions: bool = False
+        self.db2SetAffinity: bool = False
+        self.db2SetTolerations: bool = False
+        self.deployCP4D: bool = False
+        self.slsLicenseFileLocal: Optional[str] = None
+        self.db2LicenseFileLocal: Optional[str] = None
+        self.aiserviceTenantSchedulingConfigFileLocal: Optional[str] = None
+        self.aiserviceTenantOperatorConfigFileLocal: Optional[str] = None
+        self.facilitiesPropertiesFileLocal: Optional[str] = None
+        self.slsLicenseFileSecret: Optional[dict] = None
+        self.db2LicenseFileSecret: Optional[dict] = None
+        self.facilitiesPropertiesSecret: Optional[dict] = None
+        self.additionalConfigsSecret: Optional[dict] = None
+        self.podTemplatesSecret: Optional[dict] = None
+        self.certsSecret: Optional[dict] = None
+        self.aiserviceConfigSecret: Optional[dict] = None
+        self.approvals: dict = {}
+        self.useCliDigest: bool = False
+        self.cliDigest: Optional[str] = None
+        self.chosenCatalog: Optional[dict] = None
+        self.catalogReleases: dict = {}
+        self.catalogTable: list = []
+        self.catalogOptions: list = []
+
     def getSelectedApps(self) -> list[str]:
         selectedApps = ["core"]
         if self.installAssist:
@@ -122,6 +179,191 @@ class InstallApp(
             selectedApps.append("arcgis")
 
         return selectedApps
+
+    def getCatalogOptions(self) -> list[str]:
+        """Return supported catalog options for the cluster's architecture."""
+        if hasattr(self, "catalogOptions") and self.catalogOptions:
+            return list(self.catalogOptions)
+        arch = getattr(self, "architecture", "amd64")
+        return list(supportedCatalogs.get(arch, supportedCatalogs["amd64"]))
+
+    @logMethodCall
+    def postConnectChecks(self) -> None:
+        """Perform post-connect cluster checks for the TUI workflow."""
+        self.isAirgap()
+        self.lookupTargetArchitecture()
+        assert self.architecture is not None, "Target architecture is not set"
+        self.catalogOptions = supportedCatalogs[self.architecture]
+        self.configSNO()
+        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+        if defaultStorageClasses.provider is not None:
+            self.storageClassProvider = defaultStorageClasses.provider
+            self.params.setdefault("storage_class_rwo", defaultStorageClasses.rwo)
+            self.params.setdefault("storage_class_rwx", defaultStorageClasses.rwx)
+        else:
+            self.storageClassProvider = "custom"
+
+        if self.isSNO() or self.params.get("storage_class_rwx") == "none":
+            self.pipelineStorageClass = self.getParam("storage_class_rwo")
+            self.pipelineStorageAccessMode = "ReadWriteOnce"
+        else:
+            self.pipelineStorageClass = self.getParam("storage_class_rwx")
+            self.pipelineStorageAccessMode = "ReadWriteMany"
+
+    @logMethodCall
+    def validateCatalogSelection(self) -> None:
+        """Validate the chosen catalog and process releases for the TUI workflow."""
+        catalogVersion = self.getParam("mas_catalog_version")
+        if not catalogVersion:
+            self.fatalError("Please select a catalog version")
+        self.chosenCatalog = getCatalog(catalogVersion)
+        self.processCatalogChoice()
+        if not self.devMode:
+            self.validateCatalogSource()
+        if not self.getParam("mas_channel") and self.catalogReleases:
+            firstRelease = list(self.catalogReleases.values())[0]
+            self.setParam("mas_channel", firstRelease)
+
+    def licenseAcceptancePending(self) -> bool:
+        """Return True if the selected channel has a license that has not been accepted yet."""
+        if self.devMode or self.licenseAccepted:
+            return False
+        channel = self.getParam("mas_channel")
+        return bool(channel and channel in self.licenses)
+
+    @logMethodCall
+    def validateEntitlementKeyStep(self) -> None:
+        """Validate the IBM entitlement key entered in the TUI workflow."""
+        key = self.getParam("ibm_entitlement_key")
+        if not key:
+            self.fatalError("IBM entitlement key is required")
+        if not self.validateEntitlementKey(key):
+            self.fatalError("IBM entitlement key validation failed")
+
+    @logMethodCall
+    def validateStorageClasses(self) -> None:
+        """Validate storage class configuration."""
+        rwo = self.getParam("storage_class_rwo")
+        rwx = self.getParam("storage_class_rwx")
+        if not rwo:
+            self.fatalError("ReadWriteOnce (RWO) storage class is required")
+        if not rwx:
+            self.fatalError("ReadWriteMany (RWX) storage class is required")
+
+        if self.isSNO() or rwx == "none":
+            self.pipelineStorageClass = rwo
+            self.pipelineStorageAccessMode = "ReadWriteOnce"
+        else:
+            self.pipelineStorageClass = rwx
+            self.pipelineStorageAccessMode = "ReadWriteMany"
+
+    @logMethodCall
+    def validateLicensing(self) -> None:
+        """Validate SLS and DRO licensing configuration."""
+        email = self.getParam("dro_contact_email")
+        if not email:
+            self.fatalError("DRO contact email is required")
+
+        licenseFile = self.getParam("license_file")
+        if licenseFile:
+            self.slsLicenseFileLocal = licenseFile
+            self.setParam("sls_action", "install")
+        elif findSLSByNamespace("ibm-sls", dynClient=self.dynamicClient):
+            self.setParam("sls_action", "gencfg")
+        else:
+            self.fatalError("A license file is required for new SLS installation")
+
+    @logMethodCall
+    def validateMasInstance(self) -> None:
+        """Validate MAS instance ID, workspace ID, workspace name, admin mode and RBAC."""
+        instanceId = self.getParam("mas_instance_id")
+        workspaceId = self.getParam("mas_workspace_id")
+        workspaceName = self.getParam("mas_workspace_name")
+
+        if not instanceId:
+            self.fatalError("MAS instance ID is required")
+        try:
+            InstanceIDFormatValidator().validate(Document(instanceId))
+        except ValidationError as e:
+            self.fatalError(e.message)
+
+        if not workspaceId:
+            self.fatalError("MAS workspace ID is required")
+        try:
+            WorkspaceIDFormatValidator().validate(Document(workspaceId))
+        except ValidationError as e:
+            self.fatalError(e.message)
+
+        if not workspaceName:
+            self.fatalError("MAS workspace name is required")
+        try:
+            WorkspaceNameFormatValidator().validate(Document(workspaceName))
+        except ValidationError as e:
+            self.fatalError(e.message)
+
+        env_type = self.getParam("environment_type") or "production"
+        if env_type == "non-production":
+            self.operationalMode = 2
+            self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
+        else:
+            self.operationalMode = 1
+
+        mas_channel = self.getParam("mas_channel")
+        if isVersionEqualOrAfter("9.2.0", mas_channel):
+            adminMode = self.getParam("mas_admin_mode") or "cluster"
+            self.mas_admin_mode = adminMode
+            if isVersionEqualOrAfter("9.3.0", mas_channel):
+                self.setParam("mas_issuer_kind", "Issuer")
+            else:
+                self.setParam("mas_issuer_kind", "ClusterIssuer" if adminMode == "cluster" else "Issuer")
+
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=True,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
+
+    @logMethodCall
+    def validateSelectedApps(self) -> None:
+        """Validate selected MAS applications and resolve app channels."""
+        selected = self.getParam("selected_apps")
+        apps_list = [a.strip() for a in selected.split(",") if a.strip()] if selected else []
+
+        self.installManage = "manage" in apps_list
+        self.installIoT = "iot" in apps_list
+        self.installMonitor = "monitor" in apps_list
+        self.installAssist = "assist" in apps_list
+        self.installOptimizer = "optimizer" in apps_list
+        self.installInspection = "visualinspection" in apps_list
+        self.installFacilities = "facilities" in apps_list
+        self.installAIService = "aiservice" in apps_list
+
+        mas_channel = self.getParam("mas_channel")
+        if not self.installManage and isVersionEqualOrAfter("9.1.0", mas_channel):
+            self.installManage = True
+            self.isManageFoundation = True
+            self.manageAppName = "Manage foundation"
+
+        for appId in ["manage", "iot", "monitor", "assist", "optimizer", "visualinspection", "facilities"]:
+            attr_name = f"install{appId.capitalize() if appId != 'visualinspection' else 'Inspection'}"
+            if getattr(self, attr_name, False):
+                versions = self.getCompatibleVersions(mas_channel, appId)
+                if versions:
+                    self.params[f"mas_app_channel_{appId}"] = versions[0]
+
+        if self.installAIService:
+            self.params.setdefault("aiservice_channel", "9.1.x")
+
+        self.setIoTStorageClasses()
+        self.setMonitorInstallOrder()
+        if self.installManage:
+            self.manageStorageAndAccessMode()
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -3119,139 +3361,7 @@ class InstallApp(
 
         # Prepare the namespace and launch the installation pipeline
         if continueWithInstall:
-            self.createTektonFileWithDigest()
-
-            self.printH1("Launch Install")
-            pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
-
-            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
-                if installOpenShiftPipelines(
-                    self.dynamicClient,
-                    customStorageClassName=self.getParam("storage_class_rwx"),
-                ):
-                    h.stop_and_persist(
-                        symbol=self.successIcon,
-                        text="OpenShift Pipelines Operator is installed and ready to use",
-                    )
-                else:
-                    h.stop_and_persist(
-                        symbol=self.successIcon,
-                        text="OpenShift Pipelines Operator installation failed",
-                    )
-                    self.fatalError("Installation failed")
-
-            if self.applyPreInstallMASRBAC:
-                rbacRootDir = self.getPreinstallRBACRootDir()
-                with Halo(text="Applying pre-install MAS RBAC", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(self.getParam("mas_channel").split(".")[:2]),
-                        masInstanceId=self.getParam("mas_instance_id"),
-                        adminMode=self.mas_admin_mode,
-                        selectedApps=self.getSelectedApps(),
-                        rbacRootDir=rbacRootDir,
-                    )
-                    h.stop_and_persist(symbol=self.successIcon, text="Pre-install MAS RBAC applied")
-
-            # Enable console plugin for OCP 4.21+
-            with Halo(text="Enabling Pipelines console plugin", spinner=self.spinner) as h:
-                if enablePipelinesConsolePlugin(self.dynamicClient):
-                    h.stop_and_persist(symbol=self.successIcon, text="Pipelines console plugin enabled")
-                else:
-                    h.stop_and_persist(
-                        symbol=self.warningIcon,
-                        text="Failed to enable Pipelines console plugin (non-fatal)",
-                    )
-                    # Note: This is non-fatal as the plugin can be enabled manually
-
-            if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
-                with Halo(
-                    text="Configuring cluster for path-based routing",
-                    spinner=self.spinner,
-                ) as h:
-                    ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
-                    if configureIngressForPathBasedRouting(self.dynamicClient, ingressControllerName):
-                        h.stop_and_persist(
-                            symbol=self.successIcon,
-                            text="Cluster configured for path-based routing",
-                        )
-                    else:
-                        h.stop_and_persist(
-                            symbol=self.failureIcon,
-                            text="Failed to configure cluster for path-based routing",
-                        )
-                        self.fatalError("Installation failed - unable to configure IngressController for path-based routing")
-
-            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
-                createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(
-                    dynClient=self.dynamicClient,
-                    instanceId=self.getParam("mas_instance_id"),
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
-                    configureRBAC=(self.getParam("service_account_name") == ""),
-                )
-                prepareInstallSecrets(
-                    dynClient=self.dynamicClient,
-                    namespace=pipelinesNamespace,
-                    slsLicenseFile=self.slsLicenseFileSecret,
-                    db2LicenseFile=self.db2LicenseFileSecret,
-                    facilitiesProperties=self.facilitiesPropertiesSecret,
-                    additionalConfigs=self.additionalConfigsSecret,
-                    podTemplates=self.podTemplatesSecret,
-                    certs=self.certsSecret,
-                    aiserviceConfig=self.aiserviceConfigSecret,
-                    slack_token=self.getParam("slack_token"),
-                    slack_channel=self.getParam("slack_channel"),
-                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
-                    artifactory_token=self.getParam("artifactory_token"),
-                    artifactory_username=self.getParam("artifactory_username"),
-                )
-
-                self.setupApprovals(pipelinesNamespace)
-
-                h.stop_and_persist(
-                    symbol=self.successIcon,
-                    text=f"Namespace is ready ({pipelinesNamespace})",
-                )
-
-            with Halo(
-                text="Testing availability of MAS CLI image in cluster",
-                spinner=self.spinner,
-            ) as h:
-                testCLI()
-                h.stop_and_persist(
-                    symbol=self.successIcon,
-                    text="MAS CLI image deployment test completed",
-                )
-
-            with Halo(
-                text=f"Installing latest Tekton definitions (v{self.version})",
-                spinner=self.spinner,
-            ) as h:
-                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
-                h.stop_and_persist(
-                    symbol=self.successIcon,
-                    text=f"Latest Tekton definitions are installed (v{self.version})",
-                )
-
-            with Halo(
-                text=f"Submitting PipelineRun for {self.getParam('mas_instance_id')} install",
-                spinner=self.spinner,
-            ) as h:
-                pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
-                if pipelineURL is not None:
-                    h.stop_and_persist(
-                        symbol=self.successIcon,
-                        text=f"PipelineRun for {self.getParam('mas_instance_id')} install submitted",
-                    )
-                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                else:
-                    h.stop_and_persist(
-                        symbol=self.failureIcon,
-                        text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details",
-                    )
-                    print()
+            self.launchInstall()
 
             # Re-print the command so it is not lost in the scrollback above the
             # pipeline launch output
@@ -3262,6 +3372,110 @@ class InstallApp(
                     nonInteractiveCommand,
                 ]
             )
+
+    @logMethodCall
+    def launchInstall(self, progressCallback=None, startCallback=None) -> None:
+        """Submit the Tekton install pipeline with unified progress reporting."""
+        from mas.cli.common.progress import HaloProgressReporter, CallbackProgressReporter
+
+        if progressCallback is not None:
+            reporter = CallbackProgressReporter(progressCallback, startCallback)
+        else:
+            reporter = HaloProgressReporter(self.spinner, self.successIcon, self.failureIcon)
+
+        self.createTektonFileWithDigest()
+        pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
+
+        # Stage 1: Validate OpenShift Pipelines
+        reporter.start("Validate OpenShift Pipelines")
+        if installOpenShiftPipelines(
+            self.dynamicClient,
+            customStorageClassName=self.getParam("storage_class_rwx"),
+        ):
+            reporter.success("Validate OpenShift Pipelines", "OpenShift Pipelines Operator is ready")
+        else:
+            reporter.failure("Validate OpenShift Pipelines", "OpenShift Pipelines Operator installation failed")
+            self.fatalError("Installation failed")
+
+        # Stage 2: Apply pre-install MAS RBAC (if needed)
+        if self.applyPreInstallMASRBAC:
+            label = "Apply pre-install MAS RBAC"
+            reporter.start(label)
+            rbacRootDir = self.getPreinstallRBACRootDir()
+            applyPreInstallMASRBAC(
+                dynClient=self.dynamicClient,
+                masVersion=".".join(self.getParam("mas_channel").split(".")[:2]),
+                masInstanceId=self.getParam("mas_instance_id"),
+                adminMode=self.mas_admin_mode,
+                selectedApps=self.getSelectedApps(),
+                rbacRootDir=rbacRootDir,
+            )
+            reporter.success(label, "Pre-install MAS RBAC applied")
+
+        # Stage 3: Enable Pipelines console plugin
+        if enablePipelinesConsolePlugin(self.dynamicClient):
+            logger.info("Pipelines console plugin enabled")
+
+        # Stage 4: Ingress configuration if path-based
+        if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
+            label = "Configure ingress for path-based routing"
+            reporter.start(label)
+            ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
+            if configureIngressForPathBasedRouting(self.dynamicClient, ingressControllerName):
+                reporter.success(label, "Cluster configured for path-based routing")
+            else:
+                reporter.failure(label, "Failed to configure cluster for path-based routing")
+                self.fatalError("Installation failed - unable to configure IngressController for path-based routing")
+
+        # Stage 5: Prepare namespace and secrets
+        reporter.start("Prepare pipelines namespace")
+        createNamespace(self.dynamicClient, pipelinesNamespace)
+        preparePipelinesNamespace(
+            dynClient=self.dynamicClient,
+            instanceId=self.getParam("mas_instance_id"),
+            storageClass=self.pipelineStorageClass,
+            accessMode=self.pipelineStorageAccessMode,
+            configureRBAC=(self.getParam("service_account_name") == ""),
+        )
+        prepareInstallSecrets(
+            dynClient=self.dynamicClient,
+            namespace=pipelinesNamespace,
+            slsLicenseFile=self.slsLicenseFileSecret,
+            db2LicenseFile=self.db2LicenseFileSecret,
+            facilitiesProperties=self.facilitiesPropertiesSecret,
+            additionalConfigs=self.additionalConfigsSecret,
+            podTemplates=self.podTemplatesSecret,
+            certs=self.certsSecret,
+            aiserviceConfig=self.aiserviceConfigSecret,
+            slack_token=self.getParam("slack_token"),
+            slack_channel=self.getParam("slack_channel"),
+            ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
+            artifactory_token=self.getParam("artifactory_token"),
+            artifactory_username=self.getParam("artifactory_username"),
+        )
+        self.setupApprovals(pipelinesNamespace)
+        reporter.success("Prepare pipelines namespace", f"Namespace is ready ({pipelinesNamespace})")
+
+        # Stage 6: Test CLI image availability
+        reporter.start("Test availability of MAS CLI image")
+        testCLI()
+        reporter.success("Test availability of MAS CLI image", "MAS CLI image deployment test completed")
+
+        # Stage 7: Install Tekton definitions
+        reporter.start("Install Tekton definitions")
+        updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
+        reporter.success("Install Tekton definitions", f"Latest Tekton definitions are installed (v{self.version})")
+
+        # Stage 8: Submit PipelineRun
+        reporter.start("Submit PipelineRun")
+        pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
+        if pipelineURL is not None:
+            reporter.success("Submit PipelineRun", pipelineURL)
+            if progressCallback is None:
+                print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+        else:
+            reporter.failure("Submit PipelineRun", f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
+            self.fatalError("Installation failed - PipelineRun submission failed")
 
     @logMethodCall
     def setupApprovals(self, namespace: str) -> None:

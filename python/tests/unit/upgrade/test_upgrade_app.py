@@ -819,6 +819,7 @@ def test_launch_upgrade_applies_rbac_when_required():
     )
     app.params["mas_instance_id"] = "inst1"
     app.createTektonFileWithDigest = MagicMock()
+    app.getPreinstallRBACRootDir = MagicMock(return_value="/opt/app-root/rbac")
 
     events = []
 

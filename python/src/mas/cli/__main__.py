@@ -68,6 +68,14 @@ def main() -> None:
         # Only import and instantiate the specific app module needed for the requested function,
         # rather than loading all app modules upfront. This significantly reduces initial load time.
         if function == "install":
+            if not any(arg.startswith("-") for arg in argv[2:]):
+                # Bare invocation — launch the Textual TUI workflow. Any
+                # command-line flags fall through to the classic CLI path so
+                # that nothing the TUI does not yet support is silently ignored.
+                from mas.cli.tui.shell import serveTuiMode
+
+                serveTuiMode("install", argv[2:])
+                return
             from mas.cli.install.app import InstallApp
 
             app = InstallApp()
