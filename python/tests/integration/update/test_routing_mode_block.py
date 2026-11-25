@@ -17,6 +17,7 @@ not support path-based routing and the target catalog does.
 
 import pytest
 from unittest.mock import MagicMock, patch
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
 from mas.cli.update.app import UpdateApp
 
 UNSUPPORTED_CATALOG = "v9-260827-amd64"
@@ -196,3 +197,16 @@ class TestRoutingModeBlockForUpdate:
 
         with pytest.raises(SystemExit):
             app.checkRoutingModeForUpdate()
+
+    @patch("mas.cli.update.app.listMasInstances")
+    def test_does_not_fail_when_suite_crd_not_available(self, mockList):
+        """Test that missing Suite CRD (e.g. standalone AI service) does not fail.
+
+        GIVEN the Suite CRD is not present on the cluster (raises ResourceNotFoundError)
+        WHEN checkRoutingModeForUpdate is called moving off an unsupported catalog
+        THEN no error is raised and check gracefully returns.
+        """
+        mockList.side_effect = ResourceNotFoundError(MagicMock())
+        app = _make_app(UNSUPPORTED_CATALOG, SUPPORTED_CATALOG)
+
+        app.checkRoutingModeForUpdate()

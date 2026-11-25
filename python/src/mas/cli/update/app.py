@@ -211,7 +211,12 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         if any(c in targetCatalog for c in unsupportedCatalogs):
             return
 
-        for instance in listMasInstances(self.dynamicClient):
+        try:
+            masInstances = listMasInstances(self.dynamicClient)
+        except ResourceNotFoundError:
+            return
+
+        for instance in masInstances:
             instanceId = instance["metadata"]["name"]
             if not isVersionEqualOrAfter("9.2.0", self.getReconciledVersion(instance)):
                 continue
