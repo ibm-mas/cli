@@ -40,6 +40,11 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    # Manual route management (set when Service Mesh is used)
+    - name: mas_manual_route_mgmt
+      type: string
+      default: ""
+
     # Install Step
     # -------------------------------------------------------------------------
     # Application - Operator
@@ -467,6 +472,8 @@ spec:
       env:
         - name: DEVOPS_SUITE_NAME
           value: app-$(params.mas_app_id)-cfg
+        - name: MAS_MANUAL_ROUTE_MGMT
+          value: $(params.mas_manual_route_mgmt)
         # MAS Details
         - name: MAS_CONFIG_DIR
           value: /workspace/configs
