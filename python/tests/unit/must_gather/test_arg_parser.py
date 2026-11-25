@@ -104,6 +104,17 @@ class TestArgumentParser:
         args = parser.parse_args(["--mas-instance-ids", "inst1,inst2"])
         assert args.mas_instance_ids == "inst1,inst2"
 
+    def test_parser_accepts_sls_namespaces(self):
+        """Test that --sls-namespaces accepts comma-separated list.
+
+        GIVEN argument parser
+        WHEN --sls-namespaces is provided with comma-separated values
+        THEN sls_namespaces is set correctly.
+        """
+        parser = mustGatherArgParser
+        args = parser.parse_args(["--sls-namespaces", "mas-inst1-sls,mas-inst2-sls"])
+        assert args.sls_namespaces == "mas-inst1-sls,mas-inst2-sls"
+
     def test_parser_accepts_mas_app_ids(self):
         """Test that --mas-app-ids accepts comma-separated list.
 

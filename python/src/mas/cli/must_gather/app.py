@@ -397,6 +397,7 @@ class MustGatherApp(BaseApp):
         # SLS
         if "sls" in enabledCollectors:
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
+            slsNamespaceFilter = parsedArgs.sls_namespaces.split(",") if isinstance(getattr(parsedArgs, "sls_namespaces", None), str) else None
             sls.addSLSToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynamicClient,
@@ -404,6 +405,7 @@ class MustGatherApp(BaseApp):
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
                 masInstanceIds=masInstanceIds,
+                slsNamespaceFilter=slsNamespaceFilter,
             )
         else:
             logger.debug("Skipping SLS collection (not in collectors list)")

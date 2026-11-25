@@ -12,13 +12,52 @@
 
 import os
 import json
+import time
 import yaml
 import logging
 from typing import List, Tuple
 from kubernetes.dynamic import DynamicClient
 from kubernetes.client import CoreV1Api
+from kubernetes.client.exceptions import ApiException
 
 logger = logging.getLogger(__name__)
+
+# Retry settings for current pod log reads. When many pods are collected in parallel the API server
+# can transiently refuse connections or drop long-running log streams, so retry with backoff.
+LOG_READ_MAX_ATTEMPTS = 5
+LOG_READ_RETRY_BASE_DELAY = 2  # seconds, doubled after each failed attempt
+
+
+def _readPodLogWithRetry(coreV1: CoreV1Api, namespace: str, podName: str, containerName: str) -> str:
+    """Read the current log of a container, retrying on transient connection errors.
+
+    Kubernetes API errors (e.g. container not started, pod gone) are not retried as they
+    will not succeed on a subsequent attempt.
+
+    Args:
+        coreV1 (CoreV1Api): Kubernetes CoreV1 API client
+        namespace (str): Pod namespace
+        podName (str): Pod name
+        containerName (str): Container name
+
+    Returns:
+        str: Container log content
+
+    Raises:
+        Exception: The last error encountered once all attempts are exhausted
+    """
+    for attempt in range(1, LOG_READ_MAX_ATTEMPTS):
+        try:
+            return coreV1.read_namespaced_pod_log(name=podName, namespace=namespace, container=containerName)
+        except ApiException:
+            raise
+        except Exception as e:
+            delay = LOG_READ_RETRY_BASE_DELAY * (2 ** (attempt - 1))
+            logger.debug(f"{namespace}: Log read attempt {attempt}/{LOG_READ_MAX_ATTEMPTS} failed for {podName}/{containerName}, retrying in {delay}s: {e}")
+            time.sleep(delay)
+
+    # Final attempt, any error is propagated to the caller
+    return coreV1.read_namespaced_pod_log(name=podName, namespace=namespace, container=containerName)
 
 
 def generatePodCollectionTasks(
@@ -295,7 +334,7 @@ def _collectContainerLogs(dynClient: DynamicClient, namespace: str, podName: str
     # Collect current logs
     coreV1 = CoreV1Api(dynClient.client)
     try:
-        currentLogs = coreV1.read_namespaced_pod_log(name=podName, namespace=namespace, container=containerName)
+        currentLogs = _readPodLogWithRetry(coreV1, namespace, podName, containerName)
         currentLogFile = os.path.join(logsDir, f"{podName}_{containerName}.log")
         with open(currentLogFile, "w") as f:
             f.write(currentLogs)
