@@ -80,7 +80,8 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. Storage Configuration (S3 — dev-mode catalog has no ceph field)
+        # 10. Storage Configuration (dev-mode catalog has no ceph field → MinIO prompt shown)
+        ".*Install Minio.*": lambda msg: "n",
         ".*Storage access key.*": lambda msg: "testAccessKey",
         ".*Storage secret key.*": lambda msg: "testSecretKey",
         ".*Storage host.*": lambda msg: "minio-service.minio.svc",
@@ -157,7 +158,8 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. Storage Configuration (S3 — dev-mode catalog has no ceph field)
+        # 10. Storage Configuration (dev-mode catalog has no ceph field → MinIO prompt shown)
+        ".*Install Minio.*": lambda msg: "n",
         ".*Storage access key.*": lambda msg: "testAccessKey",
         ".*Storage secret key.*": lambda msg: "testSecretKey",
         ".*Storage host.*": lambda msg: "minio-service.minio.svc",

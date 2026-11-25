@@ -2637,6 +2637,9 @@ class InstallApp(
                     else:
                         self.fatalError(f"Unsupported value for --install-minio: {value}")
 
+            elif key in ("minio_root_user", "minio_root_password"):
+                pass  # consumed by install_minio_aiservice handler above
+
             elif key == "aiservice_s3_bucket_prefix":
                 if len(value) == 0 or len(value) > 4:
                     self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
