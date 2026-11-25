@@ -682,7 +682,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         Raises:
             EntitlementKeySSLError: If an SSL error prevented validation (key may still be valid)
-            requests.exceptions.RequestException: If any other network error prevented validation
+            requests.exceptions.RequestException: If any other error prevented validation
                 (key may still be valid)
         """
         logger.info(f"Validating IBM entitlement key against repository: {repository}")
@@ -692,7 +692,7 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.warning(f"IBM entitlement key could not be validated (SSL error): {e}")
             raise
         except RequestsException as e:
-            logger.warning(f"IBM entitlement key could not be validated (network error): {e}")
+            logger.warning(f"IBM entitlement key could not be validated (request error): {e}")
             raise
         if isValid:
             logger.info("IBM entitlement key validation successful")
@@ -717,16 +717,16 @@ class BaseApp(PrintMixin, PromptMixin):
                 "Your entitlement key may still be valid. Continuing due to --no-confirm flag.",
             )
         return (
-            "Network error — could not validate the entitlement key",
-            ["This is likely caused by a network, proxy or firewall problem (for example a timeout or refused connection)."],
-            "Network error — could not validate the entitlement key. "
-            "This is likely caused by a network, proxy or firewall problem. "
+            "Could not validate the entitlement key",
+            ["The validation check could not be completed. This is often caused by a network, proxy or firewall problem."],
+            "Could not validate the entitlement key. "
+            "The validation check could not be completed, which is often caused by a network, proxy or firewall problem. "
             "Your entitlement key may still be valid. Continuing due to --no-confirm flag.",
         )
 
     def handleEntitlementKeyUnverified(self, error: RequestsException) -> None:
         """
-        Handle an error (SSL or other network error) that prevented IBM entitlement key validation.
+        Handle an error (SSL or any other request error) that prevented IBM entitlement key validation.
         Used by the non-interactive flows.
 
         With --no-confirm, warns and returns. Otherwise offers: 1) Continue anyway, 2) Quit.
@@ -760,7 +760,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         - Valid key: continues silently.
         - Key rejected by cp.icr.io: warns that the key is not valid.
-        - Validation could not complete (SSL/network error): warns that the key could not be verified.
+        - Validation could not complete (SSL or other error): warns that the key could not be verified.
 
         With --no-confirm the warning is shown and the install continues; otherwise the user
         may choose to continue anyway or quit.
@@ -806,7 +806,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         In interactive mode:
         - Validates the key after user input
-        - If invalid, or if validation could not complete (SSL/network error), offers:
+        - If invalid, or if validation could not complete (SSL or other error), offers:
           1) Try again, 2) Continue anyway, 3) Quit
         - Loops until valid key or user chooses to continue/quit
 
@@ -828,7 +828,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
             # Validate the key
             # Returns True (valid) or False (rejected). Raises if the check could not be completed
-            # (EntitlementKeySSLError for SSL errors, RequestException for other network errors).
+            # (EntitlementKeySSLError for SSL errors, RequestException for any other error).
             error = None
             try:
                 isValid = self.validateEntitlementKey(entitlementKey, repository, timeout)

@@ -439,7 +439,7 @@ class TestPromptForEntitlementKeyMessages:
 
         assert result == "maybe-valid-key"
         warn_message = mock_print_warn.call_args[0][0]
-        assert "Network error" in warn_message
+        assert "Could not validate the entitlement key" in warn_message
         assert "key is not valid" not in warn_message
         assert "SSL" not in warn_message
         # The explanation must also tell the user the key may still be fine
@@ -463,7 +463,7 @@ class TestPromptForEntitlementKeyMessages:
         assert result == "maybe-valid-key"
         mock_print_warn.assert_called_once()
         warn_message = mock_print_warn.call_args[0][0]
-        assert "Network error" in warn_message
+        assert "Could not validate the entitlement key" in warn_message
         assert "key is not valid" not in warn_message
 
 
@@ -533,7 +533,7 @@ class TestValidateEntitlementKeyNonInteractive:
 
         mock_print_warn.assert_called_once()
         warn_message = mock_print_warn.call_args[0][0]
-        assert "Network error" in warn_message
+        assert "Could not validate the entitlement key" in warn_message
         assert "key is not valid" not in warn_message
 
     @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
