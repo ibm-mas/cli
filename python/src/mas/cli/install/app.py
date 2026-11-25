@@ -2634,6 +2634,8 @@ class InstallApp(
                         self.setParam("aiservice_s3_ssl", "false")
                         self.setParam("aiservice_s3_region", "none")
                         self.setParam("aiservice_s3_bucket_prefix", "s3-")
+                    elif value is None:
+                        pass  # install_ceph is set; minio validation already skipped above
                     else:
                         self.fatalError(f"Unsupported value for --install-minio: {value}")
 

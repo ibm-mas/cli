@@ -295,6 +295,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     # Set default bucket names
                     self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
                     self.setParam("aiservice_s3_templates_bucket", "km-templates")
+                elif value is None:
+                    pass  # install_ceph is set; minio validation already skipped above
                 else:
                     self.fatalError(f"Unsupported value for --install-minio: {value}")
 
