@@ -290,8 +290,26 @@ def test_install_interactive_advanced(tmpdir):
                     return ""
                 if re.match(".*Operational Mode.*", message):
                     return "1"
-                if re.match(".*Install Ceph.*", message):
-                    return "y"
+                if re.match(".*Install Minio.*", message):
+                    return "n"
+                if re.match(".*Storage access key.*", message):
+                    return "testAccessKey"
+                if re.match(".*Storage secret key.*", message):
+                    return "testSecretKey"
+                if re.match(".*Storage host.*", message):
+                    return "minio-service.minio.svc"
+                if re.match(".*Storage port.*", message):
+                    return "80"
+                if re.match(".*Storage ssl.*", message):
+                    return "false"
+                if re.match(".*Storage region.*", message):
+                    return ""
+                if re.match(".*Storage bucket prefix.*", message):
+                    return "test"
+                if re.match(".*Storage tenants bucket.*", message):
+                    return "km-tenants"
+                if re.match(".*Storage templates bucket.*", message):
+                    return "km-templates"
                 if re.match(".*Cluster ingress certificate secret name.*", message):
                     return ""
                 if re.match(".*Configure.*domain.*certificate management.*", message):
@@ -474,8 +492,26 @@ def test_install_interactive_simplified(tmpdir):
                     return "apmdevops"
                 if re.match(".*Operational Mode.*", message):
                     return "1"
-                if re.match(".*Install Ceph.*", message):
-                    return "y"
+                if re.match(".*Install Minio.*", message):
+                    return "n"
+                if re.match(".*Storage access key.*", message):
+                    return "testAccessKey"
+                if re.match(".*Storage secret key.*", message):
+                    return "testSecretKey"
+                if re.match(".*Storage host.*", message):
+                    return "minio-service.minio.svc"
+                if re.match(".*Storage port.*", message):
+                    return "80"
+                if re.match(".*Storage ssl.*", message):
+                    return "false"
+                if re.match(".*Storage region.*", message):
+                    return ""
+                if re.match(".*Storage bucket prefix.*", message):
+                    return "test"
+                if re.match(".*Storage tenants bucket.*", message):
+                    return "km-tenants"
+                if re.match(".*Storage templates bucket.*", message):
+                    return "km-templates"
                 if re.match(".*Entitlement end date.*", message):
                     return "2027-02-16"
                 if re.match(".*Watsonxai api key.*", message):

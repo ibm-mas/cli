@@ -2604,7 +2604,7 @@ class InstallApp(
                         "aiservice_s3_bucket_prefix",
                         "aiservice_s3_region",
                     ]
-                    if value is None:
+                    if value is None and vars(self.args).get("install_ceph") != "true":
                         for uKey in incompatibleWithMinioInstall:
                             if vars(self.args)[uKey] is None:
                                 self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
