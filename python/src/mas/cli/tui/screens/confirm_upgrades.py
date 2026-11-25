@@ -168,6 +168,7 @@ class ConfirmUpgradesScreen(Vertical):
                         "Migrate AI Service object storage from MinIO to Ceph",
                         id="confirm-minio-migration",
                         classes="confirm-checkbox",
+                        value=True,
                     )
 
         yield ActionBar(
