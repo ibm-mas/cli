@@ -70,6 +70,10 @@ class LicenseAcceptanceScreen(Vertical):
         self._step = step
         self._step_index = step_index
 
+    def _channel(self) -> str:
+        """Return the target channel for the license."""
+        return getattr(self._mas_app, "nextChannel", None) or self._mas_app.params.get("mas_channel", "")
+
     def _licenseLines(self) -> list:
         """Return the license text lines for the target release.
 
@@ -81,7 +85,8 @@ class LicenseAcceptanceScreen(Vertical):
             list: Non-empty license text lines, or an empty list when the
             target channel carries no license entry.
         """
-        raw = self._mas_app.licenses.get(self._mas_app.nextChannel, "")
+        channel = self._channel()
+        raw = self._mas_app.licenses.get(channel, "")
         return [line.strip().replace("</u>", "").replace("<u>", "") for line in raw.splitlines() if line.strip()]
 
     def compose(self) -> ComposeResult:
@@ -94,16 +99,17 @@ class LicenseAcceptanceScreen(Vertical):
             (``.action-bar``) with the status row and the Confirm / Abort
             buttons.
         """
+        channel = self._channel()
         with VerticalScroll(classes="content-scroll"):
             yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
             for para in self._step.description:
                 yield Label(para, classes="description-para")
             with Vertical(id="license-terms-section", classes="confirm-section"):
-                yield Label(f"License terms for MAS {self._mas_app.nextChannel}:", classes="confirm-section-heading")
+                yield Label(f"License terms for MAS {channel}:", classes="confirm-section-heading")
                 for line in self._licenseLines():
                     yield Label(line, classes="confirm-section-para")
             yield Checkbox(
-                f"I accept the license terms for MAS {self._mas_app.nextChannel}",
+                f"I accept the license terms for MAS {channel}",
                 id="accept-license",
                 classes="confirm-checkbox",
             )
@@ -112,7 +118,7 @@ class LicenseAcceptanceScreen(Vertical):
             status_id=f"validator-error-{self._step.id}",
             buttons=[
                 Button("Confirm & Continue", id="btn-confirm-license", variant="success"),
-                Button("Abort Upgrade", id="btn-abort-license", variant="error"),
+                Button("Abort", id="btn-abort-license", variant="error"),
             ],
         )
 
