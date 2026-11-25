@@ -256,21 +256,38 @@ INSTALL_COMMAND_ARGS = [
     CommandArg(dest="aiservice_db_password", env_var="AISERVICE_DB_PASSWORD", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_db_ca_cert", when=_attrTruthy("installAIService")),
     CommandArg(dest="install_ceph", const=True, when=lambda app: _attrTruthy("installAIService")(app) and _isTrue("install_ceph")(app)),
+    CommandArg(dest="install_minio_aiservice", const=True, when=lambda app: _attrTruthy("installAIService")(app) and _ne("minio_root_user", "")(app)),
+    CommandArg(dest="minio_root_user", env_var="MINIO_ROOT_USER", when=lambda app: _attrTruthy("installAIService")(app) and _ne("minio_root_user", "")(app)),
+    CommandArg(
+        dest="minio_root_password", env_var="MINIO_ROOT_PASSWORD", when=lambda app: _attrTruthy("installAIService")(app) and _ne("minio_root_password", "")(app)
+    ),
     CommandArg(
         dest="aiservice_s3_accesskey",
         env_var="AISERVICE_S3_ACCESSKEY",
-        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app),
+        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app),
     ),
     CommandArg(
         dest="aiservice_s3_secretkey",
         env_var="AISERVICE_S3_SECRETKEY",
-        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app),
+        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app),
     ),
-    CommandArg(dest="aiservice_s3_host", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
-    CommandArg(dest="aiservice_s3_port", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
-    CommandArg(dest="aiservice_s3_ssl", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
-    CommandArg(dest="aiservice_s3_region", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
-    CommandArg(dest="aiservice_s3_bucket_prefix", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app)),
+    CommandArg(
+        dest="aiservice_s3_host", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)
+    ),
+    CommandArg(
+        dest="aiservice_s3_port", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)
+    ),
+    CommandArg(
+        dest="aiservice_s3_ssl", when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)
+    ),
+    CommandArg(
+        dest="aiservice_s3_region",
+        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app),
+    ),
+    CommandArg(
+        dest="aiservice_s3_bucket_prefix",
+        when=lambda app: _attrTruthy("installAIService")(app) and _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app),
+    ),
     CommandArg(dest="aiservice_s3_tenants_bucket", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_s3_templates_bucket", when=_attrTruthy("installAIService")),
     CommandArg(dest="aiservice_odh_model_deployment_type", when=_attrTruthy("installAIService")),

@@ -74,6 +74,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         self.mongoTargetVersion: Optional[str] = None
         self.db2CurrentMajorVersion: Optional[int] = None
         self.db2TargetMajorVersion: Optional[int] = None
+        self.minioInstanceIds: list = []
 
     def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
         """
@@ -854,6 +855,8 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
             else:
                 return DetectResult(ok=True, message=f"AI Service instances left on MinIO (skipped): {', '.join(onMinio)}")
 
+        # TUI path: store the list for the ConfirmUpgradesScreen checkbox; param is set at confirm time.
+        self.minioInstanceIds = onMinio
         return DetectResult(ok=True, message=f"AI Service instances using MinIO: {', '.join(onMinio)}")
 
     def detectMongoDb(self) -> DetectResult:
@@ -1445,6 +1448,16 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
             return False
         return self.db2LicenseFileLocal is None
 
+    def minioMigrationPending(self) -> bool:
+        """Return True when AI Service instances on MinIO are waiting for TUI migration confirmation.
+
+        Returns:
+            bool: True when ``minioInstanceIds`` is non-empty and the migration
+                param has not yet been set (i.e. the TUI confirm screen hasn't
+                written it yet).
+        """
+        return bool(self.minioInstanceIds) and self.getParam("aiservice_s3_migration_instance_ids") == ""
+
     def upgradeConfirmationsPending(self) -> bool:
         """Return True when any interactive upgrade confirmation is still required.
 
@@ -1455,7 +1468,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         Returns:
             bool: True when at least one confirmation is pending.
         """
-        return self.mongoUpgradeConfirmationPending() or self.db2UpgradeConfirmationPending() or self.db2LicenseFileNeeded()
+        return self.mongoUpgradeConfirmationPending() or self.db2UpgradeConfirmationPending() or self.db2LicenseFileNeeded() or self.minioMigrationPending()
 
     def reviewDependencyUpgrades(self) -> None:
         """Prompt for or validate upgrade confirmations for MongoDB and Db2 major-version upgrades.

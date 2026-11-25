@@ -141,13 +141,20 @@ AISERVICE_INSTALL_COMMAND_ARGS = [
     # Object Storage
     # -----------------------------------------------------------------------------
     CommandArg(dest="install_ceph", const=True, when=_isTrue("install_ceph")),
-    CommandArg(dest="aiservice_s3_accesskey", env_var="AISERVICE_S3_ACCESSKEY", when=_ne("install_ceph", "true")),
-    CommandArg(dest="aiservice_s3_secretkey", env_var="AISERVICE_S3_SECRETKEY", when=_ne("install_ceph", "true")),
-    CommandArg(dest="aiservice_s3_host", when=_ne("install_ceph", "true")),
-    CommandArg(dest="aiservice_s3_port", when=_ne("install_ceph", "true")),
-    CommandArg(dest="aiservice_s3_ssl", when=_ne("install_ceph", "true")),
-    CommandArg(dest="aiservice_s3_region", when=_ne("install_ceph", "true")),
-    CommandArg(dest="aiservice_s3_bucket_prefix", when=_ne("install_ceph", "true")),
+    CommandArg(dest="install_minio_aiservice", const=True, when=_ne("minio_root_user", "")),
+    CommandArg(dest="minio_root_user", env_var="MINIO_ROOT_USER", when=_ne("minio_root_user", "")),
+    CommandArg(dest="minio_root_password", env_var="MINIO_ROOT_PASSWORD", when=_ne("minio_root_password", "")),
+    CommandArg(
+        dest="aiservice_s3_accesskey", env_var="AISERVICE_S3_ACCESSKEY", when=lambda app: _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)
+    ),
+    CommandArg(
+        dest="aiservice_s3_secretkey", env_var="AISERVICE_S3_SECRETKEY", when=lambda app: _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)
+    ),
+    CommandArg(dest="aiservice_s3_host", when=lambda app: _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)),
+    CommandArg(dest="aiservice_s3_port", when=lambda app: _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)),
+    CommandArg(dest="aiservice_s3_ssl", when=lambda app: _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)),
+    CommandArg(dest="aiservice_s3_region", when=lambda app: _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)),
+    CommandArg(dest="aiservice_s3_bucket_prefix", when=lambda app: _ne("install_ceph", "true")(app) and _eq("minio_root_user", "")(app)),
     CommandArg(dest="aiservice_s3_tenants_bucket"),
     CommandArg(dest="aiservice_s3_templates_bucket"),
     # Model Deployment

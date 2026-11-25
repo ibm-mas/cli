@@ -1005,6 +1005,26 @@ aiServiceS3ArgGroup.add_argument(
     action="store_const",
     const="true",
 )
+aiServiceS3ArgGroup.add_argument(
+    "--install-minio",
+    dest="install_minio_aiservice",
+    required=False,
+    help="Install MinIO in-cluster as the S3 provider for AI Service (pre-ceph-era catalogs)",
+    action="store_const",
+    const="true",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--minio-root-user",
+    dest="minio_root_user",
+    required=False,
+    help="Username for minio root user",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--minio-root-password",
+    dest="minio_root_password",
+    required=False,
+    help="Password for minio root user",
+)
 
 # S3 - External Connection
 # -----------------------------------------------------------------------------

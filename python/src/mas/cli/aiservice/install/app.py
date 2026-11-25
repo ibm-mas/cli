@@ -256,6 +256,48 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 else:
                     self.fatalError(f"Unsupported value for --install-ceph: {value}")
 
+            elif key == "install_minio_aiservice":
+                incompatibleWithMinioInstall = [
+                    "aiservice_s3_accesskey",
+                    "aiservice_s3_secretkey",
+                    "aiservice_s3_host",
+                    "aiservice_s3_port",
+                    "aiservice_s3_ssl",
+                    "aiservice_s3_bucket_prefix",
+                    "aiservice_s3_region",
+                ]
+                if value is None:
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is None:
+                            self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                elif value is not None and value == "true":
+                    # If user is installing Minio in-cluster then we know how to connect to it already
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is not None:
+                            self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
+                    for rKey in ["minio_root_user", "minio_root_password"]:
+                        if vars(self.args)[rKey] is None:
+                            self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
+
+                    # self.setParam("aiservice_s3_provider", "minio")
+
+                    self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
+                    self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
+
+                    # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
+                    # especially when we don't need them for the tenant?
+                    self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+                    self.setParam("aiservice_s3_port", "9000")
+                    self.setParam("aiservice_s3_ssl", "false")
+                    self.setParam("aiservice_s3_region", "none")
+                    self.setParam("aiservice_s3_bucket_prefix", "s3-")
+
+                    # Set default bucket names
+                    self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
+                    self.setParam("aiservice_s3_templates_bucket", "km-templates")
+                else:
+                    self.fatalError(f"Unsupported value for --install-minio: {value}")
+
             elif key == "aiservice_s3_bucket_prefix":
                 if len(value) == 0 or len(value) > 4:
                     self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
@@ -655,6 +697,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         chosenCatalog = getattr(self, "chosenCatalog", None) or {}
         cephSupported = chosenCatalog.get("aiservice_s3_provider_default") == "ceph"
 
+        useExternalS3 = True
+
         if cephSupported:
             self.printDescription(
                 [
@@ -664,26 +708,31 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             )
             if self.yesOrNo("Install Ceph (ODF)"):
                 self._setCephStorageDefaults()
-                return
+                useExternalS3 = False
         else:
             self.printDescription(
                 [
-                    "AI Service requires object storage for pipelines, tenants, and templates.",
-                    "Connect to your external S3-compatible storage (e.g. MinIO).",
+                    "AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."
                 ]
             )
+            if self.yesOrNo("Install Minio"):
+                self.promptForString("minio root username", "minio_root_user")
+                self.promptForString("minio root password", "minio_root_password", isPassword=True)
+                self._setMinioStorageDefaults()
+                useExternalS3 = False
 
-        self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-        self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
-        self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
-        self.promptForString("Storage host", "aiservice_s3_host")
-        self.promptForString("Storage port", "aiservice_s3_port")
-        self.promptForString("Storage ssl", "aiservice_s3_ssl")
-        self.promptForString("Storage region", "aiservice_s3_region")
-        self.printDescription(["", "Storage bucket prefix restrictions:", " - Must be 1-4 characters long"])
-        self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
-        self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
-        self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
+        if useExternalS3:
+            self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
+            self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
+            self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
+            self.promptForString("Storage host", "aiservice_s3_host")
+            self.promptForString("Storage port", "aiservice_s3_port")
+            self.promptForString("Storage ssl", "aiservice_s3_ssl")
+            self.promptForString("Storage region", "aiservice_s3_region")
+            self.printDescription(["", "Storage bucket prefix restrictions:", " - Must be 1-4 characters long"])
+            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
+            self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
+            self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
         # AI Data Science Platform - defaults to Red Hat OpenShift AI (RHOAI)
         self.setParam("rhoai", "true")
@@ -872,6 +921,25 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         and CA certificate are auto-detected by the aiservice role from the ObjectBucketClaims.
         """
         self.setParam("install_ceph", "true")
+        self.setParam("aiservice_s3_bucket_prefix", "s3-")
+
+        # Set default bucket names
+        self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
+        self.setParam("aiservice_s3_templates_bucket", "km-templates")
+
+    @logMethodCall
+    def _setMinioStorageDefaults(self) -> None:
+        """
+        Set MinIO storage defaults when MinIO is being installed in-cluster.
+        This mirrors the logic from non-interactive mode.
+        """
+        # self.setParam("aiservice_s3_provider", "minio")
+        self.setParam("aiservice_s3_accesskey", self.getParam("minio_root_user"))
+        self.setParam("aiservice_s3_secretkey", self.getParam("minio_root_password"))
+        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+        self.setParam("aiservice_s3_port", "9000")
+        self.setParam("aiservice_s3_ssl", "false")
+        self.setParam("aiservice_s3_region", "none")
         self.setParam("aiservice_s3_bucket_prefix", "s3-")
 
         # Set default bucket names
