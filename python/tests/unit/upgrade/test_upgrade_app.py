@@ -824,7 +824,6 @@ def test_launch_upgrade_applies_rbac_when_required():
 
     with (
         patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True),
-        patch("mas.cli.upgrade.app.UpgradeApp.getPreinstallRBACRootDir", return_value="/fake/rbac"),
         patch("mas.cli.upgrade.app.getInstalledApps", return_value=["manage"]) as mock_apps,
         patch("mas.cli.upgrade.app.applyPreInstallMASRBAC") as mock_apply,
         patch("mas.cli.upgrade.app.createNamespace"),
@@ -842,7 +841,6 @@ def test_launch_upgrade_applies_rbac_when_required():
     assert mock_apply.call_args.kwargs["masVersion"] == "9.2"
     assert mock_apply.call_args.kwargs["adminMode"] == "cluster"
     assert mock_apply.call_args.kwargs["selectedApps"] == ["manage"]
-    assert mock_apply.call_args.kwargs["rbacRootDir"] == "/fake/rbac"
     mock_apps.assert_called_once()
 
     started = [e[1] for e in events if e[0] == "start"]
