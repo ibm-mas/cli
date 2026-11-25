@@ -62,6 +62,7 @@ UPDATE_COMMAND_ARGS = [
     CommandArg(dest="mongodb_v6_upgrade", const=True, when=paramIsTrue("mongodb_v6_upgrade")),
     CommandArg(dest="mongodb_v7_upgrade", const=True, when=paramIsTrue("mongodb_v7_upgrade")),
     CommandArg(dest="mongodb_v8_upgrade", const=True, when=paramIsTrue("mongodb_v8_upgrade")),
+    CommandArg(dest="migrate_minio_to_ceph", const=True, when=_ne("aiservice_s3_migration_instance_ids", "")),
     CommandArg(dest="kafka_namespace"),
     CommandArg(dest="kafka_provider"),
     # IBM Cloud Pak for Data

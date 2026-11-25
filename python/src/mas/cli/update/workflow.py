@@ -112,6 +112,14 @@ def buildUpdateReview(appInstance: Any) -> str:
             "Migrate to Grafana v5 Operator" if appInstance.params.get("grafana_v5_upgrade", "") else "No action required",
         ),
         _row("AI Service Data Science Platform", aiServiceDataScienceMigration),
+        _row(
+            "AI Service Object Storage",
+            (
+                f"Migrate from MinIO to Ceph/ODF ({appInstance.params.get('aiservice_s3_migration_instance_ids')})"
+                if appInstance.params.get("aiservice_s3_migration_instance_ids", "")
+                else "No action required"
+            ),
+        ),
         "",
     ]
     return "\n".join(lines)
