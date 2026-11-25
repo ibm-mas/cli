@@ -49,6 +49,7 @@ function gitops() {
   echo "  ${COLOR_YELLOW}mas gitops-suite-license-service${TEXT_RESET}                Deploy Suite License Service"
   echo "  ${COLOR_YELLOW}mas gitops-mas-provisioner${TEXT_RESET}                      Automated MAS provisioning orchestration"
   echo "  ${COLOR_YELLOW}mas gitops-mas-fvt-preparer${TEXT_RESET}                     Prepare environment for MAS functional verification testing"
+  echo "  ${COLOR_YELLOW}mas gitops-invoke-aap${TEXT_RESET}                            Launch an AWX/AAP job template and wait for it to finish"
   echo ""
   echo "${COLOR_CYAN}GitOps AI Services:${TEXT_RESET}"
   echo "  ${COLOR_YELLOW}mas gitops-aiservice${TEXT_RESET}                            Deploy Maximo AI Service"

@@ -1,0 +1,369 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-mas-fvt-preparer-aap
+spec:
+  description: >-
+    Prepares and runs the FVT through an AWX/AAP job instead of connecting to the cluster from the pipeline,
+    so that it also works for private clusters. Every parameter that is not an AAP setting is sent to the job
+    as an extra var with the same name. AAP_URL and AAP_TOKEN come from the secure-properties secret.
+  params:
+    - name: cluster_name
+      type: string
+    - name: account_id
+      type: string
+    - name: region_id
+      type: string
+    - name: devops_build_number
+      type: string
+    - name: launcher_id
+      type: string
+    - name: pipeline_storage_class
+      type: string
+    - name: aws_region
+      type: string
+    - name: fvt_pipeline_name
+      type: string
+    - name: cli_version
+      type: string
+    - name: fvt_config
+      type: string
+    - name: fvt_version_core
+      type: string
+    - name: ivt_version_core
+      type: string
+    - name: fvt_version_ctf
+      type: string
+    - name: fvt_version_predict
+      type: string
+    - name: fvt_version_assist
+      type: string
+    - name: fvt_version_iot
+      type: string
+    - name: fvt_version_optimizer
+      type: string
+    - name: fvt_version_manage
+      type: string
+    - name: fvt_version_mobile
+      type: string
+    - name: fvt_version_data_dictionary
+      type: string
+    - name: fvt_version_sls
+      type: string
+    - name: fvt_version_facilities
+      type: string
+    - name: fvt_blacklist_core
+      type: string
+    - name: fvt_whitelist_core
+      type: string
+    - name: fvt_blacklist_manage
+      type: string
+    - name: fvt_whitelist_manage
+      type: string
+    - name: fvt_blacklist_manage_is
+      type: string
+    - name: fvt_whitelist_manage_is
+      type: string
+    - name: fvt_blacklist_optimizer
+      type: string
+    - name: fvt_whitelist_optimizer
+      type: string
+    - name: artifactory_generic_release_url
+      type: string
+    - name: artifactory_generic_logs_url
+      type: string
+    - name: fvt_ansible_version
+      type: string
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: image_pull_policy
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: mas_channel
+      type: string
+      default: ""
+    - name: mas_appws_components
+      type: string
+      default: ""
+    - name: launchfvt_core
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
+    - name: launchfvt_manage_is
+      type: string
+      default: "true"
+    - name: launchfvt_facilities
+      type: string
+      default: "true"
+    - name: mas_app_channel_facilities
+      type: string
+      default: ""
+    - name: mas_app_channel_iot
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+    - name: icn
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: use_sendgrid
+      type: string
+      default: ""
+    - name: standalone_sls_service
+      type: string
+      default: ""
+    - name: ldap_certificate_file_encoded
+      type: string
+      default: ""
+    - name: aap_job
+      type: string
+      default: "MAS FVT Preparer"
+      description: "Name (or numeric ID) of the AWX/AAP job template that prepares and runs the FVT"
+    - name: aap_timeout
+      type: string
+      default: "72000"
+      description: "Seconds to wait for the AAP job before it is cancelled (the FVT runs for up to about 17 hours)"
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT_ID
+        value: $(params.account_id)
+      - name: REGION_ID
+        value: $(params.region_id)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: LAUNCHER_ID
+        value: $(params.launcher_id)
+      - name: PIPELINE_STORAGE_CLASS
+        value: $(params.pipeline_storage_class)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: FVT_PIPELINE_NAME
+        value: $(params.fvt_pipeline_name)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
+      - name: FVT_CONFIG
+        value: $(params.fvt_config)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)
+      - name: FVT_VERSION_CTF
+        value: $(params.fvt_version_ctf)
+      - name: FVT_VERSION_PREDICT
+        value: $(params.fvt_version_predict)
+      - name: FVT_VERSION_ASSIST
+        value: $(params.fvt_version_assist)
+      - name: FVT_VERSION_IOT
+        value: $(params.fvt_version_iot)
+      - name: FVT_VERSION_OPTIMIZER
+        value: $(params.fvt_version_optimizer)
+      - name: FVT_VERSION_MANAGE
+        value: $(params.fvt_version_manage)
+      - name: FVT_VERSION_MOBILE
+        value: $(params.fvt_version_mobile)
+      - name: FVT_VERSION_DATA_DICTIONARY
+        value: $(params.fvt_version_data_dictionary)
+      - name: FVT_VERSION_SLS
+        value: $(params.fvt_version_sls)
+      - name: FVT_VERSION_FACILITIES
+        value: $(params.fvt_version_facilities)
+      - name: FVT_BLACKLIST_CORE
+        value: $(params.fvt_blacklist_core)
+      - name: FVT_WHITELIST_CORE
+        value: $(params.fvt_whitelist_core)
+      - name: FVT_BLACKLIST_MANAGE
+        value: $(params.fvt_blacklist_manage)
+      - name: FVT_WHITELIST_MANAGE
+        value: $(params.fvt_whitelist_manage)
+      - name: FVT_BLACKLIST_MANAGE_IS
+        value: $(params.fvt_blacklist_manage_is)
+      - name: FVT_WHITELIST_MANAGE_IS
+        value: $(params.fvt_whitelist_manage_is)
+      - name: FVT_BLACKLIST_OPTIMIZER
+        value: $(params.fvt_blacklist_optimizer)
+      - name: FVT_WHITELIST_OPTIMIZER
+        value: $(params.fvt_whitelist_optimizer)
+      - name: ARTIFACTORY_GENERIC_RELEASE_URL
+        value: $(params.artifactory_generic_release_url)
+      - name: ARTIFACTORY_GENERIC_LOGS_URL
+        value: $(params.artifactory_generic_logs_url)
+      - name: FVT_ANSIBLE_VERSION
+        value: $(params.fvt_ansible_version)
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
+      - name: IMAGE_PULL_POLICY
+        value: $(params.image_pull_policy)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: MAS_APPWS_COMPONENTS
+        value: $(params.mas_appws_components)
+      - name: LAUNCHFVT_CORE
+        value: $(params.launchfvt_core)
+      - name: LAUNCHFVT_ASSIST
+        value: $(params.launchfvt_assist)
+      - name: LAUNCHFVT_IOT
+        value: $(params.launchfvt_iot)
+      - name: LAUNCHFVT_MANAGE
+        value: $(params.launchfvt_manage)
+      - name: LAUNCHFVT_MONITOR
+        value: $(params.launchfvt_monitor)
+      - name: LAUNCHFVT_OPTIMIZER
+        value: $(params.launchfvt_optimizer)
+      - name: LAUNCHFVT_PREDICT
+        value: $(params.launchfvt_predict)
+      - name: LAUNCHFVT_VISUALINSPECTION
+        value: $(params.launchfvt_visualinspection)
+      - name: LAUNCHFVT_MOBILE
+        value: $(params.launchfvt_mobile)
+      - name: LAUNCHFVT_MANAGE_IS
+        value: $(params.launchfvt_manage_is)
+      - name: LAUNCHFVT_FACILITIES
+        value: $(params.launchfvt_facilities)
+      - name: MAS_APP_CHANNEL_FACILITIES
+        value: $(params.mas_app_channel_facilities)
+      - name: MAS_APP_CHANNEL_IOT
+        value: $(params.mas_app_channel_iot)
+      - name: MAS_APP_CHANNEL_MANAGE
+        value: $(params.mas_app_channel_manage)
+      - name: MAS_APP_CHANNEL_MONITOR
+        value: $(params.mas_app_channel_monitor)
+      - name: MAS_APP_CHANNEL_VISUALINSPECTION
+        value: $(params.mas_app_channel_visualinspection)
+      - name: MAS_APP_CHANNEL_ASSIST
+        value: $(params.mas_app_channel_assist)
+      - name: MAS_APP_CHANNEL_OPTIMIZER
+        value: $(params.mas_app_channel_optimizer)
+      - name: MAS_APP_CHANNEL_PREDICT
+        value: $(params.mas_app_channel_predict)
+      - name: LDAP_URL
+        value: $(params.ldap_url)
+      - name: LDAP_BASEDN
+        value: $(params.ldap_basedn)
+      - name: LDAP_USERID_MAP
+        value: $(params.ldap_userid_map)
+      - name: ICN
+        value: $(params.icn)
+      - name: AVP_AWS_SECRET_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: USE_SENDGRID
+        value: $(params.use_sendgrid)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.standalone_sls_service)
+      - name: LDAP_CERTIFICATE_FILE_ENCODED
+        value: $(params.ldap_certificate_file_encoded)
+      - name: AAP_JOB
+        value: $(params.aap_job)
+      - name: AAP_TIMEOUT
+        value: $(params.aap_timeout)
+      - name: AAP_JOB_RETRIES
+        value: "0"
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - name: check-aap-connection
+      args:
+        - |-
+          # Fail early, before anything is launched, if AAP is not reachable, the token is not valid
+          # or the job template does not exist
+          mas gitops-invoke-aap --job "$AAP_JOB" --check
+      command:
+        - /bin/bash
+        - -c
+      imagePullPolicy: Always
+      image: "quay.io/ibmmas/cli:latest"
+    - name: invoke-fvt-preparer-aap
+      args:
+        - |-
+          set -o pipefail
+
+          # Send the task parameters to the job as extra vars (lower case name of the environment variable)
+          # plus k8s_cluster_name, which is the cluster name the cluster login of the job expects
+          JQ_ARGS=()
+          for VAR_NAME in CLUSTER_NAME ACCOUNT_ID REGION_ID DEVOPS_BUILD_NUMBER LAUNCHER_ID PIPELINE_STORAGE_CLASS AWS_REGION FVT_PIPELINE_NAME CLI_VERSION FVT_CONFIG FVT_VERSION_CORE IVT_VERSION_CORE FVT_VERSION_CTF FVT_VERSION_PREDICT FVT_VERSION_ASSIST FVT_VERSION_IOT FVT_VERSION_OPTIMIZER FVT_VERSION_MANAGE FVT_VERSION_MOBILE FVT_VERSION_DATA_DICTIONARY FVT_VERSION_SLS FVT_VERSION_FACILITIES FVT_BLACKLIST_CORE FVT_WHITELIST_CORE FVT_BLACKLIST_MANAGE FVT_WHITELIST_MANAGE FVT_BLACKLIST_MANAGE_IS FVT_WHITELIST_MANAGE_IS FVT_BLACKLIST_OPTIMIZER FVT_WHITELIST_OPTIMIZER ARTIFACTORY_GENERIC_RELEASE_URL ARTIFACTORY_GENERIC_LOGS_URL FVT_ANSIBLE_VERSION FVT_IMAGE_REGISTRY IMAGE_PULL_POLICY MAS_INSTANCE_ID MAS_WORKSPACE_ID MAS_CHANNEL MAS_APPWS_COMPONENTS LAUNCHFVT_CORE LAUNCHFVT_ASSIST LAUNCHFVT_IOT LAUNCHFVT_MANAGE LAUNCHFVT_MONITOR LAUNCHFVT_OPTIMIZER LAUNCHFVT_PREDICT LAUNCHFVT_VISUALINSPECTION LAUNCHFVT_MOBILE LAUNCHFVT_MANAGE_IS LAUNCHFVT_FACILITIES MAS_APP_CHANNEL_FACILITIES MAS_APP_CHANNEL_IOT MAS_APP_CHANNEL_MANAGE MAS_APP_CHANNEL_MONITOR MAS_APP_CHANNEL_VISUALINSPECTION MAS_APP_CHANNEL_ASSIST MAS_APP_CHANNEL_OPTIMIZER MAS_APP_CHANNEL_PREDICT LDAP_URL LDAP_BASEDN LDAP_USERID_MAP ICN AVP_AWS_SECRET_REGION USE_SENDGRID STANDALONE_SLS_SERVICE LDAP_CERTIFICATE_FILE_ENCODED; do
+            JQ_ARGS+=(--arg "${VAR_NAME,,}" "${!VAR_NAME}")
+          done
+          export AAP_EXTRA_VARS=$(jq -n "${JQ_ARGS[@]}" --arg k8s_cluster_name "$CLUSTER_NAME" '$ARGS.named') || exit 1
+
+          mas gitops-invoke-aap --job "$AAP_JOB"
+      command:
+        - /bin/bash
+        - -c
+      imagePullPolicy: Always
+      image: "quay.io/ibmmas/cli:latest"
