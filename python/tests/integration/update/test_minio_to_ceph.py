@@ -44,46 +44,26 @@ def runUpdate(tmpdir, instances, argv, prompt_handlers=None):
     return helper.app.getParam(PARAM)
 
 
-def test_non_interactive_with_flag_migrates_instances_on_minio(tmpdir):
-    """--migrate-minio-to-ceph selects only the instances that use MinIO"""
+def test_non_interactive_migrates_instances_on_minio(tmpdir):
+    """Only the instances that use MinIO are selected, with no flag needed"""
     instances = [aiservice("onminio", MINIO_URL), aiservice("onceph", CEPH_URL)]
-    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-261105-amd64", "--no-confirm", "--migrate-minio-to-ceph"])
+    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-261105-amd64", "--no-confirm"])
     assert selected == "onminio"
 
 
-def test_non_interactive_without_flag_leaves_minio_alone(tmpdir):
-    """Without the flag nothing is migrated, MinIO users are only warned"""
-    instances = [aiservice("onminio", MINIO_URL)]
+def test_non_interactive_nothing_on_minio(tmpdir):
+    """Nothing is selected when no instance uses MinIO"""
+    instances = [aiservice("onceph", CEPH_URL)]
     selected = runUpdate(tmpdir, instances, ["--catalog", "v9-261105-amd64", "--no-confirm"])
     assert selected == ""
 
 
-def test_non_interactive_nothing_on_minio(tmpdir):
-    """The flag does nothing when no instance uses MinIO"""
-    instances = [aiservice("onceph", CEPH_URL)]
-    selected = runUpdate(tmpdir, instances, ["--catalog", "v9-261105-amd64", "--no-confirm", "--migrate-minio-to-ceph"])
-    assert selected == ""
-
-
-def test_interactive_answer_yes_migrates(tmpdir):
-    """Answering y to the MinIO to Ceph prompt selects the instances"""
+def test_interactive_migrates_without_prompt(tmpdir):
+    """The migration is mandatory, there is no MinIO to Ceph prompt to answer"""
     handlers = {
         ".*Proceed with this cluster.*": lambda msg: "y",
         ".*Select catalog version.*": lambda msg: "1",
-        ".*from MinIO to Ceph.*": lambda msg: "y",
         ".*Proceed with these settings.*": lambda msg: "y",
     }
     selected = runUpdate(tmpdir, [aiservice("onminio", MINIO_URL)], [], handlers)
     assert selected == "onminio"
-
-
-def test_interactive_answer_no_skips(tmpdir):
-    """Answering n to the MinIO to Ceph prompt migrates nothing"""
-    handlers = {
-        ".*Proceed with this cluster.*": lambda msg: "y",
-        ".*Select catalog version.*": lambda msg: "1",
-        ".*from MinIO to Ceph.*": lambda msg: "n",
-        ".*Proceed with these settings.*": lambda msg: "y",
-    }
-    selected = runUpdate(tmpdir, [aiservice("onminio", MINIO_URL)], [], handlers)
-    assert selected == ""

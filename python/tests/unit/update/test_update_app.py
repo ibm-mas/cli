@@ -254,7 +254,7 @@ class TestDetectMinioToCephCatalogGate:
 
     - v9-261007-amd64 onwards: field present, value "ceph"  → runs and returns DetectResult
     - All older catalogs: field absent or non-ceph           → skips, returns DetectResult(ok=True)
-    - TUI path: stores instance IDs in self.minioInstanceIds; param set at confirm time.
+    - Ceph-era catalogs: the migration is mandatory, instances on MinIO are always scheduled (CLI and TUI).
     """
 
     def _make_minio_app(self, s3_provider: str | None, catalog_version: str, tui: bool = False) -> UpdateApp:
@@ -262,7 +262,6 @@ class TestDetectMinioToCephCatalogGate:
         app.args = _make_args(mas_catalog_version=catalog_version)
         app.noConfirm = True
         app.tuiMode = tui
-        app.minioInstanceIds = []
         catalog: dict = {}
         if s3_provider is not None:
             catalog["aiservice_s3_provider_default"] = s3_provider
@@ -329,61 +328,44 @@ class TestDetectMinioToCephCatalogGate:
         assert result.ok is True
 
     @patch("mas.cli.update.app.listAiServiceInstances")
-    def test_tui_path_stores_instance_ids_not_param(self, mock_list):
-        """TUI path must populate minioInstanceIds but NOT set the pipeline param.
+    def test_minio_instances_are_scheduled_without_prompt(self, mock_list):
+        """Instances on MinIO are always scheduled for migration and never prompted for.
 
-        GIVEN TUI mode is active, ceph-era catalog, and one MinIO instance
+        GIVEN a ceph-era catalog and one instance on MinIO and one on Ceph
+        WHEN detectMinioToCeph runs (CLI mode)
+        THEN only the MinIO instance is scheduled and no prompt is shown (the warning is printed by the review step).
+        """
+        app = self._make_minio_app(s3_provider="ceph", catalog_version="v9-261105-amd64")
+        app.noConfirm = False
+        mock_list.return_value = [
+            {"metadata": {"name": "ais"}, "spec": {"settings": {"s3": {"url": "http://minio-service.minio.svc/bucket"}}}},
+            {"metadata": {"name": "other"}, "spec": {"settings": {"s3": {"url": "https://s3.openshift-storage.svc:443"}}}},
+        ]
+
+        result = app.detectMinioToCeph()
+
+        assert result.ok is True
+        assert "Warning" in result.message
+        assert app.params["aiservice_s3_migration_instance_ids"] == "ais"
+        app.printDescription.assert_not_called()
+        app.yesOrNo.assert_not_called()
+
+    @patch("mas.cli.update.app.listAiServiceInstances")
+    def test_tui_path_schedules_without_warning_prompt(self, mock_list):
+        """TUI path schedules the migration directly, there is no confirm checkbox.
+
+        GIVEN TUI mode, a ceph-era catalog and one MinIO instance
         WHEN detectMinioToCeph runs
-        THEN minioInstanceIds is set and aiservice_s3_migration_instance_ids stays empty.
+        THEN the param is set and nothing is printed to the console.
         """
         app = self._make_minio_app(s3_provider="ceph", catalog_version="v9-261105-amd64", tui=True)
-        app.params["aiservice_s3_migration_instance_ids"] = ""
         mock_list.return_value = [{"metadata": {"name": "ais"}, "spec": {"settings": {"s3": {"url": "http://minio-service.minio.svc/bucket"}}}}]
 
         result = app.detectMinioToCeph()
 
         assert result.ok is True
-        assert app.minioInstanceIds == ["ais"]
-        # param must NOT be set by the detector — only by ConfirmUpgradesScreen
-        app.setParam.assert_called_once_with("aiservice_s3_migration_instance_ids", "")
-
-    def test_minio_migration_pending_true_when_instances_found(self):
-        """minioMigrationPending() is True when minioInstanceIds is set and param is empty.
-
-        GIVEN TUI mode and minioInstanceIds populated but param not yet written
-        WHEN minioMigrationPending() is called
-        THEN it returns True.
-        """
-        app = self._make_minio_app(s3_provider="ceph", catalog_version="v9-261105-amd64", tui=True)
-        app.minioInstanceIds = ["ais"]
-        app.params["aiservice_s3_migration_instance_ids"] = ""
-
-        assert app.minioMigrationPending() is True
-
-    def test_minio_migration_pending_false_after_param_set(self):
-        """minioMigrationPending() is False once the migration param has been written.
-
-        GIVEN the ConfirmUpgradesScreen has written aiservice_s3_migration_instance_ids
-        WHEN minioMigrationPending() is called
-        THEN it returns False.
-        """
-        app = self._make_minio_app(s3_provider="ceph", catalog_version="v9-261105-amd64", tui=True)
-        app.minioInstanceIds = ["ais"]
-        app.params["aiservice_s3_migration_instance_ids"] = "ais"
-
-        assert app.minioMigrationPending() is False
-
-    def test_minio_migration_pending_false_when_no_instances(self):
-        """minioMigrationPending() is False when no MinIO instances were detected.
-
-        GIVEN no instances on MinIO (minioInstanceIds is empty)
-        WHEN minioMigrationPending() is called
-        THEN it returns False.
-        """
-        app = self._make_minio_app(s3_provider="ceph", catalog_version="v9-261105-amd64", tui=True)
-        app.minioInstanceIds = []
-
-        assert app.minioMigrationPending() is False
+        assert app.params["aiservice_s3_migration_instance_ids"] == "ais"
+        app.printDescription.assert_not_called()
 
 
 # ---------------------------------------------------------------------------

@@ -74,7 +74,6 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         self.mongoTargetVersion: Optional[str] = None
         self.db2CurrentMajorVersion: Optional[int] = None
         self.db2TargetMajorVersion: Optional[int] = None
-        self.minioInstanceIds: list = []
 
     def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
         """
@@ -292,7 +291,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                         self.setParam(key, value)
 
                 # Arguments that we don't need to do anything with
-                elif key in ["no_confirm", "help", "migrate_minio_to_ceph"]:
+                elif key in ["no_confirm", "help"]:
                     pass
 
                 # Db2 License file has special handling
@@ -409,6 +408,19 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                 else "No action required"
             ),
         )
+
+        if self.getParam("aiservice_s3_migration_instance_ids") != "":
+            print()
+            self.printWarning(f"AI Service instances using MinIO will be migrated to Ceph (ODF): {self.getParam('aiservice_s3_migration_instance_ids')}")
+            self.printDescription(
+                [
+                    "MinIO is no longer supported for AI Service in this catalog, this migration is mandatory",
+                    "- MinIO is backed up, restored into Ceph, and the AI Service is reconfigured to use Ceph",
+                    "- Ceph (ODF) is installed first if it is not ready on the cluster",
+                    "- The AI Service will be unavailable while it restarts",
+                    "- MinIO is NOT removed, so you can fall back to it until you have verified the result",
+                ]
+            )
 
         if not self.noConfirm:
             print()
@@ -805,13 +817,17 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         return DetectResult(ok=True, message="RHOAI v2 is not installed")
 
     def detectMinioToCeph(self) -> DetectResult:
-        """Detect AI Service instances using in-cluster MinIO and offer migration to Ceph (ODF).
+        """Detect AI Service instances using in-cluster MinIO and schedule their migration to Ceph (ODF).
 
-        Only offered when the target catalog has ``aiservice_s3_provider_default: ceph``.
+        Only applies when the target catalog has ``aiservice_s3_provider_default: ceph``.
         Catalogs that pre-date Ceph support omit the field entirely — those skip the check.
+        For Ceph-era catalogs the migration is mandatory: the instances are always
+        scheduled and there is nothing to confirm.  The warning is shown in the
+        review step (``reviewDependencyUpgrades``) rather than here, because this
+        runs inside a spinner.
 
         Returns:
-            DetectResult: ok=True always (migration is optional, never blocks the update).
+            DetectResult: ok=True always (migration never blocks the update).
         """
         self.setParam("aiservice_s3_migration_instance_ids", "")
 
@@ -836,28 +852,8 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         if len(onMinio) == 0:
             return DetectResult(ok=True, message="No AI Service instance is using MinIO")
 
-        if not self.tuiMode:
-            self.printDescription(
-                [
-                    "<u>Optional Migration: MinIO to Ceph</u>",
-                    "MinIO is no longer installed for new AI Service instances, Ceph (ODF) is used instead",
-                    "- MinIO is backed up, restored into Ceph, and the AI Service is reconfigured to use Ceph",
-                    "- Ceph (ODF) is installed first if it is not ready on the cluster",
-                    "- The AI Service will be unavailable while it restarts",
-                    "- MinIO is NOT removed, so you can fall back to it until you have verified the result",
-                ]
-            )
-
-            flagSet = getattr(self.args, "migrate_minio_to_ceph", False)
-            if (self.noConfirm and flagSet) or (not self.noConfirm and self.yesOrNo("Migrate the AI Service object storage from MinIO to Ceph")):
-                self.setParam("aiservice_s3_migration_instance_ids", ",".join(onMinio))
-                return DetectResult(ok=True, message=f"AI Service instances scheduled for MinIO → Ceph migration: {', '.join(onMinio)}")
-            else:
-                return DetectResult(ok=True, message=f"AI Service instances left on MinIO (skipped): {', '.join(onMinio)}")
-
-        # TUI path: store the list for the ConfirmUpgradesScreen checkbox; param is set at confirm time.
-        self.minioInstanceIds = onMinio
-        return DetectResult(ok=True, message=f"AI Service instances using MinIO: {', '.join(onMinio)}")
+        self.setParam("aiservice_s3_migration_instance_ids", ",".join(onMinio))
+        return DetectResult(ok=True, message=f"Warning: AI Service instances will be migrated from MinIO to Ceph: {', '.join(onMinio)}")
 
     def detectMongoDb(self) -> DetectResult:
         """Detect MongoDB Community and set mongodb_namespace, mongodb_version, mongodb_replicas, and mongodb_action params.
@@ -1448,16 +1444,6 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
             return False
         return self.db2LicenseFileLocal is None
 
-    def minioMigrationPending(self) -> bool:
-        """Return True when AI Service instances on MinIO are waiting for TUI migration confirmation.
-
-        Returns:
-            bool: True when ``minioInstanceIds`` is non-empty and the migration
-                param has not yet been set (i.e. the TUI confirm screen hasn't
-                written it yet).
-        """
-        return bool(self.minioInstanceIds) and self.getParam("aiservice_s3_migration_instance_ids") == ""
-
     def upgradeConfirmationsPending(self) -> bool:
         """Return True when any interactive upgrade confirmation is still required.
 
@@ -1468,7 +1454,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         Returns:
             bool: True when at least one confirmation is pending.
         """
-        return self.mongoUpgradeConfirmationPending() or self.db2UpgradeConfirmationPending() or self.db2LicenseFileNeeded() or self.minioMigrationPending()
+        return self.mongoUpgradeConfirmationPending() or self.db2UpgradeConfirmationPending() or self.db2LicenseFileNeeded()
 
     def reviewDependencyUpgrades(self) -> None:
         """Prompt for or validate upgrade confirmations for MongoDB and Db2 major-version upgrades.

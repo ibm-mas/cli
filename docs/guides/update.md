@@ -52,7 +52,7 @@ In December 2024 it was announced that support for the Grafana v4 Operator would
 ### Optional Migrations
 
 #### AI Service object storage: MinIO to Ceph
-New AI Service installations use Ceph (OpenShift Data Foundation) for object storage rather than the in-cluster MinIO. If `mas update` finds an AI Service instance whose object storage is still the in-cluster MinIO it will offer to migrate it. This is optional, nothing is migrated unless you agree to it.
+New AI Service installations use Ceph (OpenShift Data Foundation) for object storage rather than the in-cluster MinIO. If `mas update` to a catalog that supports Ceph finds an AI Service instance whose object storage is still the in-cluster MinIO it shows a warning and migrates it as part of the update. The migration is mandatory and there is nothing to confirm.
 
 If Ceph (ODF) is not ready on the cluster the update installs it first with the `ocs` role, using the default local disk path `/dev/vdb`. The update will:
 
@@ -62,9 +62,6 @@ If Ceph (ODF) is not ready on the cluster the update installs it first with the 
 4. Reconfigure the AI Service instance (and its tenants) to use Ceph, add the Ceph service CA to the RHOAI trusted CA bundle if it is missing, then restart it
 
 The AI Service is unavailable while it restarts. MinIO is **not** removed, so you can fall back to it until you have verified AI Service on Ceph. Remove it yourself afterwards.
-
-- In interactive mode you are asked whether to migrate.
-- In non-interactive mode add `--migrate-minio-to-ceph`. Without it the instances are left on MinIO and a warning is shown.
 
 !!! note
     The backup is held in temporary storage of the pipeline pod, make sure the node has enough ephemeral storage for all of the data in MinIO.

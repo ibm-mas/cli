@@ -16,7 +16,6 @@ dependencies require an explicit confirmation before the update can proceed:
 - MongoDB Community major-version update (with backup recommendation notice)
 - IBM Db2 major-version update
 - Db2 v11 to v12 activation license file path
-- AI Service MinIO to Ceph migration (optional)
 
 The Db2 license path input is rendered inline in the IBM Db2 section: for a
 v11 to v12 upgrade, providing the license file path is itself the
@@ -25,10 +24,6 @@ checkbox is only rendered for major-version upgrades that do not need a
 license file.  The entered path is validated to point at an existing file
 before the step can complete, so a typo fails at confirmation time rather
 than when the pipeline launch reads the file.
-
-The MinIO migration checkbox is optional — leaving it unchecked skips the
-migration; checking it schedules the migration.  The Confirm button is never
-blocked by the MinIO checkbox state.
 
 The step is only shown when ``UpdateApp.upgradeConfirmationsPending()`` is
 True; otherwise the workflow skips straight to review.
@@ -58,7 +53,6 @@ class ConfirmUpgradesScreen(Vertical):
     confirmation is satisfied: MongoDB and Db2 checkboxes (where rendered)
     must be checked, and the Db2 v11 to v12 license path (when needed) must
     be provided — for that upgrade, entering the path is the confirmation.
-    The MinIO migration checkbox is optional and never blocks Confirm.
     Confirm writes the corresponding params and posts StepCompleted; Abort
     exits the application.
 
@@ -148,29 +142,6 @@ class ConfirmUpgradesScreen(Vertical):
                             classes="confirm-checkbox",
                         )
 
-            if self._mas_app.minioMigrationPending():
-                instance_list = ", ".join(self._mas_app.minioInstanceIds)
-                with Vertical(id="confirm-minio-section", classes="confirm-section"):
-                    yield Label("AI Service MinIO to Ceph Migration", classes="confirm-section-heading")
-                    yield Label(
-                        f"The following AI Service instance(s) are using in-cluster MinIO: {instance_list}",
-                        classes="confirm-section-para",
-                    )
-                    yield Label(
-                        "MinIO is no longer used for new AI Service instances — Ceph (ODF) is used instead.\n"
-                        "- MinIO data is backed up, restored into Ceph, and AI Service is reconfigured\n"
-                        "- Ceph (ODF) is installed first if not already present on the cluster\n"
-                        "- AI Service will be unavailable while it restarts\n"
-                        "- MinIO is NOT removed, so you can fall back until you have verified the result",
-                        classes="confirm-section-para",
-                    )
-                    yield Checkbox(
-                        "Migrate AI Service object storage from MinIO to Ceph",
-                        id="confirm-minio-migration",
-                        classes="confirm-checkbox",
-                        value=True,
-                    )
-
         yield ActionBar(
             "",
             status_id=f"validator-error-{self._step.id}",
@@ -258,16 +229,6 @@ class ConfirmUpgradesScreen(Vertical):
         licensePath = self._licensePath()
         if licensePath:
             self._mas_app.db2LicenseFileLocal = licensePath
-        if self._mas_app.minioMigrationPending():
-            try:
-                checked = self.query_one("#confirm-minio-migration", Checkbox).value
-            except Exception:
-                checked = False
-            if checked:
-                self._mas_app.setParam("aiservice_s3_migration_instance_ids", ",".join(self._mas_app.minioInstanceIds))
-            else:
-                # User declined — leave param empty (already initialised to "")
-                self._mas_app.minioInstanceIds = []
 
     def on_checkbox_changed(self, _event: Checkbox.Changed) -> None:
         """Clear the inline error when a confirmation checkbox changes.
