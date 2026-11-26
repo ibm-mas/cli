@@ -110,6 +110,10 @@ jobs:
           name: ibm-mas-tekton.yaml
           path: ${{ github.workspace }}/python/src/mas/cli/templates/
 
+      - name: Bundle pre-install RBAC manifests
+        id: bundle-rbac
+        run: $GITHUB_WORKSPACE/build/bin/bundle-preinstall-rbac.sh
+
       - name: Install
         id: install
         run: |

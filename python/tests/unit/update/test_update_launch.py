@@ -99,7 +99,7 @@ def test_launchUpdate_applies_rbac_when_flag_set():
 
     GIVEN applyPreInstallMASRBAC=True and one entry in instancesNeedingRBAC
     WHEN launchUpdate() is called
-    THEN applyPreInstallMASRBAC devops function is called once for that instance.
+    THEN applyPreInstallMASRBAC devops function is called once for that instance with the resolved rbacRootDir.
     """
     app = _make_update_app()
     app.applyPreInstallMASRBAC = True
@@ -107,6 +107,7 @@ def test_launchUpdate_applies_rbac_when_flag_set():
 
     with (
         patch(f"{_DEVOPS_PATCH_BASE}.installOpenShiftPipelines", return_value=True),
+        patch("mas.cli.update.app.UpdateApp.getPreinstallRBACRootDir", return_value="/fake/rbac"),
         patch(f"{_DEVOPS_PATCH_BASE}.applyPreInstallMASRBAC") as mock_rbac,
         patch(f"{_DEVOPS_PATCH_BASE}.getInstalledApps", return_value=[]),
         patch(f"{_DEVOPS_PATCH_BASE}.createNamespace"),
@@ -119,6 +120,7 @@ def test_launchUpdate_applies_rbac_when_flag_set():
         app.launchUpdate()
 
     assert mock_rbac.call_count == 1
+    assert mock_rbac.call_args.kwargs["rbacRootDir"] == "/fake/rbac"
 
 
 def test_launchUpdate_skips_rbac_when_flag_false():
