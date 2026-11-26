@@ -205,11 +205,13 @@ def test_every_apply_call_passes_rbac_root_dir():
     for sourceFile in SRC_DIR.rglob("*.py"):
         for node in ast.walk(ast.parse(sourceFile.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "applyPreInstallMASRBAC":
-                calls.append((sourceFile.name, {keyword.arg for keyword in node.keywords}))
+                calls.append((f"{sourceFile.relative_to(SRC_DIR)}:{node.lineno}", {keyword.arg for keyword in node.keywords}))
 
-    assert len(calls) == 4
-    for fileName, keywords in calls:
-        assert "rbacRootDir" in keywords, f"{fileName} calls applyPreInstallMASRBAC without rbacRootDir"
+    # Guard against the scan silently finding nothing (e.g. if the function is renamed), without
+    # hard-coding how many call sites exist, which breaks whenever a command is added
+    assert calls, "No applyPreInstallMASRBAC calls found, this test needs updating"
+    for location, keywords in calls:
+        assert "rbacRootDir" in keywords, f"{location} calls applyPreInstallMASRBAC without rbacRootDir"
 
 
 def test_preinstall_rbac_tree_is_declared_as_package_data():
