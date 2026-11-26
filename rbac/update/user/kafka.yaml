@@ -1,0 +1,38 @@
+# OPTIONAL: apply this file only when the Kafka CRD (kafkas.kafka.strimzi.io) exists on the cluster.
+# It is deliberately not listed in kustomization.yaml.  The CLI only lists Kafka resources when that CRD is present.
+#   oc apply -f kafka.yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mas:update-user:kafka
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:update-user:kafka
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mas:update-user:kafka
+rules:
+  # MAS update lists Kafka instances across all namespaces to detect where Kafka is installed
+  - apiGroups:
+      - kafka.strimzi.io
+    resources:
+      - kafkas
+    verbs:
+      - list
+
+  # MAS update lists operator subscriptions across all namespaces to determine whether the Kafka operator is
+  # Strimzi or Red Hat AMQ Streams.  This is only done when Kafka is found and --kafka-provider was not specified.
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - subscriptions
+    verbs:
+      - list

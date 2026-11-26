@@ -1,0 +1,30 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:update-user:openshift-console
+  namespace: openshift-console
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:update-user:openshift-console
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:update-user:openshift-console
+  namespace: openshift-console
+rules:
+  # MAS update looks up the route to the OpenShift Console so that it can show the user the URL of the update pipeline run
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - get
+    resourceNames:
+      - console

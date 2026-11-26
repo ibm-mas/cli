@@ -1,0 +1,50 @@
+# OPTIONAL: apply this file only when the Cloud Pak for Data CRD (ibmcpds.cpd.ibm.com) exists on the cluster.
+# It is deliberately not listed in kustomization.yaml.  The CLI only lists CP4D resources when that CRD is present.
+#   oc apply -f cp4d.yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mas:update-user:cp4d
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:update-user:cp4d
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mas:update-user:cp4d
+rules:
+  # MAS update lists Cloud Pak for Data instances across all namespaces to detect whether CP4D needs to be updated
+  - apiGroups:
+      - cpd.ibm.com
+    resources:
+      - ibmcpds
+    verbs:
+      - list
+
+  # MAS update lists the CP4D services that are installed (Watson Studio, Watson Machine Learning, Analytics Engine)
+  # to decide which of them are included in the CP4D update.  This is only done when a CP4D update is needed.
+  - apiGroups:
+      - ws.cpd.ibm.com
+    resources:
+      - ws
+    verbs:
+      - list
+  - apiGroups:
+      - wml.cpd.ibm.com
+    resources:
+      - wmlbases
+    verbs:
+      - list
+  - apiGroups:
+      - ae.cpd.ibm.com
+    resources:
+      - analyticsengines
+    verbs:
+      - list

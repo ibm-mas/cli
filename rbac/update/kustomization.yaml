@@ -1,0 +1,19 @@
+resources:
+  # Namespaces
+  - namespaces.yaml
+  # Update User
+  - user/clusterrole.yaml
+  - user/openshift-console.yaml
+  - user/openshift-marketplace.yaml
+  - user/openshift-operators.yaml
+  - user/openshift-pipelines.yaml
+  - user/serviceaccount.yaml
+  # Update Pipeline RBAC (TODO: audit the update pipeline tasks)
+
+  # Optional update user RBAC, NOT applied by default.  These files are for dependencies that may not exist on the cluster,
+  # and a Role cannot be bound in a namespace that does not exist.  Apply only the ones that match what is installed:
+  #   user/ibm-cpd.yaml  (only if the ibm-cpd namespace exists, for Watson Discovery / OpenScale detection)
+  #   user/grafana.yaml  (only if the Grafana Operator v4 CRD exists, for Grafana v4 to v5 detection)
+  #   user/kafka.yaml    (only if the Kafka CRD, kafkas.kafka.strimzi.io, exists, for Kafka detection)
+  #   user/cp4d.yaml     (only if the Cloud Pak for Data CRD, ibmcpds.cpd.ibm.com, exists, for CP4D detection)
+

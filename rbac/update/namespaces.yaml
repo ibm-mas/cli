@@ -1,0 +1,11 @@
+---
+# Cluster-wide pipelines namespace used by "mas update" (not tied to any MAS instance ID)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-pipelines
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-pipelines

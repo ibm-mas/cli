@@ -31,6 +31,7 @@ class UpdateArgumentParser(argparse.ArgumentParser):
             f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
             f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
             f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--no-confirm] [--skip-pre-check]\n"
+            f"                  [--service-account SERVICE_ACCOUNT]\n"
             f"\n"
             f"Usage (interactive mode):\n"
             f"  {prog}\n"
@@ -210,6 +211,13 @@ otherArgGroup.add_argument(
     help="Image pull policy for Tekton Pipeline",
     choices=IMAGE_PULL_POLICIES,
     metavar="{IfNotPresent,Always}",
+)
+otherArgGroup.add_argument(
+    "--service-account",
+    dest="service_account_name",
+    required=False,
+    default="pipeline",
+    help="Service account to run the update pipeline as (default: pipeline). The default 'pipeline' service account is bound to cluster-admin, any other service account must already exist in mas-pipelines with the permissions the update needs",
 )
 otherArgGroup.add_argument(
     "-h",

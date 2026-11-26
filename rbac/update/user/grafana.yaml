@@ -1,0 +1,29 @@
+# OPTIONAL: apply this file only when the Grafana Operator v4 CRD (grafanas.integreatly.org) exists on the cluster.
+# It is deliberately not listed in kustomization.yaml.  The CLI only lists Grafana resources when that CRD is present.
+#   oc apply -f grafana.yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mas:update-user:grafana
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:update-user:grafana
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mas:update-user:grafana
+rules:
+  # MAS update lists Grafana Operator v4 instances across the cluster to detect whether a migration to Grafana v5 is needed
+  - apiGroups:
+      - integreatly.org
+    resources:
+      - grafanas
+    verbs:
+      - list

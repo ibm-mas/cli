@@ -15,7 +15,7 @@ All tests follow the RED-GREEN-REFACTOR TDD cycle.
 
 from unittest.mock import MagicMock
 
-from mas.cli.update.workflow import buildUpdateWorkflow
+from mas.cli.update.workflow import buildUpdateReview, buildUpdateWorkflow
 
 
 def _make_app():
@@ -112,6 +112,52 @@ def test_choose_catalog_field_is_select_type():
     assert field is not None, "Expected field 'mas_catalog_version' in choose-catalog step"
     assert field.type == "select"
     assert field.options == ["v9-260625-amd64", "v9-260527-amd64", "v9-260430-amd64"]
+
+
+def test_choose_catalog_step_has_service_account_field_defaulting_to_pipeline():
+    """Test the choose-catalog step asks for the pipeline service account, defaulting to 'pipeline'.
+
+    GIVEN an app instance mock
+    WHEN buildUpdateWorkflow(app) is called
+    THEN the 'choose-catalog' step has a 'service_account_name' string field
+         pre-filled with 'pipeline'.
+    """
+    definition = buildUpdateWorkflow(_make_app())
+    step = next(s for s in definition if s.id == "choose-catalog")
+    field = next((f for f in step.fields if f.id == "service_account_name"), None)
+    assert field is not None, "Expected field 'service_account_name' in choose-catalog step"
+    assert field.type == "string"
+    assert field.default == "pipeline"
+
+
+def test_review_step_summary_includes_service_account():
+    """Test the review step summary shows the pipeline service account.
+
+    GIVEN an app instance mock
+    WHEN buildUpdateWorkflow(app) is called
+    THEN the 'review' step summary has a 'service_account_name' param item.
+    """
+    definition = buildUpdateWorkflow(_make_app())
+    step = next(s for s in definition if s.id == "review")
+    assert "service_account_name" in [item.param for item in step.summary]
+
+
+def test_review_text_shows_service_account():
+    """Test buildUpdateReview shows the service account, including the default.
+
+    GIVEN an app with service_account_name in params
+    WHEN buildUpdateReview is called
+    THEN the value is shown, whether it is the default 'pipeline' or a custom name.
+    """
+    app = MagicMock()
+    app.installedCatalogId = "v9-260101-amd64"
+    app.rhoaiV2Detected = False
+
+    app.params = {"mas_catalog_version": "v9-260625-amd64", "service_account_name": "pipeline"}
+    assert "**Pipeline Service Account:** pipeline" in buildUpdateReview(app)
+
+    app.params = {"mas_catalog_version": "v9-260625-amd64", "service_account_name": "mas-update-pipeline"}
+    assert "**Pipeline Service Account:** mas-update-pipeline" in buildUpdateReview(app)
 
 
 def test_choose_catalog_step_has_installed_catalog_context():

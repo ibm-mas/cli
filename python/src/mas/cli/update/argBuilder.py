@@ -78,6 +78,7 @@ UPDATE_COMMAND_ARGS = [
     # More Options
     # -----------------------------------------------------------------------------
     CommandArg(dest="image_pull_policy"),
+    CommandArg(dest="service_account_name", when=_ne("service_account_name", "pipeline")),
     CommandArg(dest="dev_mode", const=True, when=_attrTruthy("devMode")),
     CommandArg(dest="skip_pre_check", const=True, when=paramIsTrue("skip_pre_check")),
     # Footer

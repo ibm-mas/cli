@@ -208,6 +208,31 @@ def test_round_trip_shell_escaping():
     assert args.image_pull_policy == "IfNotPresent"
 
 
+def test_service_account_round_trip():
+    """GIVEN a service_account_name param
+    WHEN the generated command is parsed
+    THEN --service-account is emitted and round-trips
+    """
+    app = make_app(params={"mas_catalog_version": "v9-240625-amd64", "service_account_name": "mas-update-pipeline"})
+    script = app.buildCommand()
+    args, _, _, _ = parse_generated_command(script)
+
+    assert "--service-account mas-update-pipeline" in script
+    assert args.service_account_name == "mas-update-pipeline"
+
+
+def test_service_account_defaults_to_pipeline_and_is_not_emitted():
+    """GIVEN no --service-account flag
+    WHEN the arguments are parsed and the command generated
+    THEN the parser default is 'pipeline' and the default is left out of the command
+    """
+    args = updateArgParser.parse_args(["--catalog", "v9-240625-amd64"])
+    assert args.service_account_name == "pipeline"
+
+    app = make_app(params={"mas_catalog_version": "v9-240625-amd64", "service_account_name": "pipeline"})
+    assert "--service-account" not in app.buildCommand()
+
+
 def test_no_plaintext_sensitive_params():
     """GIVEN a scenario with sensitive params set
     WHEN the command is generated

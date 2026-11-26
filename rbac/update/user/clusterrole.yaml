@@ -1,0 +1,148 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mas:update-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:update-user
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+# "mas update" is cluster-wide, so this ClusterRole is not tied to a MAS instance ID.
+# Rules are added here one at a time as each 403 is hit when running "mas update" as this user.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mas:update-user
+rules:
+
+  # The CLI will inspect the cluster nodes to automatically determine the target architecture
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - list
+
+  # The CLI will inspect the "version" clusterversion to validate that the chosen catalog is compatible with the OCP version
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - clusterversions
+    verbs:
+      - get
+    resourceNames:
+      - version
+
+  # The CLI checks whether the legacy "ibm-common-services" namespace exists, to detect a legacy IBM Certificate-Manager installation
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+    resourceNames:
+      - ibm-common-services
+
+  # The CLI checks whether the cluster is set up for air-gapped installs (private image registry).
+  # First it looks for the legacy ImageContentSourcePolicy (deprecated, we error if found) by name ...
+  - apiGroups:
+      - operator.openshift.io
+    resources:
+      - imagecontentsourcepolicies
+    verbs:
+      - get
+    resourceNames:
+      - ibm-mas-and-dependencies
+
+  # ... and then lists ImageDigestMirrorSets (filtered by label) to detect the supported mirror configuration
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - imagedigestmirrorsets
+    verbs:
+      - list
+
+  # The CLI lists every MAS Suite on the cluster to determine which instances will be affected by the update
+  - apiGroups:
+      - core.mas.ibm.com
+    resources:
+      - suites
+    verbs:
+      - list
+
+  # The CLI lists every AI Service instance on the cluster to determine which will be affected by the update
+  - apiGroups:
+      - aiservice.ibm.com
+    resources:
+      - aiserviceapps
+    verbs:
+      - list
+
+
+  # The CLI checks whether RHOAI v2 is installed by reading the "rhods-operator" subscription in the "redhat-ods-operator" namespace.
+  #
+  # WHY THIS IS A CLUSTERROLE RULE AND NOT A ROLE IN redhat-ods-operator:
+  #  - The "redhat-ods-operator" namespace only exists when RHOAI is installed, and a Role/RoleBinding cannot be created in a namespace
+  #    that does not exist, so it could not be applied on clusters without RHOAI.
+  #  - The CLI always makes this call (Subscription is an OLM resource that always exists), it does not first check for the namespace.
+  #    Without permission the API server returns 403 (not 404) even when the namespace is missing.
+  #  - If this call were denied the CLI would skip the check, and an installed RHOAI v2 would not be detected, so the update would not
+  #    perform the required RHOAI v2 to v3 replacement.
+  #  - A ClusterRole rule with resourceNames grants the permission regardless of whether the namespace exists, and is limited to this
+  #    one subscription name.  If the namespace does not exist the API returns 404, which the CLI treats as "RHOAI v2 not installed".
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - subscriptions
+    verbs:
+      - get
+    resourceNames:
+      - rhods-operator
+
+  # The CLI lists MongoDB Community Edition instances across all namespaces to detect the installed MongoDB version and whether it needs to be updated
+  - apiGroups:
+      - mongodbcommunity.mongodb.com
+    resources:
+      - mongodbcommunity
+    verbs:
+      - list
+
+  # The CLI lists Db2uCluster and Db2uInstance resources across all namespaces to detect where Db2 is installed and whether a major version update is needed
+  - apiGroups:
+      - db2u.databases.ibm.com
+    resources:
+      - db2uclusters
+      - db2uinstances
+    verbs:
+      - list
+
+  # The CLI checks whether OpenShift Pipelines (Tekton) is installed and ready before launching the update pipeline
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - get
+    resourceNames:
+      - pipelines.tekton.dev
+      - tasks.tekton.dev
+
+
+  # The CLI checks whether the "mas-pipelines" namespace exists before preparing it for the update pipeline.
+  # It is a named "get" only, the namespace is created by the cluster admin when the RBAC is applied so the CLI never needs to create it.
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+    resourceNames:
+      - mas-pipelines
+
+
+

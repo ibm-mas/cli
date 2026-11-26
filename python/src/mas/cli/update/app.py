@@ -33,6 +33,7 @@ from mas.devops.utils import isVersionEqualOrAfter
 from ..install.app import InstallApp
 from ..install.settings import AdditionalConfigsMixin
 from ..rbac_utils import evaluatePreinstallRBACAccess
+from ..validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,8 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         self.mongoTargetVersion: Optional[str] = None
         self.db2CurrentMajorVersion: Optional[int] = None
         self.db2TargetMajorVersion: Optional[int] = None
+        # The TUI never calls update(), so set the default here; update() overwrites it from --service-account
+        self.setParam("service_account_name", "pipeline")
 
     def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
         """
@@ -245,6 +248,9 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         self.db2TargetMajorVersion = None
         self.isInteractiveMode = self.args.mas_catalog_version is None
 
+        # Applies to both modes: defaults to 'pipeline' (bound to cluster-admin), or the service account the user specified
+        self.setParam("service_account_name", self.args.service_account_name)
+
         if self.args.mas_catalog_version:
             # Non-interactive mode
             logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
@@ -265,6 +271,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
                 "dev_mode",
                 "cpd_product_version",
                 "image_pull_policy",
+                "service_account_name",
                 # Dev Mode
                 "artifactory_username",
                 "artifactory_token",
@@ -319,6 +326,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         if self.args.mas_catalog_version is None:
             # Interactive mode
             self.chooseCatalog()
+            self.choosePipelineServiceAccount()
 
         # Validations
         if not self.devMode:
@@ -364,6 +372,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         assert self.installedCatalogId is not None, "Catalog ID is not set"
         self.printSummary("Installed Catalog", self.installedCatalogId)
         self.printSummary("Updated Catalog", self.getParam("mas_catalog_version"))
+        self.printSummary("Pipeline Service Account", self.getParam("service_account_name"))
 
         self.printH2("Supported Dependency Updates")
         if self.getParam("db2_namespace") != "":
@@ -528,6 +537,21 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
             ]
         )
         self.promptForListSelect("Select catalog version", self.getCatalogOptions(), "mas_catalog_version", default=1)
+
+    def choosePipelineServiceAccount(self) -> None:
+        """Interactively prompt for the service account to run the update pipeline as.
+
+        The prompt is pre-filled with the current value, which is the 'pipeline' default
+        (``--service-account`` is only accepted together with ``--catalog``).
+        """
+        self.printH1("Select Pipeline Service Account")
+        self.printDescription(
+            [
+                "Enter the name of an existing service account in mas-pipelines to run the update pipeline as.",
+                "The default 'pipeline' service account is bound to cluster-admin, any other service account must already have the permissions the update needs.",
+            ]
+        )
+        self.promptForString("Pipeline service account", "service_account_name", default=self.getParam("service_account_name"), validator=NotEmptyValidator())
 
     def checkCatalog(self) -> None:
         """Validate the chosen catalog against the current cluster state.
@@ -1479,7 +1503,8 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
             tuple[bool, str]: (success, detail_message)
         """
         createNamespace(self.dynamicClient, namespace)
-        preparePipelinesNamespace(dynClient=self.dynamicClient)
+        # The default 'pipeline' service account is bound to cluster-admin, a custom service account is not
+        preparePipelinesNamespace(dynClient=self.dynamicClient, configureRBAC=(self.getParam("service_account_name") == "pipeline"))
         prepareUpdateSecrets(
             dynClient=self.dynamicClient,
             slack_token=self.getParam("slack_token"),

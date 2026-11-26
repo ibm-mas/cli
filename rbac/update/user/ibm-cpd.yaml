@@ -1,0 +1,40 @@
+# OPTIONAL: apply this file only when the "ibm-cpd" namespace exists on the cluster (Watson Discovery / OpenScale installed).
+# It is deliberately not listed in kustomization.yaml, applying a Role/RoleBinding into a missing namespace fails.
+#   oc apply -f ibm-cpd.yaml
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:update-user:ibm-cpd
+  namespace: ibm-cpd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:update-user:ibm-cpd
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:update-user:ibm-cpd
+  namespace: ibm-cpd
+rules:
+  # MAS update checks whether IBM Watson Discovery is installed in the CP4D namespace, an installed instance blocks the update
+  - apiGroups:
+      - discovery.watson.ibm.com
+    resources:
+      - watsondiscoveries
+    verbs:
+      - list
+
+  # MAS update checks whether IBM Watson OpenScale is installed in the CP4D namespace, an installed instance blocks the update
+  - apiGroups:
+      - wos.cpd.ibm.com
+    resources:
+      - woservices
+    verbs:
+      - list

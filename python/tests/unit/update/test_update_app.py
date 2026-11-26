@@ -293,6 +293,7 @@ def test_prepare_namespace_creates_namespace_and_secrets():
     app = UpdateApp()
     app._dynClient = Mock()
     app.params = {
+        "service_account_name": "pipeline",
         "slack_token": "test-token",
         "slack_channel": "test-channel",
     }
@@ -307,7 +308,7 @@ def test_prepare_namespace_creates_namespace_and_secrets():
         success, detail = app._prepareNamespace("test-namespace")
 
         mock_create.assert_called_once_with(app._dynClient, "test-namespace")
-        mock_prepare.assert_called_once_with(dynClient=app._dynClient)
+        mock_prepare.assert_called_once_with(dynClient=app._dynClient, configureRBAC=True)
         mock_secrets.assert_called_once_with(
             dynClient=app._dynClient,
             slack_token="test-token",
@@ -319,6 +320,50 @@ def test_prepare_namespace_creates_namespace_and_secrets():
 
     assert success is True
     assert detail == "test-namespace"
+
+
+def test_choose_pipeline_service_account_prompts_with_current_value_as_default():
+    """Test the interactive prompt is pre-filled with the current service account.
+
+    GIVEN an UpdateApp whose service_account_name is the 'pipeline' default
+    WHEN choosePipelineServiceAccount is called
+    THEN the prompt is for 'service_account_name' and defaults to 'pipeline'.
+    """
+    app = UpdateApp()
+    app.params = {"service_account_name": "pipeline"}
+
+    with (
+        patch.object(app, "printH1"),
+        patch.object(app, "printDescription"),
+        patch.object(app, "promptForString") as mock_prompt,
+    ):
+        app.choosePipelineServiceAccount()
+
+    mock_prompt.assert_called_once()
+    assert mock_prompt.call_args[0][1] == "service_account_name"
+    assert mock_prompt.call_args[1]["default"] == "pipeline"
+
+
+def test_prepare_namespace_skips_cluster_admin_binding_with_custom_service_account():
+    """Test _prepareNamespace does not bind the default pipeline SA to cluster-admin.
+
+    GIVEN an UpdateApp instance with a custom service_account_name
+    WHEN _prepareNamespace is called
+    THEN preparePipelinesNamespace is called with configureRBAC=False.
+    """
+    app = UpdateApp()
+    app._dynClient = Mock()
+    app.params = {"service_account_name": "mas-update-pipeline"}
+    app.db2LicenseFileSecret = None
+
+    with (
+        patch("mas.cli.update.app.createNamespace"),
+        patch("mas.cli.update.app.preparePipelinesNamespace") as mock_prepare,
+        patch("mas.cli.update.app.prepareUpdateSecrets"),
+    ):
+        app._prepareNamespace("test-namespace")
+
+        mock_prepare.assert_called_once_with(dynClient=app._dynClient, configureRBAC=False)
 
 
 def test_install_tekton_definitions_updates_definitions():

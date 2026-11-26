@@ -94,6 +94,7 @@ def buildUpdateReview(appInstance: Any) -> str:
         "",
         _row("Installed Catalog", getattr(appInstance, "installedCatalogId", None) or "—"),
         _row("Target Catalog Version", appInstance.params.get("mas_catalog_version", "—")),
+        _row("Pipeline Service Account", appInstance.params.get("service_account_name", "—")),
         "",
         "## Supported Dependency Updates",
         "",
@@ -166,6 +167,8 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
         heading_level="h1",
         description=[
             "Select the IBM Maximo Operator Catalog version to update to.",
+            "Enter the name of an existing service account in mas-pipelines to run the update pipeline as.",
+            "The default `pipeline` service account is bound to cluster-admin, any other service account must already have the permissions the update needs.",
         ],
         # Read-only context panel: the catalog detected by the connect step's
         # post-connect checks.  The panel composes lazily (after connect), so
@@ -181,6 +184,7 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
                 options=catalogOptions,
                 required=True,
             ),
+            WorkflowField(id="service_account_name", label="Pipeline Service Account", type="string", default="pipeline"),
         ],
         validator=appInstance.validateCatalogSelection,
     )
@@ -234,6 +238,7 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
         summary=[
             WorkflowSummaryItem(label="Installed Catalog", attr="installedCatalogId"),
             WorkflowSummaryItem(label="Target Catalog Version", param="mas_catalog_version"),
+            WorkflowSummaryItem(label="Pipeline Service Account", param="service_account_name"),
             WorkflowSummaryItem(label="IBM Db2", param="db2_namespace"),
             WorkflowSummaryItem(label="MongoDB Community", param="mongodb_namespace"),
             WorkflowSummaryItem(label="Apache Kafka", param="kafka_namespace"),
