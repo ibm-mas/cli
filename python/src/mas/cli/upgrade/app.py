@@ -553,6 +553,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
                 masInstanceId=instanceId,
                 adminMode=self.detectedMode,
                 selectedApps=self.selectedAppsForRBAC,
+                rbacRootDir=self.getPreinstallRBACRootDir(),
             )
             reporter.success(label, f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {self.detectedMode})")
 
