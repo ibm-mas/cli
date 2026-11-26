@@ -29,6 +29,9 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: delete_secrets
+      type: string
+      default: "true"
   workspaces:
     - name: configs
   tasks:
@@ -64,6 +67,8 @@ spec:
           value: $(params.aiservice_instance_id)
         - name: tenant_id
           value: $(params.tenant_id)
+        - name: delete_secrets
+          value: $(params.delete_secrets)
 
 
 

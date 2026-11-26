@@ -26,7 +26,7 @@ ibm_aiservice_tenant(required):
       --sm-aws-secret-region ${TEXT_RESET}SM_AWS_REGION${TEXT_RESET}                                         AWS Region
       --sm-aws-access-key ${TEXT_RESET}SM_AWS_ACCESS_KEY${TEXT_RESET}                                        AWS Access key ID
       --sm-aws-secret-key ${TEXT_RESET}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                 AWS Secreat Access key ID
-      --delete-secrets ${COLOR_YELLOW}DELETE_SECRETS${TEXT_RESET}                                             Whether to delete secrets from Secrets Manager (default: false)
+      --delete-secrets ${COLOR_YELLOW}DELETE_SECRETS${TEXT_RESET}                                             Whether to delete the tenant's secrets from Secrets Manager once Instana confirms the namespace is gone (default: true)
 
 
 Automatic GitHub Push (Optional):
@@ -51,7 +51,7 @@ function gitops_deprovision_aiservice_tenant_noninteractive() {
 
   # adding default values
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
-  export DELETE_SECRETS=${DELETE_SECRETS:-"false"}
+  export DELETE_SECRETS=${DELETE_SECRETS:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -248,6 +248,15 @@ function gitops_deprovision_aiservice_tenant() {
 
     # Step 2: Delete Secrets only if explicitly enabled (e.g. called in post-cleanup step)
     if [[ "$DELETE_SECRETS" == "true" ]]; then
+      # Only purge once Instana confirms the tenant namespace is gone (totalHits == 0).
+      # The script exits non-zero on timeout/errors, which aborts here and leaves the secrets intact.
+      echo
+      echo_h2 "Verifying tenant namespace removal via Instana for ${TENANT_ID}"
+      CLUSTER_NAME=${CLUSTER_ID} python3 /opt/app-root/src/gitops-aiservice-verify-deprovision-tenant.py || {
+        echo "Tenant namespace removal could not be verified, secrets are preserved in AWS Secrets Manager"
+        exit 1
+      }
+
       echo
       echo_h2 "Purging Secrets from AWS Secrets Manager for ${TENANT_ID}"
       AVP_TYPE=aws

@@ -27,6 +27,9 @@ spec:
       type: string
     - name: tenant_id
       type: string
+    - name: delete_secrets
+      type: string
+      default: "true"
 
   stepTemplate:
     env:
@@ -52,6 +55,9 @@ spec:
         value: $(params.aiservice_instance_id)
       - name: TENANT_ID
         value: $(params.tenant_id)
+      - name: DELETE_SECRETS
+        value: $(params.delete_secrets)
+    # INSTANA_URL and INSTANA_TOKEN (used when delete_secrets is "true") are expected in secure-properties
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -75,7 +81,7 @@ spec:
         --github-org "$GITHUB_ORG" \
         --github-repo "$GITHUB_REPO" \
         --git-branch "$GIT_BRANCH" \
-
+        --delete-secrets "$DELETE_SECRETS"
 
         exit $?
       command:
