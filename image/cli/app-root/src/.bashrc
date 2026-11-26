@@ -21,8 +21,15 @@ arch=$(uname -i)
 
 echo "${TEXT_UNDERLINE}IBM Maximo Application Suite CLI Container ${TEXT_BOLD}v${VERSION}${TEXT_RESET}"
 echo
+echo "Supported IBM Maximo Operator Catalog versions:"
+if [[ -f /mascli/site-packages/mas/cli/install/catalogs.py ]]; then
+    grep -o '"v[0-9]*-[0-9]*-[^"]*"' /mascli/site-packages/mas/cli/install/catalogs.py 2>/dev/null | sed 's/.*"\(v[0-9]*-[0-9]*\)-[^"]*".*/  - \1/' | sort -t'-' -k2 -r | uniq || true
+fi
+echo "  Run ${TEXT_BOLD}mas catalogs${TEXT_RESET} for full details"
+echo
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops${TEXT_RESET}"
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/cli${TEXT_RESET}"
+echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm-mas.github.io/cli/catalogs${TEXT_RESET}"
 echo
 echo "MAS Management:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to install a new MAS instance"
@@ -40,7 +47,7 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "Disconnected Install Support:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-registry${TEXT_RESET} to setup a private container registry on an OCP cluster"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas teardown-registry${TEXT_RESET} to delete a private container registry on an OCP cluster"
-    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-images${TEXT_RESET} to mirror container images required by MAS to a private registry"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror${TEXT_RESET} to mirror container images required by MAS to a private registry"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configure-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror"
     echo "OpenShift Cluster Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-aws${TEXT_RESET} to provision an OCP cluster on AWS"
@@ -52,9 +59,10 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "AI Service (Standalone) Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-install${TEXT_RESET} to install a new AI Service instance"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-upgrade${TEXT_RESET} to upgrade a existing AI Service instance"
-    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-mirror-images${TEXT_RESET} to mirror container images required by AIService to a private registry"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-configure-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror for AIService"
     echo "Gitops based Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas gitops${TEXT_RESET} to show all gitops related sub-commands"
     echo
 fi
+echo "Utilities:"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas catalogs${TEXT_RESET} to list supported IBM Maximo Operator Catalog versions"

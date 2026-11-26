@@ -27,6 +27,7 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index).  The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](provision-aws.md)
+- [AWS ROSA](provision-rosa.md)
 - [IBM Cloud](provision-roks.md)
 - [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
@@ -194,11 +195,11 @@ The registry will be setup running on port 32500.  For more details on this step
 ### Mirror Container Images
 Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:
 
-- **direct** mirrors images directly from the source registry to your private registry
-- **to-filesystem** mirrors images from the source to a local directory
-- **from-filesystem** mirrors images from a local directory to your private registry
+- **m2m** mirrors images directly from the source registry to your private registry
+- **m2d** mirrors images from the source registry to a local directory
+- **d2m** mirrors images from a local directory to your private registry
 
-For full details on this process review the [image mirroring](image-mirroring.md) guide.
+For full details on this process review the [image mirroring](mirroring-v2.md) guide.
 
 
 ### Configure OpenShift to use your Private Registry
@@ -250,13 +251,15 @@ The interactive install will guide you through a series of questioned designed t
       <p>MAS requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:</p>
       <ul>
         <li>IBMCloud Storage (ibmc-block-gold & ibmc-file-gold-gid)</li>
+        <li>IBMCloud VPC Storage (ibmc-vpc-block-10iops-tier & ibmc-vpc-file-1000-iops)</li>
         <li>OpenShift Container Storage (ocs-storagecluster-ceph-rbd & ocs-storagecluster-cephfs)</li>
         <li>External OpenShift Container Storage (ocs-external-storagecluster-ceph-rbd & ocs-external-storagecluster-cephfs)</li>
+        <li>Longhorn (longhorn)</li>
         <li>NFS Client (nfs-client)</li>
         <li>Azure Managed Storage (managed-premium & azurefiles-premium)</li>
-        <li>AWS Storage (gp3-cs & efs)</li>
+        <li>AWS Storage (gp3-csi & efs)</li>
       </ul>
-      <p>The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used, in the case of NFS the same storage class will be used for both `ReadWriteOnce` and `ReadWriteMany` volumes.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes if you wish.</p>
+      <p>The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used, in the case of Longhorn and NFS the same storage class will be used for both `ReadWriteOnce` and `ReadWriteMany` volumes.  A storage provider is only auto-detected when both of its storage classes exist in the cluster: if only one of the paired classes is available (for example `gp3-csi` without `efs` on an AWS cluster), no provider is detected and you will be prompted to select both storage classes yourself.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes if you wish.</p>
       <p>When selecting your own storage classes you will be presented with a list of those available and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.  Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Provide a License File and Entitlement Key">

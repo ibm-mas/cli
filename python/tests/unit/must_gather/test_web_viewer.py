@@ -224,7 +224,7 @@ class TestViewerTemplateCopying:
             assert indexPath.stat().st_size > 0
 
             # Verify template content was copied
-            with open(indexPath, "r") as f:
+            with open(indexPath, "r", encoding="utf-8") as f:
                 content = f.read()
                 assert "<!DOCTYPE html>" in content
 

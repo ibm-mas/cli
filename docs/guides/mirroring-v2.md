@@ -1,6 +1,6 @@
 Image Mirroring (v2)
 ===============================================================================
-The `mas mirror` command is the next-generation Python-based image mirroring tool, replacing the legacy `mas mirror-images` bash command.  It uses [oc-mirror](https://docs.openshift.com/container-platform/latest/installing/disconnected_install/installing-mirroring-disconnected.html) under the hood and supports three mirror modes:
+The `mas mirror` command is the Python-based image mirroring tool for MAS content.  It uses [oc-mirror](https://docs.openshift.com/container-platform/latest/installing/disconnected_install/installing-mirroring-disconnected.html) under the hood and supports three mirror modes:
 
 | Mode  | Description                                                                    |
 | ----- | ------------------------------------------------------------------------------ |
@@ -16,7 +16,7 @@ This guide assumes you are targeting the latest release (**@@MAS_LATEST_CHANNEL@
 Prerequisites
 -------------------------------------------------------------------------------
 - The `oc-mirror` executable must be available on the `PATH` of the system running `mas mirror` (the command fails immediately if it is not found).
-- Catalog **v9-260129-amd64** (January 2026) or newer is required, earlier catalogs are not supported by `mas mirror`.  Use `mas mirror-images` for older catalogs.
+- Catalog **v9-260129-amd64** (January 2026) or newer is required, earlier catalogs are not supported by `mas mirror`; when working with an older catalog, use a version of the CLI that was released around the same time as the catalog (see [Supported Catalogs](../catalogs/index.md)).
 - The image set configurations are read from `~/.ibm-mas/image-set-configs` and are automatically downloaded from [ibm-mas/image-set-configs](https://github.com/ibm-mas/image-set-configs) if not present, so the system running the command needs access to GitHub (or the files must be pre-populated in that directory).
 
 
@@ -315,7 +315,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
 
 Mirror All Packages
 -------------------------------------------------------------------------------
-To mirror every supported package in one command, use `--all`.  This is convenient but will require significantly more storage and time than mirroring only what you need.
+To mirror every supported package in one command, use `--all`.  This dynamically selects all packages available in the specified operator catalog for your chosen MAS release.  Packages that are not present in the catalog for that release (for example, applications removed in newer MAS releases) are automatically skipped.
 
 ```bash
 docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
