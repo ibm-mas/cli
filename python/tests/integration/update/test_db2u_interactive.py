@@ -34,6 +34,8 @@ def test_db2u_one_namespace(tmpdir, resource_kind):
         ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         # Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
@@ -68,6 +70,8 @@ def test_db2u_multiple_namespaces(tmpdir, resource_kind):
         ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         # Namespace selection - user chooses second namespace
         ".*Select namespace.*": lambda msg: "2",
         # Final confirmation
@@ -103,6 +107,8 @@ def test_db2u_none_found(tmpdir, resource_kind):
         ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         # Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
@@ -141,6 +147,8 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
         ".*Proceed with this cluster.*": lambda msg: "y",
         # Catalog selection
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         # Db2 version upgrade confirmation - match the exact format
         ".*Confirm update from Db2 11 to 12.*": lambda msg: "y",
         # License prompt
@@ -181,6 +189,8 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
         ".*Proceed with this cluster.*": lambda msg: "y",
         # Catalog selection
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         # Db2 version upgrade confirmation - user rejects - match exact format
         ".*Confirm update from Db2 11 to 12.*": lambda msg: "n",
     }
@@ -219,6 +229,8 @@ def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, r
     prompt_handlers = {
         ".*Proceed with this cluster.*": lambda msg: "y",
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         ".*Confirm update from Db2 11 to 12.*": lambda msg: "y",
         ".*Path to a valid Db2 v12 license file.*": lambda msg: invalid_license_file,
         ".*Proceed with these settings.*": lambda msg: "y",
@@ -255,6 +267,8 @@ def test_db2u_minor_version_upgrade_no_prompt(tmpdir, resource_kind):
         ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         # Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
@@ -288,6 +302,8 @@ def test_db2u_multiple_namespaces_first_selection(tmpdir, resource_kind):
     prompt_handlers = {
         ".*Proceed with this cluster?.*": lambda msg: "y",
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         ".*Select namespace.*": lambda msg: "1",  # Select first
         ".*Proceed with these settings.*": lambda msg: "y",
     }
@@ -319,6 +335,8 @@ def test_db2u_multiple_namespaces_last_selection(tmpdir, resource_kind):
     prompt_handlers = {
         ".*Proceed with this cluster?.*": lambda msg: "y",
         ".*Select catalog version.*": lambda msg: "1",
+        # Pipeline service account, keep the default
+        ".*Pipeline service account.*": lambda msg: "pipeline",
         ".*Select namespace.*": lambda msg: "3",  # Select last
         ".*Proceed with these settings.*": lambda msg: "y",
     }
