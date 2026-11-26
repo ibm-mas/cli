@@ -137,9 +137,10 @@ jobs:
                   PYTHON_BRANCH_NAME=stable
               fi
 
-              RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${PYTHON_BRANCH_NAME}")
-
-              if [[ "${RESPONSE}" == "200" ]]; then
+              # Check for a matching branch via git (the same transport pip will
+              # install from) rather than the GitHub REST API, which is subject
+              # to unauthenticated rate limits from shared runner IPs
+              if git ls-remote --exit-code --heads https://github.com/ibm-mas/python-devops.git "${PYTHON_BRANCH_NAME}" >/dev/null 2>&1; then
                   echo "Installing development build of python-devops from GitHub branch ${PYTHON_BRANCH_NAME}"
               else
                   echo "Branch ${PYTHON_BRANCH_NAME} not found, defaulting to stable"
