@@ -227,6 +227,11 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
 
         self.currentChannel = currentChannel
 
+        # The mas_channel PipelineRun param is the upgrade's target channel:
+        # write it into params here, where the channel state is final — the
+        # launch path must make no channel decisions of its own
+        self.resolveMasChannelParam()
+
         # The channel-based checks below compare versions, which cannot parse
         # the "Unknown" placeholder — skip them when the channel was not
         # detectable (the classic path has the same effective behaviour: the
@@ -497,32 +502,45 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
         updateTektonDefinitions(self.dynamicClient, namespace, self.tektonDefsPath)
         return True, f"v{self.version}"
 
+    def resolveMasChannelParam(self) -> None:
+        """Write the ``mas_channel`` PipelineRun param: the upgrade's target channel.
+
+        Aligns with the ``suite_upgrade`` role's semantics — ``mas_channel``
+        is the destination channel (the channel we are upgrading TO; see
+        ansible-devops suite_upgrade, where an unset value auto-selects the
+        next release and an explicit value is used as-is).  Called once the
+        channel state is final — by ``prepareUpgrade`` on the TUI path and
+        after channel resolution in ``upgrade()`` on the classic path — so
+        that the launch path makes no channel decisions of its own:
+
+        - Derived target (the TUI's only mode, and the classic path without
+          ``--next-channel``): ``nextChannel`` is derived from
+          ``effectiveCurrentChannel`` (the oldest channel across Core and
+          all installed apps) so the upgrade targets the correct hop.
+        - Explicit ``--next-channel``: ``nextChannel`` is the requested
+          target as-is.
+        - Retry scenario (Core already on the target channel, apps behind):
+          needs no special case — the target equals the current channel, the
+          role's core-upgrade recognises Core is already there, and the app
+          upgrade tasks bring the remaining applications up to it.
+        - Undetectable target: the param is left empty so the role
+          auto-selects the next release from the live subscription.
+        """
+        masChannel = self.nextChannel if self.nextChannel not in ("", "Unknown") else ""
+        self.setParam("mas_channel", masChannel)
+
     def _submitUpgradePipelineRun(self) -> tuple[bool, str]:
         """Submit the upgrade PipelineRun.
 
-        Determines the ``masChannel`` parameter the same way the classic
-        ``upgrade()`` method does: the retry scenario (next channel equals
-        current channel) passes the previous channel so Ansible upgrades the
-        remaining apps; otherwise the effective current channel (the oldest
-        channel across Core and all installed apps, computed by
-        ``prepareUpgrade``) is passed so Ansible targets the correct hop.
+        Every PipelineRun param is already in ``self.params`` by this point:
+        ``mas_instance_id`` and ``skip_pre_check`` were written at their
+        origin, and ``mas_channel`` was resolved by ``prepareUpgrade`` when
+        the channel state was final — no decisions are made here.
 
         Returns:
             tuple[bool, str]: (success, detail_message — the pipeline run URL on success)
         """
-        if self.currentChannel not in ("", "Unknown") and self.nextChannel == self.currentChannel:
-            # Retry scenario: core already on target, apps need upgrading.
-            # Find the previous channel: which channel has upgrade_path[X] = currentChannel?
-            previousChannel = None
-            for prevCh, nextCh in self.upgrade_path.items():
-                if nextCh == self.currentChannel:
-                    previousChannel = prevCh
-                    break
-            masChannelParam = previousChannel if previousChannel else self.currentChannel
-        else:
-            masChannelParam = self.effectiveCurrentChannel
-
-        pipelineURL = launchUpgradePipeline(self.dynamicClient, self.masInstanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
+        pipelineURL = launchUpgradePipeline(self.dynamicClient, params=self.params)
         if pipelineURL:
             return True, pipelineURL
         return False, "Failed — see log file for details"
@@ -885,6 +903,11 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
 
+        # Skip pre-check flag: only rendered into the PipelineRun when set —
+        # the pipeline's own default (empty) runs the pre-checks
+        if args.skip_pre_check:
+            self.setParam("skip_pre_check", "true")
+
         # OLM approval timeout: flag > OLM_APPROVAL_TIMEOUT environment
         # variable > omitted (the collection's 7200s default then applies).
         # The approval mode itself is not a flag on upgrade: it is a property
@@ -933,6 +956,11 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
             instanceId = prompt(
                 HTML("<Yellow>Enter MAS instance ID: </Yellow>"), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False
             )
+
+        # The instance ID is a PipelineRun param: write it into params as
+        # soon as it is resolved (the TUI path does the same via the
+        # instance-selection step field, which prepareUpgrade reads back)
+        self.setParam("mas_instance_id", instanceId)
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
@@ -1041,6 +1069,12 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
             currentChannel = "Unknown"
             if self.nextChannel == "":
                 self.nextChannel = "Unknown"
+
+        # The mas_channel PipelineRun param is the upgrade's target channel:
+        # write it into params here, where the channel state is final — the
+        # launch path must make no channel decisions of its own
+        self.currentChannel = currentChannel
+        self.resolveMasChannelParam()
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
@@ -1215,31 +1249,10 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for {instanceId} upgrade", spinner=self.spinner) as h:
-                # Determine masChannel parameter based on scenario:
-                # - Regular upgrade: pass currentChannel so ansible looks up the next channel
-                # - Retry scenario: pass previous channel so ansible upgrades apps to current channel
-                # - No --next-channel: pass empty string to let ansible auto-determine
-                if args.next_channel != "" and currentChannel != "Unknown":
-                    if self.nextChannel == currentChannel:
-                        # Retry scenario: core already on target, apps need upgrading
-                        # Find previous channel: which channel has upgrade_path[X] = currentChannel?
-                        previousChannel = None
-                        for prevCh, nextCh in self.upgrade_path.items():
-                            if nextCh == currentChannel:
-                                previousChannel = prevCh
-                                break
-                        # Pass previous channel so ansible upgrades apps from previous to current
-                        masChannelParam = previousChannel if previousChannel else currentChannel
-                    else:
-                        # Regular upgrade with explicit --next-channel
-                        masChannelParam = currentChannel
-                else:
-                    # No --next-channel provided: pass the effectiveCurrentChannel computed
-                    # earlier so Ansible targets the correct hop based on all component
-                    # channels, not just Core's channel.
-                    masChannelParam = self.effectiveCurrentChannel if hasattr(self, "effectiveCurrentChannel") else ""
-
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
+                # Every PipelineRun param is already in self.params — written
+                # at its origin or resolved by resolveMasChannelParam() when
+                # the channel state was final; no decisions are made here
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
