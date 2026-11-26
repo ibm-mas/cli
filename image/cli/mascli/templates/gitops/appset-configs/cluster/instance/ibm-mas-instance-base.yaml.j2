@@ -67,6 +67,7 @@ extensions: {{ EXTENSIONS }}
 {% endif %}
 
 {% if IS_NON_SHARED_CLUSTER is defined and IS_NON_SHARED_CLUSTER == 'true' %}
+nonshared_cluster: true
 {% if ENHANCED_DR is defined and ENHANCED_DR != '' %}
 enhanced_dr: {{ ENHANCED_DR }}
 {% endif %}
