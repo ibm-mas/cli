@@ -86,23 +86,20 @@ def test_successful_launch_shows_and_copies_pipeline_url(monkeypatch):
     """Test that the pipeline URL is shown and copied, not the completion message.
 
     GIVEN a stubbed app whose launchUpdate succeeds, with the Submit
-        PipelineRun stage reporting the pipeline URL as its detail
+        PipelineRun stage reporting the pipeline URL as its detail, and a
+        usable clipboard
     WHEN the launch step becomes active and Copy URL is clicked
-    THEN the URL label shows the URL, the Copy URL button is revealed, and
-        the clipboard receives the URL itself — not a message like
-        "PipelineRun for MAS update submitted".
+    THEN the URL label shows the URL, the Copy URL button is revealed, the
+        clipboard receives the URL itself — not a message like
+        "PipelineRun for MAS update submitted" — and the button flashes
+        "Copied!".
     """
+    copied = []
 
-    class FakePyperclip:
-        """Stand-in for the optional pyperclip module, recording copies."""
+    import mas.cli.tui.screens.launch as launch_module
 
-        copied = None
-
-        @classmethod
-        def copy(cls, text):
-            cls.copied = text
-
-    monkeypatch.setattr("mas.cli.tui.screens.launch.pyperclip", FakePyperclip)
+    monkeypatch.setattr(launch_module, "clipboardAvailable", lambda: True)
+    monkeypatch.setattr(launch_module, "copyToClipboard", lambda text: copied.append(text) or True)
     screen, _ = _make_screen(_succeed)
 
     async def drive(pilot, app):
@@ -114,7 +111,58 @@ def test_successful_launch_shows_and_copies_pipeline_url(monkeypatch):
         link_styles = [str(span.style) for span in getattr(rendered, "spans", [])]
         assert any("link" in style and "https://example.com/pipelinerun" in style for style in link_styles)
         await click_button(pilot, "#btn-copy-url")
-        assert FakePyperclip.copied == "https://example.com/pipelinerun"
+        assert copied == ["https://example.com/pipelinerun"]
+        assert str(app.query_one("#btn-copy-url", Button).label) == "Copied!"
+
+    run_screen_pilot(screen, drive)
+
+
+def test_copy_buttons_hidden_without_clipboard(monkeypatch):
+    """Test that the copy buttons stay hidden without a usable clipboard.
+
+    GIVEN a stubbed app whose launchUpdate succeeds, but no clipboard
+        mechanism in this environment (container / headless, no
+        MAS_CLIPBOARD=osc52)
+    WHEN the launch step becomes active and the command reference is shown
+    THEN the pipeline URL and command text are still revealed, but the Copy
+        URL and Copy Command buttons stay hidden.
+    """
+    import mas.cli.tui.screens.launch as launch_module
+
+    monkeypatch.setattr(launch_module, "clipboardAvailable", lambda: False)
+    screen, _ = _make_screen(_succeed, command_builder=lambda app: "mas update --no-confirm")
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#btn-done", Button).display)
+        await wait_for(lambda: app.query_one("#launch-command-text", Static).display)
+        assert app.query_one("#pipeline-url", Label).display
+        assert not app.query_one("#btn-copy-url", Button).display
+        assert not app.query_one("#btn-copy-command", Button).display
+
+    run_screen_pilot(screen, drive)
+
+
+def test_failed_copy_does_not_flash_copied(monkeypatch):
+    """Test that a failed copy does not claim success.
+
+    GIVEN a stubbed app whose launchUpdate succeeds, a usable clipboard
+        reported, but the clipboard helper failing at copy time
+    WHEN Copy URL is clicked
+    THEN the button label stays "Copy URL" (no false "Copied!") and the
+        action-bar status reports the clipboard as unavailable.
+    """
+    import mas.cli.tui.screens.launch as launch_module
+
+    monkeypatch.setattr(launch_module, "clipboardAvailable", lambda: True)
+    monkeypatch.setattr(launch_module, "copyToClipboard", lambda text: False)
+    screen, _ = _make_screen(_succeed)
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#btn-copy-url", Button).display)
+        await click_button(pilot, "#btn-copy-url")
+        assert str(app.query_one("#btn-copy-url", Button).label) == "Copy URL"
+        status = str(app.query_one("#launch-prompt").render())
+        assert "Clipboard is not available" in status
 
     run_screen_pilot(screen, drive)
 
@@ -163,6 +211,7 @@ def test_successful_launch_shows_and_copies_noninteractive_command(monkeypatch):
 
     import mas.cli.tui.screens.launch as launch_module
 
+    monkeypatch.setattr(launch_module, "clipboardAvailable", lambda: True)
     monkeypatch.setattr(launch_module, "copyToClipboard", lambda text: copied.append(text) or True)
     screen, _ = _make_screen(_succeed, command_builder=lambda app: command)
 

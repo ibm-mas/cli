@@ -34,6 +34,7 @@ from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
 from ..common.commandBuilder import offerCommandScript
 from ..common.olmApprovals import DEFAULT_OLM_APPROVAL_TIMEOUT, resolveOlmApprovalMode, resolveOlmApprovalTimeout
+from ..common.storageClasses import StorageClassMixin
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
@@ -45,7 +46,6 @@ from mas.cli.validators import (
     WorkspaceIDFormatValidator,
     WorkspaceNameFormatValidator,
     TimeoutFormatValidator,
-    StorageClassValidator,
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
@@ -97,6 +97,7 @@ class InstallApp(
     InstallSummarizerMixin,
     ConfigGeneratorMixin,
     installArgBuilderMixin,
+    StorageClassMixin,
 ):
     enableKafkaImageProcessor: bool
 
@@ -1426,52 +1427,25 @@ class InstallApp(
     @logMethodCall
     def configStorageClasses(self):
         self.printH1("Configure Storage Class Usage")
-        self.printDescription(
-            [
+
+        # Shared selection implementation (StorageClassMixin in
+        # mas/cli/common/storageClasses.py) with the install flavour: the
+        # auto-detected provider's classes are offered as the default and
+        # the user confirms or overrides them, and "none" is a valid
+        # ReadWriteMany answer for clusters without a suitable class.
+        StorageClassMixin.configStorageClasses(
+            self,
+            cliArgsWin=False,
+            allowRwxNone=True,
+            intro=[
                 "Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:",
                 "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
                 "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
                 "",
                 "Note: Remote file systems are often slower than local file systems, using a storage class backed by a remote file system (e.g. NFS) as the RWO storage class may result in degraded performance",
                 "",
-            ]
+            ],
         )
-
-        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
-        if defaultStorageClasses.provider is not None:
-            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
-            self.storageClassProvider = defaultStorageClasses.provider
-            self.params["storage_class_rwo"] = defaultStorageClasses.rwo
-            self.params["storage_class_rwx"] = defaultStorageClasses.rwx
-
-        overrideStorageClasses = False
-        if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
-            overrideStorageClasses = not self.yesOrNo("Use the auto-detected storage classes")
-
-        if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or overrideStorageClasses:
-            self.storageClassProvider = "custom"
-
-            self.printDescription(
-                [
-                    "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
-                    "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed",
-                ]
-            )
-            for storageClass in getStorageClasses(self.dynamicClient):
-                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-
-            self.params["storage_class_rwo"] = prompt(
-                HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
-                validator=StorageClassValidator(),
-                validate_while_typing=False,
-            )
-            self.params["storage_class_rwx"] = prompt(
-                HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
-                validator=StorageClassValidator(),
-                validate_while_typing=False,
-            )
 
         # Configure storage class for pipeline PVC
         # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary

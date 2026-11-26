@@ -10,6 +10,7 @@
 
 """Generic step screen rendering WorkflowField input widgets."""
 
+from functools import partial
 from typing import Any, List
 
 try:
@@ -35,14 +36,29 @@ class StepScreen(Vertical):
     below it with a reserved status row and the "Next →" button.
 
     The Next button validates required fields, writes values to app.params,
-    optionally runs the step validator, then posts StepCompleted.  The
-    validator error is shown in the reserved status row, so revealing it
-    never shifts the layout.
+    optionally runs the step validator, then posts StepCompleted.  While the
+    validator runs the action bar shows a busy spinner with the step's
+    ``validator_status`` message (cluster calls can take a while — without
+    the spinner the disabled button makes the app look hung); a validator
+    error replaces it in the reserved status row, so revealing it never
+    shifts the layout.
+
+    Fields with an ``options_loader`` (``dynamic_select``) are populated
+    asynchronously: ``start_dynamic_loaders`` — called by the shell when
+    the step becomes active — runs each loader in a worker thread (the
+    loader typically queries the cluster, which cannot run on the UI
+    thread), applies the returned options to the Select, and then applies
+    the field's ``default`` (which may be a callable, so it can read state
+    the loader cached on the app) and refreshes the context rows (which
+    may likewise have been populated by the load).  While a load is in
+    flight the Next button is disabled and the status row shows progress;
+    a failing loader surfaces its error inline like a validator failure.
 
     Attributes:
         _mas_app: MAS CLI app providing params dict.
         _step: The WorkflowStep being rendered.
         _step_index: Zero-based position in the definition.
+        _pending_loads: Number of dynamic option loads still in flight.
     """
 
     def __init__(self, mas_app: Any, step: WorkflowStep, step_index: int) -> None:
@@ -57,6 +73,7 @@ class StepScreen(Vertical):
         self._mas_app = mas_app
         self._step = step
         self._step_index = step_index
+        self._pending_loads = 0
 
     def compose(self) -> ComposeResult:
         """Build the step screen content.
@@ -83,6 +100,7 @@ class StepScreen(Vertical):
         yield ActionBar(
             "",
             status_id=f"validator-error-{self._step.id}",
+            busy=True,
             buttons=[
                 Button("Next →", id=f"btn-next-{self._step.id}", classes="btn-next", variant="primary"),
             ],
@@ -118,7 +136,105 @@ class StepScreen(Vertical):
         return str(raw)
 
     def start_dynamic_loaders(self) -> None:
-        """No-op — satisfies the interface expected by TextualShell."""
+        """Populate dynamic_select fields via their ``options_loader``.
+
+        Called by the shell when the step becomes active (and by the pilot
+        harness after mount).  Each loader runs in a worker thread — the
+        loaders query the cluster, which cannot run on the UI thread — and
+        its result is applied to the field's Select on the event loop via
+        ``call_from_thread``, followed by the field's ``default`` (which
+        may be a callable reading state the loader cached on the app) and
+        a refresh of the context rows.  While any load is in flight the
+        Next button is disabled and the status row shows progress.
+        """
+        dynamic_fields = [f for f in self._step.fields if f.options_loader is not None]
+        if not dynamic_fields:
+            return
+        self._pending_loads = len(dynamic_fields)
+        try:
+            self.query_one(f"#btn-next-{self._step.id}", Button).disabled = True
+        except Exception:
+            pass
+        self._action_bar().show_busy("Looking up available options…")
+        for field in dynamic_fields:
+            self.run_worker(partial(self._run_dynamic_loader, field), name=f"load-{field.id}", thread=True)
+
+    def _run_dynamic_loader(self, field: WorkflowField) -> None:
+        """Run one field's options_loader in a worker thread.
+
+        The whole body is wrapped so a loader failure routes to the inline
+        status row rather than crashing the worker (Textual's default
+        worker error handling exits the app).
+
+        Args:
+            field (WorkflowField): The dynamic_select field to load.
+        """
+        try:
+            options = field.options_loader(self._mas_app.params)
+            self.app.call_from_thread(self._on_dynamic_load_success, field, options)
+        except Exception as exc:  # noqa: BLE001
+            self.app.call_from_thread(self._on_dynamic_load_error, exc)
+
+    def _on_dynamic_load_success(self, field: WorkflowField, options: List[str]) -> None:
+        """Apply loaded options (and the field's default) to the Select.
+
+        Args:
+            field (WorkflowField): The dynamic_select field that loaded.
+            options (list[str]): The option strings returned by the loader.
+        """
+        fid = f"field-{field.id}"
+        try:
+            select = self.query_one(f"#{fid}", Select)
+            select.set_options([(opt, opt) for opt in options])
+            # The default may be a callable so it can read state the loader
+            # cached on the app (e.g. the auto-detected storage provider's
+            # classes); it is only applied when present in the options.
+            default = field.default() if callable(field.default) else field.default
+            if default and default in options:
+                select.value = default
+        except Exception:
+            pass
+        self._dynamic_load_finished(error=None)
+
+    def _on_dynamic_load_error(self, exc: Exception) -> None:
+        """Surface a failed options load like a validator failure.
+
+        Args:
+            exc (Exception): The exception raised by the loader.
+        """
+        self._dynamic_load_finished(error=str(exc))
+
+    def _dynamic_load_finished(self, error: Any = None) -> None:
+        """Re-enable Next when the last dynamic load settles.
+
+        Args:
+            error (Any, optional): Error text from the failed load, if any.
+        """
+        self._pending_loads -= 1
+        if self._pending_loads > 0:
+            return
+        try:
+            self.query_one(f"#btn-next-{self._step.id}", Button).disabled = False
+        except Exception:
+            pass
+        self._action_bar().hide_busy()
+        if error is not None:
+            self._action_bar().set_error(error)
+        else:
+            self._action_bar().clear_status()
+        self._refresh_context()
+
+    def _refresh_context(self) -> None:
+        """Re-resolve the step's context rows against the app.
+
+        Context values are resolved at compose time, but a dynamic load
+        may populate the attributes they read (e.g. the storage provider
+        detected while loading options); this updates each context value
+        label in place so those rows fill in after the load completes.
+        """
+        labels = self.query(".step-context .context-value")
+        for item, label in zip(self._step.context or [], labels):
+            label.update(self._context_value(item))
 
     def _build_field_widget(self, field: WorkflowField):
         """Return the appropriate Textual widget for a WorkflowField.
@@ -139,7 +255,10 @@ class StepScreen(Vertical):
         if field.type in ("select", "dynamic_select"):
             raw = field.options() if callable(field.options) else (field.options or [])
             options = [(opt, opt) for opt in raw]
-            return Select(options, id=fid, value=options[0][0] if options else Select.BLANK, allow_blank=True)
+            # Select.NULL (not the deprecated Select.BLANK alias, which is
+            # literally False in this Textual release and fails validation
+            # at mount) is the no-selection sentinel.
+            return Select(options, id=fid, value=options[0][0] if options else Select.NULL, allow_blank=True)
 
         if field.type == "multi_select":
             raw = field.options() if callable(field.options) else (field.options or [])
@@ -187,7 +306,7 @@ class StepScreen(Vertical):
             elif field.type in ("select", "dynamic_select"):
                 try:
                     sel = self.query_one(f"#{fid}", Select)
-                    if sel.value is Select.BLANK:
+                    if sel.value is Select.NULL:
                         return False
                 except Exception:
                     return False
@@ -232,8 +351,10 @@ class StepScreen(Vertical):
             elif field.type in ("select", "dynamic_select"):
                 try:
                     sel = self.query_one(f"#{fid}", Select)
-                    if sel.value is not Select.BLANK:
-                        self._mas_app.params[field.id] = str(sel.value)
+                    # A blank optional select writes "" (e.g. "auto-detect")
+                    # rather than silently keeping a previously-written
+                    # value; required selects cannot be blank (validated).
+                    self._mas_app.params[field.id] = "" if sel.value is Select.NULL else str(sel.value)
                 except Exception:
                     pass
 
@@ -258,8 +379,23 @@ class StepScreen(Vertical):
         except Exception as exc:  # noqa: BLE001
             self.app.call_from_thread(self._on_validator_error, exc)
 
+    def _validator_status(self) -> str:
+        """Return the busy message shown while the step validator runs.
+
+        Validators are blocking cluster calls (e.g. the upgrade command's
+        ``prepareUpgrade``) that can take a while — without the spinner the
+        disabled Next button makes the app look hung, the same problem the
+        connect screen's "Connecting to cluster…" feedback solves.
+
+        Returns:
+            str: The step's ``validator_status`` when set, else a generic
+            "Validating…" message.
+        """
+        return self._step.validator_status or "Validating…"
+
     def _on_validator_success(self) -> None:
-        """Post StepCompleted after a successful validator run."""
+        """Hide the busy spinner and post StepCompleted after a successful validator run."""
+        self._action_bar().hide_busy()
         self.post_message(StepCompleted(self._step_index))
 
     def _on_validator_error(self, exc: Exception) -> None:
@@ -268,6 +404,7 @@ class StepScreen(Vertical):
         Args:
             exc (Exception): The exception raised by the validator.
         """
+        self._action_bar().hide_busy()
         self._action_bar().set_error(str(exc))
         btn = self.query_one(f"#btn-next-{self._step.id}", Button)
         btn.disabled = False
@@ -291,6 +428,9 @@ class StepScreen(Vertical):
         if self._step.validator is not None:
             btn = self.query_one(f"#btn-next-{self._step.id}", Button)
             btn.disabled = True
+            # Busy spinner + message while the (blocking, cluster-calling)
+            # validator runs, mirroring the connect screen's feedback
+            self._action_bar().show_busy(self._validator_status())
             self.run_worker(self._run_validator, thread=True)
         else:
             self.post_message(StepCompleted(self._step_index))

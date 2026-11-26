@@ -25,6 +25,7 @@ from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 from ..cli import BaseApp
 from ..common.commandBuilder import offerCommandScript
 from ..common.olmApprovals import OlmApprovalDetectionMixin, resolveOlmApprovalTimeout
+from ..common.storageClasses import StorageClassMixin
 from ..validators import InstanceIDValidator, StorageClassValidator
 from .argBuilder import upgradeArgBuilderMixin
 from .argParser import upgradeArgParser
@@ -56,7 +57,7 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmApprovalDetectionMixin):
+class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmApprovalDetectionMixin, StorageClassMixin):
     """Orchestrator for the ``mas-cli upgrade`` command.
 
     The ``upgrade()`` method drives both the non-interactive path
@@ -699,77 +700,23 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
         Determine storage_class_rwo and storage_class_rwx for Manage Foundation Db2/PVC provisioning.
         Only called when Manage Foundation is being installed during upgrade (9.0 → 9.1).
 
-        Priority:
-          1. CLI args (--storage-class-rwo / --storage-class-rwx) — already set in self.params
-          2. Auto-detected from getDefaultStorageClasses()
-          3. Interactive prompt (falls back to fatalError in --no-confirm mode)
+        Thin wrapper over the shared implementation (``StorageClassMixin`` in
+        ``mas/cli/common/storageClasses.py``) with the upgrade flavour
+        (CLI args / TUI dropdown selections win over auto-detection) and the
+        Manage Foundation-specific no-detection error messages.  See the
+        mixin for the resolution flow and its priorities.
         """
-        # 1. Validate any CLI args already provided (independently — partial args are allowed)
-        if self.getParam("storage_class_rwo"):
-            if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwo")) is None:
-                self.fatalError(f"Storage class '{self.getParam('storage_class_rwo')}' specified via --storage-class-rwo is not available on this cluster.")
-                return
-        if self.getParam("storage_class_rwx"):
-            if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwx")) is None:
-                self.fatalError(f"Storage class '{self.getParam('storage_class_rwx')}' specified via --storage-class-rwx is not available on this cluster.")
-                return
-
-        # Both provided and valid — nothing more to do
-        if self.getParam("storage_class_rwo") and self.getParam("storage_class_rwx"):
-            logger.debug(f"Using storage classes from CLI args: RWO={self.getParam('storage_class_rwo')} RWX={self.getParam('storage_class_rwx')}")
-            return
-
-        # 2. Try auto-detection
-        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
-        if defaultStorageClasses.provider is not None:
-            if not self.tuiMode:
-                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
-                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
-                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
-
-            useDetected = True
-            if not self.noConfirm:
-                useDetected = self.yesOrNo("Use the auto-detected storage classes")
-
-            if useDetected:
-                self.params["storage_class_rwo"] = defaultStorageClasses.rwo
-                self.params["storage_class_rwx"] = defaultStorageClasses.rwx
-                logger.debug(f"Using auto-detected storage classes: RWO={defaultStorageClasses.rwo} RWX={defaultStorageClasses.rwx}")
-                return
-
-        # 3. No provider detected or user declined — fail in non-interactive mode
-        if self.noConfirm:
-            if self.tuiMode:
-                # The manage-foundation step's storage class fields are the
-                # TUI equivalent of the CLI flags named in the classic message
-                self.fatalError(
-                    "No storage classes could be detected for the Manage Foundation Db2 instances. "
-                    "Enter the ReadWriteOnce and ReadWriteMany storage classes to use on this step."
-                )
-            self.fatalError(
+        StorageClassMixin.configStorageClasses(
+            self,
+            noDetectionTuiMessage=(
+                "No storage classes could be detected for the Manage Foundation Db2 instances. "
+                "Enter the ReadWriteOnce and ReadWriteMany storage classes to use on this step."
+            ),
+            noDetectionFatalMessage=(
                 "No storage classes could be detected for Manage Foundation Db2 instances and --no-confirm is set. "
                 "Please re-run with --storage-class-rwo and --storage-class-rwx."
-            )
-            return
-
-        self.printDescription(["Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:"])
-        for storageClass in getStorageClasses(self.dynamicClient):
-            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-        print()
-
-        validator = StorageClassValidator()
-        if not self.getParam("storage_class_rwo"):
-            self.params["storage_class_rwo"] = prompt(
-                HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
-                validator=validator,
-                validate_while_typing=False,
-            )
-        if not self.getParam("storage_class_rwx"):
-            self.params["storage_class_rwx"] = prompt(
-                HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
-                validator=validator,
-                validate_while_typing=False,
-            )
+            ),
+        )
 
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """

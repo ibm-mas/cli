@@ -43,14 +43,17 @@ def _make_app():
     return app
 
 
-def test_command_panel_renders_builder_output():
+def test_command_panel_renders_builder_output(monkeypatch):
     """Test that the command builder's output is shown in the panel.
 
-    GIVEN a review screen with a command_builder
+    GIVEN a review screen with a command_builder, with a usable clipboard
     WHEN the step becomes active (start_dynamic_loaders refreshes the panel)
     THEN the command text widget shows the rendered command and the Copy
         Command / Save Script buttons are visible.
     """
+    import mas.cli.tui.screens.review as review_module
+
+    monkeypatch.setattr(review_module, "clipboardAvailable", lambda: True)
     screen = ReviewScreen(
         _make_app(),
         _make_step(),
@@ -66,6 +69,36 @@ def test_command_panel_renders_builder_output():
         assert "--no-confirm" in rendered
         assert app.query_one("#review-command-panel").display
         assert app.query_one("#btn-copy-command", Button).display
+        assert app.query_one("#btn-save-script", Button).display
+
+    run_screen_pilot(screen, drive)
+
+
+def test_copy_command_button_hidden_without_clipboard(monkeypatch):
+    """Test that Copy Command is hidden when no clipboard is usable.
+
+    GIVEN a review screen with a command_builder, but no clipboard
+        mechanism in this environment (container / headless, no
+        MAS_CLIPBOARD=osc52)
+    WHEN the step becomes active
+    THEN the command panel and Save Script are still shown, but Copy
+        Command is hidden — the button must not offer an action that
+        cannot succeed.
+    """
+    import mas.cli.tui.screens.review as review_module
+
+    monkeypatch.setattr(review_module, "clipboardAvailable", lambda: False)
+    screen = ReviewScreen(
+        _make_app(),
+        _make_step(),
+        4,
+        command_builder=lambda app: COMMAND,
+        script_filename_builder=lambda app: "mas-update-v9-261102-amd64.sh",
+    )
+
+    async def drive(pilot, app):
+        assert app.query_one("#review-command-panel").display
+        assert not app.query_one("#btn-copy-command", Button).display
         assert app.query_one("#btn-save-script", Button).display
 
     run_screen_pilot(screen, drive)
@@ -89,15 +122,18 @@ def test_command_panel_hidden_without_builder():
     run_screen_pilot(screen, drive)
 
 
-def test_save_script_hidden_without_filename_builder():
+def test_save_script_hidden_without_filename_builder(monkeypatch):
     """Test that Save Script alone is hidden without a filename builder.
 
     GIVEN a review screen with a command_builder but no
-        script_filename_builder
+        script_filename_builder, with a usable clipboard
     WHEN the step becomes active
     THEN the command panel and Copy Command are shown but Save Script is
         hidden.
     """
+    import mas.cli.tui.screens.review as review_module
+
+    monkeypatch.setattr(review_module, "clipboardAvailable", lambda: True)
     screen = ReviewScreen(_make_app(), _make_step(), 4, command_builder=lambda app: COMMAND)
 
     async def drive(pilot, app):
@@ -112,7 +148,7 @@ def test_copy_command_uses_clipboard(monkeypatch):
     """Test that Copy Command places the command on the clipboard.
 
     GIVEN a review screen with a command_builder, with the clipboard helper
-        stubbed to record copies
+        stubbed to record copies and a usable clipboard reported
     WHEN Copy Command is clicked
     THEN the clipboard receives the rendered command and the status row
         confirms the copy.
@@ -121,6 +157,7 @@ def test_copy_command_uses_clipboard(monkeypatch):
 
     import mas.cli.tui.screens.review as review_module
 
+    monkeypatch.setattr(review_module, "clipboardAvailable", lambda: True)
     monkeypatch.setattr(review_module, "copyToClipboard", lambda text: copied.append(text) or True)
     screen = ReviewScreen(
         _make_app(),

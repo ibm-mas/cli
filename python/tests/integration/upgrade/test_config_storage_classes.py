@@ -54,8 +54,8 @@ class TestConfigStorageClassesFromCLIArgs:
         app.params["storage_class_rwo"] = "my-block-class"
         app.params["storage_class_rwx"] = "my-file-class"
 
-        with patch("mas.cli.upgrade.app.getStorageClass", return_value=Mock()):
-            with patch("mas.cli.upgrade.app.getDefaultStorageClasses") as mock_detect:
+        with patch("mas.cli.common.storageClasses.getStorageClass", return_value=Mock()):
+            with patch("mas.cli.common.storageClasses.getDefaultStorageClasses") as mock_detect:
                 app.configStorageClasses()
 
         mock_detect.assert_not_called()
@@ -67,7 +67,7 @@ class TestConfigStorageClassesFromCLIArgs:
         app.params["storage_class_rwo"] = "my-block-class"
         app.params["storage_class_rwx"] = "my-file-class"
 
-        with patch("mas.cli.upgrade.app.getStorageClass", return_value=Mock()) as mock_sc:
+        with patch("mas.cli.common.storageClasses.getStorageClass", return_value=Mock()) as mock_sc:
             app.configStorageClasses()
 
         assert mock_sc.call_count == 2
@@ -86,7 +86,7 @@ class TestConfigStorageClassesFromCLIArgsInvalid:
         def _sc_lookup(client, name):
             return None if name == "bad-rwo" else Mock()
 
-        with patch("mas.cli.upgrade.app.getStorageClass", side_effect=_sc_lookup):
+        with patch("mas.cli.common.storageClasses.getStorageClass", side_effect=_sc_lookup):
             with pytest.raises(SystemExit):
                 app.configStorageClasses()
 
@@ -101,7 +101,7 @@ class TestConfigStorageClassesFromCLIArgsInvalid:
         def _sc_lookup(client, name):
             return None if name == "bad-rwx" else Mock()
 
-        with patch("mas.cli.upgrade.app.getStorageClass", side_effect=_sc_lookup):
+        with patch("mas.cli.common.storageClasses.getStorageClass", side_effect=_sc_lookup):
             with pytest.raises(SystemExit):
                 app.configStorageClasses()
 
@@ -116,8 +116,8 @@ class TestConfigStorageClassesAutoDetectNoConfirm:
         app = _make_app(no_confirm=True)
         sc = _make_storage_classes()
 
-        with patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=sc):
-            with patch("mas.cli.upgrade.app.print_formatted_text"):
+        with patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=sc):
+            with patch("mas.cli.common.storageClasses.print_formatted_text"):
                 app.configStorageClasses()
 
         assert app.params["storage_class_rwo"] == "ibmc-block-gold"
@@ -128,8 +128,8 @@ class TestConfigStorageClassesAutoDetectNoConfirm:
         sc = _make_storage_classes()
         app.yesOrNo = Mock()
 
-        with patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=sc):
-            with patch("mas.cli.upgrade.app.print_formatted_text"):
+        with patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=sc):
+            with patch("mas.cli.common.storageClasses.print_formatted_text"):
                 app.configStorageClasses()
 
         app.yesOrNo.assert_not_called()
@@ -143,8 +143,8 @@ class TestConfigStorageClassesAutoDetectInteractiveAccept:
         sc = _make_storage_classes()
         app.yesOrNo = Mock(return_value=True)
 
-        with patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=sc):
-            with patch("mas.cli.upgrade.app.print_formatted_text"):
+        with patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=sc):
+            with patch("mas.cli.common.storageClasses.print_formatted_text"):
                 app.configStorageClasses()
 
         app.yesOrNo.assert_called_once_with("Use the auto-detected storage classes")
@@ -164,10 +164,10 @@ class TestConfigStorageClassesAutoDetectInteractiveDecline:
         mock_sc_entry = MagicMock()
         mock_sc_entry.metadata.name = "thin"
 
-        with patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=sc):
-            with patch("mas.cli.upgrade.app.getStorageClasses", return_value=[mock_sc_entry]):
-                with patch("mas.cli.upgrade.app.print_formatted_text"):
-                    with patch("mas.cli.upgrade.app.prompt", side_effect=["custom-rwo", "custom-rwx"]):
+        with patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=sc):
+            with patch("mas.cli.common.storageClasses.getStorageClasses", return_value=[mock_sc_entry]):
+                with patch("mas.cli.common.storageClasses.print_formatted_text"):
+                    with patch("mas.cli.common.storageClasses.prompt", side_effect=["custom-rwo", "custom-rwx"]):
                         app.configStorageClasses()
 
         assert app.params["storage_class_rwo"] == "custom-rwo"
@@ -182,7 +182,7 @@ class TestConfigStorageClassesNoDetectionNoConfirm:
         sc = MagicMock()
         sc.provider = None
 
-        with patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=sc):
+        with patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=sc):
             with pytest.raises(SystemExit):
                 app.configStorageClasses()
 
@@ -203,10 +203,10 @@ class TestConfigStorageClassesNoDetectionInteractive:
         mock_sc_entry = MagicMock()
         mock_sc_entry.metadata.name = "thin"
 
-        with patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=sc):
-            with patch("mas.cli.upgrade.app.getStorageClasses", return_value=[mock_sc_entry]):
-                with patch("mas.cli.upgrade.app.print_formatted_text"):
-                    with patch("mas.cli.upgrade.app.prompt", side_effect=["my-rwo", "my-rwx"]):
+        with patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=sc):
+            with patch("mas.cli.common.storageClasses.getStorageClasses", return_value=[mock_sc_entry]):
+                with patch("mas.cli.common.storageClasses.print_formatted_text"):
+                    with patch("mas.cli.common.storageClasses.prompt", side_effect=["my-rwo", "my-rwx"]):
                         app.configStorageClasses()
 
         assert app.params["storage_class_rwo"] == "my-rwo"

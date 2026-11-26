@@ -383,8 +383,8 @@ def test_prepare_manage_foundation_configures_installation():
 
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1") as mock_workspace,
-        patch("mas.cli.upgrade.app.getStorageClass", return_value=object()) as mock_get_sc,
-        patch("mas.cli.upgrade.app.getDefaultStorageClasses") as mock_defaults,
+        patch("mas.cli.common.storageClasses.getStorageClass", return_value=object()) as mock_get_sc,
+        patch("mas.cli.common.storageClasses.getDefaultStorageClasses") as mock_defaults,
         patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key") as mock_lookup,
     ):
         app.prepareManageFoundation()
@@ -429,7 +429,7 @@ def test_prepare_manage_foundation_auto_detects_blank_storage_classes():
     defaults.rwx = "auto-rwx"
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
-        patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=defaults) as mock_defaults,
+        patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=defaults) as mock_defaults,
         patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
     ):
         app.prepareManageFoundation()
@@ -453,7 +453,7 @@ def test_prepare_manage_foundation_invalid_storage_class_raises():
 
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
-        patch("mas.cli.upgrade.app.getStorageClass", return_value=None),
+        patch("mas.cli.common.storageClasses.getStorageClass", return_value=None),
         patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
     ):
         with pytest.raises(RuntimeError, match="missing-sc"):

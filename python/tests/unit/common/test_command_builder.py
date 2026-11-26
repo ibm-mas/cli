@@ -18,11 +18,22 @@ flags, and error handling for unknown dests.
 """
 
 import argparse
+import base64
+import io
 import shlex
+import sys
 
 import pytest
 
-from mas.cli.common.commandBuilder import CommandArg, copyToClipboard, parserFlagMap, paramIsFalse, paramIsTrue, renderCommand
+from mas.cli.common.commandBuilder import (
+    CommandArg,
+    clipboardAvailable,
+    copyToClipboard,
+    parserFlagMap,
+    paramIsFalse,
+    paramIsTrue,
+    renderCommand,
+)
 
 
 class FakeApp:
@@ -212,6 +223,110 @@ def test_copy_toClipboard_without_backend_returns_false(monkeypatch):
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", no_pyperclip)
+    monkeypatch.delenv("MAS_CLIPBOARD", raising=False)
+    assert copyToClipboard("hello") is False
+
+
+def test_clipboard_available_false_when_no_backend(monkeypatch):
+    """GIVEN pyperclip has no backend for this platform
+    WHEN clipboardAvailable probes it
+    THEN it returns False rather than raising (the container / headless case)
+    """
+    import pyperclip
+
+    def no_backend():
+        raise pyperclip.PyperclipException("no copy/paste mechanism for this system")
+
+    monkeypatch.delenv("MAS_CLIPBOARD", raising=False)
+    monkeypatch.setattr(pyperclip, "determine_clipboard", no_backend)
+    assert clipboardAvailable() is False
+
+
+def test_clipboard_available_osc52_mode_follows_tty(monkeypatch):
+    """GIVEN MAS_CLIPBOARD=osc52
+    WHEN clipboardAvailable is checked
+    THEN availability follows whether stdout is a terminal, without touching
+        pyperclip
+    """
+    monkeypatch.setenv("MAS_CLIPBOARD", "osc52")
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True)
+    assert clipboardAvailable() is True
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: False)
+    assert clipboardAvailable() is False
+
+
+def test_clipboard_available_off_mode(monkeypatch):
+    """GIVEN MAS_CLIPBOARD=off
+    WHEN clipboardAvailable is checked
+    THEN it reports unavailable regardless of any backend
+    """
+    monkeypatch.setenv("MAS_CLIPBOARD", "off")
+    assert clipboardAvailable() is False
+
+
+class FakeTTY(io.StringIO):
+    """StringIO stand-in for a terminal stdout."""
+
+    def isatty(self):
+        return True
+
+
+def test_copy_to_clipboard_osc52_writes_escape_sequence(monkeypatch):
+    """GIVEN MAS_CLIPBOARD=osc52 with a terminal stdout
+    WHEN copyToClipboard is called
+    THEN the OSC 52 sequence is written, carrying the base64-encoded text
+    """
+    monkeypatch.setenv("MAS_CLIPBOARD", "osc52")
+    fake = FakeTTY()
+    monkeypatch.setattr(sys, "stdout", fake)
+
+    assert copyToClipboard("mas update --no-confirm") is True
+    written = fake.getvalue()
+    assert written.startswith("\x1b]52;c;")
+    assert written.endswith("\x07")
+    payload = written[len("\x1b]52;c;") : -1]
+    assert base64.b64decode(payload).decode("utf-8") == "mas update --no-confirm"
+
+
+def test_copy_to_clipboard_osc52_wrapped_inside_tmux(monkeypatch):
+    """GIVEN MAS_CLIPBOARD=osc52 inside tmux
+    WHEN copyToClipboard is called
+    THEN the sequence is wrapped in the DCS passthrough tmux requires, with
+        the inner sequence recoverable by un-doubling the ESC bytes
+    """
+    monkeypatch.setenv("MAS_CLIPBOARD", "osc52")
+    monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")
+    fake = FakeTTY()
+    monkeypatch.setattr(sys, "stdout", fake)
+
+    assert copyToClipboard("hello") is True
+    written = fake.getvalue()
+    assert written.startswith("\x1bPtmux;")
+    assert written.endswith("\x1b\\")
+    inner = written[len("\x1bPtmux;") : -len("\x1b\\")].replace("\x1b\x1b", "\x1b")
+    payload = inner[len("\x1b]52;c;") : -1]
+    assert base64.b64decode(payload).decode("utf-8") == "hello"
+
+
+def test_copy_to_clipboard_osc52_requires_a_tty(monkeypatch):
+    """GIVEN MAS_CLIPBOARD=osc52 but stdout is not a terminal
+    WHEN copyToClipboard is called
+    THEN it returns False and writes nothing (no escape garbage in pipes)
+    """
+    monkeypatch.setenv("MAS_CLIPBOARD", "osc52")
+    fake = io.StringIO()
+    fake.isatty = lambda: False
+    monkeypatch.setattr(sys, "stdout", fake)
+    assert copyToClipboard("hello") is False
+    assert fake.getvalue() == ""
+
+
+def test_copy_to_clipboard_off_mode(monkeypatch):
+    """GIVEN MAS_CLIPBOARD=off
+    WHEN copyToClipboard is called
+    THEN it returns False without attempting any copy
+    """
+    monkeypatch.setenv("MAS_CLIPBOARD", "off")
     assert copyToClipboard("hello") is False
 
 
@@ -242,6 +357,7 @@ def test_offerCommandScript_saves_via_writeCommandScript(tmp_path, monkeypatch):
     from mas.cli.common import commandBuilder
 
     copied = []
+    monkeypatch.setattr(commandBuilder, "clipboardAvailable", lambda: True)
     monkeypatch.setattr(commandBuilder, "copyToClipboard", lambda text: copied.append(text) or True)
 
     class PromptApp:
@@ -259,3 +375,63 @@ def test_offerCommandScript_saves_via_writeCommandScript(tmp_path, monkeypatch):
     content = (tmp_path / "chosen.sh").read_text()
     assert content.startswith("#!/bin/bash\n# Generated by the MAS CLI interactive wizard\n\n")
     assert "mas update --no-confirm" in content
+
+
+def test_offerCommandScript_skips_clipboard_prompt_when_unavailable(tmp_path, monkeypatch):
+    """GIVEN an environment with no usable clipboard (container / headless)
+    WHEN offerCommandScript runs
+    THEN the copy prompt is never asked and no failure message is printed,
+        while the save-as-script offer is still made
+    """
+    from mas.cli.common import commandBuilder
+
+    def unexpected_copy(text):
+        raise AssertionError("copyToClipboard must not be called when unavailable")
+
+    monkeypatch.setattr(commandBuilder, "clipboardAvailable", lambda: False)
+    monkeypatch.setattr(commandBuilder, "copyToClipboard", unexpected_copy)
+
+    prompts = []
+
+    class PromptApp:
+        def yesOrNo(self, prompt):
+            prompts.append(prompt)
+            return prompt.startswith("Save this command")
+
+        def promptForString(self, _prompt, default=None):
+            return str(tmp_path / "chosen.sh")
+
+        def printDescription(self, lines):
+            prompts.extend(lines)
+
+    commandBuilder.offerCommandScript(PromptApp(), "mas update --no-confirm", "default.sh")
+    assert not any("clipboard" in prompt.lower() for prompt in prompts)
+    assert any("Save this command as a script file" in prompt for prompt in prompts)
+
+
+def test_offerCommandScript_reports_failed_copy(monkeypatch):
+    """GIVEN the availability probe passes but the copy itself fails
+    WHEN offerCommandScript runs
+    THEN the failure message is still shown -- availability is a hint, not a
+        guarantee (e.g. xclip installed but no DISPLAY)
+    """
+    from mas.cli.common import commandBuilder
+
+    monkeypatch.setattr(commandBuilder, "clipboardAvailable", lambda: True)
+    monkeypatch.setattr(commandBuilder, "copyToClipboard", lambda text: False)
+
+    printed = []
+
+    class PromptApp:
+        def yesOrNo(self, prompt):
+            # Accept the clipboard offer only, so no script file is written
+            return prompt.startswith("Copy this command")
+
+        def promptForString(self, _prompt, default=None):
+            return ""
+
+        def printDescription(self, lines):
+            printed.extend(lines)
+
+    commandBuilder.offerCommandScript(PromptApp(), "mas update --no-confirm", "default.sh")
+    assert any("Clipboard is not available in this environment" in line for line in printed)

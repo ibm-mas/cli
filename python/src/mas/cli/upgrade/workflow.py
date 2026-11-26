@@ -17,7 +17,7 @@ from typing import Any
 
 from mas.cli.tui.models import WorkflowDefinition, WorkflowField, WorkflowStep, WorkflowSummaryItem
 from mas.cli.tui.screens import LaunchScreen, LicenseAcceptanceScreen, ReviewScreen
-from mas.cli.common.workflow import connectClusterStep
+from mas.cli.common.workflow import connectClusterStep, storageClassStep
 
 
 def _nonInteractiveCommand(appInstance: Any) -> str:
@@ -129,8 +129,10 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
        of the classic wizard's license prompt and of ``--accept-license``.
     4. **manage-foundation** — Conditional step shown only when the upgrade
        needs to install Manage Foundation (9.0.x to 9.1.x without Manage,
-       ``manageFoundationPending``): collects the Db2 storage classes
-       (blank = auto-detect) and runs the same configuration as the classic
+       ``manageFoundationPending``): collects the Db2 storage classes via
+       the shared storage class step — dropdowns of the cluster's storage
+       classes with the detected provider's classes pre-selected (blank =
+       auto-detect) — and runs the same configuration as the classic
        wizard's Manage Foundation block.  The IBM entitlement key is read
        back from the cluster's ``ibm-entitlement`` secret — it is not an
        input; a missing key is a fatal error.
@@ -167,6 +169,11 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
             ),
         ],
         validator=appInstance.prepareUpgrade,
+        # Shown next to the busy spinner while prepareUpgrade runs — it
+        # makes blocking cluster calls (channel detection, compatibility
+        # checks, RBAC evaluation, pipeline storage class resolution) that
+        # can take a while.
+        validator_status="Preparing upgrade…",
     )
 
     # Only shown when prepareUpgrade resolved a target channel carrying a
@@ -179,35 +186,39 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
         id="license-acceptance",
         heading="License Terms",
         heading_level="h1",
+        # The {channel} placeholder is filled in by the screen with the
+        # target channel resolved by prepareUpgrade, so the description
+        # names the release whose license links follow it directly.
         description=[
-            "To continue with the upgrade, you must accept the license terms for the target release.",
+            "To continue with the upgrade, you must accept the license terms for MAS {channel}:",
         ],
         screen_class=LicenseAcceptanceScreen,
         condition=lambda p: appInstance.licenseAcceptancePending(),
     )
 
     # Only shown when prepareUpgrade detected that this upgrade needs to
-    # install Manage Foundation (9.0.x to 9.1.x without Manage).  The storage
-    # class fields are optional: leaving them blank uses the classes
-    # auto-detected from the cluster.  The IBM entitlement key is not
-    # collected here — prepareManageFoundation reads it from the cluster's
-    # ibm-entitlement secret and fails fatally when it is missing.  The
-    # condition closes over the app instance so it reads the validator's
-    # state; once the step completes, should_install_manage_foundation is
-    # set and it is skipped on re-navigation.
-    manageFoundationStep = WorkflowStep(
+    # install Manage Foundation (9.0.x to 9.1.x without Manage).  Built by
+    # the shared storageClassStep (mas/cli/common/workflow.py): the storage
+    # class fields are dropdowns populated from the cluster in a worker
+    # thread, with the auto-detected provider's classes pre-selected and
+    # the provider shown in a context row.  They are optional — leaving
+    # them blank uses the classes auto-detected by the validator.  The IBM
+    # entitlement key is not collected here — prepareManageFoundation
+    # reads it from the cluster's ibm-entitlement secret and fails fatally
+    # when it is missing.  The condition closes over the app instance so
+    # it reads the validator's state; once the step completes,
+    # should_install_manage_foundation is set and it is skipped on
+    # re-navigation.
+    manageFoundationStep = storageClassStep(
+        appInstance,
         id="manage-foundation",
         heading="Configure Manage Foundation",
-        heading_level="h1",
         description=[
             "Upgrading to MAS 9.1.x will install Manage Foundation: the User, Security groups, Application configurator and Mobile configurator capabilities.",
-            "Provide the storage classes for the Manage Foundation Db2 instances — leave them blank to use the storage classes auto-detected from the cluster.",
-        ],
-        fields=[
-            WorkflowField(id="storage_class_rwo", label="ReadWriteOnce (RWO) Storage Class", type="string", required=False),
-            WorkflowField(id="storage_class_rwx", label="ReadWriteMany (RWX) Storage Class", type="string", required=False),
+            "Select the storage classes for the Manage Foundation Db2 instances from the cluster's available classes — the detected storage provider's classes are pre-selected. Leave them blank to use the storage classes auto-detected from the cluster.",
         ],
         validator=appInstance.prepareManageFoundation,
+        validator_status="Configuring Manage Foundation…",
         condition=lambda p: appInstance.manageFoundationPending(),
     )
 
