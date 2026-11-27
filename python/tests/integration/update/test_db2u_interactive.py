@@ -9,6 +9,13 @@
 #
 # *****************************************************************************
 
+"""Db2 dependency-selection prompts during a non-interactive update.
+
+The guided workflow is the TUI; the non-interactive path (--catalog on the command line) still prompts mid-flow for the decisions the command line left
+open: the Db2 namespace selection (when multiple namespaces hold Db2U resources and --db2-namespace was not provided), the Db2 major-version upgrade
+confirmation, the Db2 v12 license file, and the final review confirmation. These tests drive those prompts against the mocked cluster fixtures.
+"""
+
 from utils import UpdateTestConfig, run_update_test
 import sys
 import os
@@ -20,7 +27,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_one_namespace(tmpdir, resource_kind):
-    """Test interactive update when exactly one namespace contains Db2U resources.
+    """Test update when exactly one namespace contains Db2U resources.
 
     Expected behavior:
     - Automatically detects single namespace
@@ -30,16 +37,13 @@ def test_db2u_one_namespace(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        # Proceed with current cluster
-        ".*Proceed with this cluster?.*": lambda msg: "y",
-        # Catalog selection
-        ".*Select catalog version.*": lambda msg: "1",
         # Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-system"],  # Single namespace
@@ -53,7 +57,7 @@ def test_db2u_one_namespace(tmpdir, resource_kind):
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_multiple_namespaces(tmpdir, resource_kind):
-    """Test interactive update when multiple namespaces contain Db2U resources.
+    """Test update when multiple namespaces contain Db2U resources.
 
     Expected behavior:
     - Detects resources in multiple namespaces
@@ -64,10 +68,6 @@ def test_db2u_multiple_namespaces(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        # Proceed with current cluster
-        ".*Proceed with this cluster?.*": lambda msg: "y",
-        # Catalog selection
-        ".*Select catalog version.*": lambda msg: "1",
         # Namespace selection - user chooses second namespace
         ".*Select namespace.*": lambda msg: "2",
         # Final confirmation
@@ -76,6 +76,7 @@ def test_db2u_multiple_namespaces(tmpdir, resource_kind):
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-ns1", "db2u-ns2", "db2u-ns3"],  # Multiple namespaces
@@ -89,7 +90,7 @@ def test_db2u_multiple_namespaces(tmpdir, resource_kind):
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_none_found(tmpdir, resource_kind):
-    """Test interactive update when no Db2U resources exist.
+    """Test update when no Db2U resources exist.
 
     Expected behavior:
     - Detects no Db2U resources
@@ -99,16 +100,13 @@ def test_db2u_none_found(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        # Proceed with current cluster
-        ".*Proceed with this cluster?.*": lambda msg: "y",
-        # Catalog selection
-        ".*Select catalog version.*": lambda msg: "1",
         # Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=[],  # No Db2U resources
@@ -122,7 +120,7 @@ def test_db2u_none_found(tmpdir, resource_kind):
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
-    """Test interactive update with Db2 major version upgrade - user accepts.
+    """Test update with Db2 major version upgrade - user accepts.
 
     Expected behavior:
     - Detects Db2 v11 needs upgrade to v12
@@ -137,10 +135,6 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
         handle.write("db2-license")
 
     prompt_handlers = {
-        # Proceed with current cluster
-        ".*Proceed with this cluster.*": lambda msg: "y",
-        # Catalog selection
-        ".*Select catalog version.*": lambda msg: "1",
         # Db2 version upgrade confirmation - match the exact format
         ".*Confirm update from Db2 11 to 12.*": lambda msg: "y",
         # License prompt
@@ -151,6 +145,7 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-system"],
@@ -166,7 +161,7 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
-    """Test interactive update with Db2 major version upgrade - user rejects.
+    """Test update with Db2 major version upgrade - user rejects.
 
     Expected behavior:
     - Detects Db2 v11 needs upgrade to v12
@@ -177,16 +172,13 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        # Proceed with current cluster
-        ".*Proceed with this cluster.*": lambda msg: "y",
-        # Catalog selection
-        ".*Select catalog version.*": lambda msg: "1",
         # Db2 version upgrade confirmation - user rejects - match exact format
         ".*Confirm update from Db2 11 to 12.*": lambda msg: "n",
     }
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-system"],
@@ -204,7 +196,7 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, resource_kind):
-    """Test interactive Db2 v11 to v12 upgrade aborts when an invalid license file path is provided.
+    """Test Db2 v11 to v12 upgrade aborts when an invalid license file path is provided.
 
     Expected behavior:
     - User confirms the major version upgrade
@@ -217,8 +209,6 @@ def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, r
     invalid_license_file = os.path.join(str(tmpdir), "missing-db2-license.lic")
 
     prompt_handlers = {
-        ".*Proceed with this cluster.*": lambda msg: "y",
-        ".*Select catalog version.*": lambda msg: "1",
         ".*Confirm update from Db2 11 to 12.*": lambda msg: "y",
         ".*Path to a valid Db2 v12 license file.*": lambda msg: invalid_license_file,
         ".*Proceed with these settings.*": lambda msg: "y",
@@ -226,6 +216,7 @@ def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, r
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-system"],
@@ -242,7 +233,7 @@ def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, r
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_minor_version_upgrade_no_prompt(tmpdir, resource_kind):
-    """Test interactive update with Db2 minor version upgrade - no prompt needed.
+    """Test update with Db2 minor version upgrade - no prompt needed.
 
     Expected behavior:
     - Detects Db2 v11.5.8.0 needs upgrade to v11.5.9.0
@@ -251,16 +242,13 @@ def test_db2u_minor_version_upgrade_no_prompt(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        # Proceed with current cluster
-        ".*Proceed with this cluster?.*": lambda msg: "y",
-        # Catalog selection
-        ".*Select catalog version.*": lambda msg: "1",
         # Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-system"],
@@ -276,7 +264,7 @@ def test_db2u_minor_version_upgrade_no_prompt(tmpdir, resource_kind):
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_multiple_namespaces_first_selection(tmpdir, resource_kind):
-    """Test interactive update - user selects first namespace from multiple.
+    """Test update - user selects first namespace from multiple.
 
     Expected behavior:
     - Detects resources in multiple namespaces
@@ -286,14 +274,13 @@ def test_db2u_multiple_namespaces_first_selection(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        ".*Proceed with this cluster?.*": lambda msg: "y",
-        ".*Select catalog version.*": lambda msg: "1",
         ".*Select namespace.*": lambda msg: "1",  # Select first
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-ns1", "db2u-ns2"],
@@ -307,7 +294,7 @@ def test_db2u_multiple_namespaces_first_selection(tmpdir, resource_kind):
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
 def test_db2u_multiple_namespaces_last_selection(tmpdir, resource_kind):
-    """Test interactive update - user selects last namespace from multiple.
+    """Test update - user selects last namespace from multiple.
 
     Expected behavior:
     - Detects resources in multiple namespaces
@@ -317,14 +304,13 @@ def test_db2u_multiple_namespaces_last_selection(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        ".*Proceed with this cluster?.*": lambda msg: "y",
-        ".*Select catalog version.*": lambda msg: "1",
         ".*Select namespace.*": lambda msg: "3",  # Select last
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
         prompt_handlers=prompt_handlers,
+        argv=["--catalog", "v9-260129-amd64"],
         installed_catalog_id="v9-251231-amd64",
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-ns1", "db2u-ns2", "db2u-ns3"],
