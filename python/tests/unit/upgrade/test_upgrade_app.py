@@ -687,13 +687,14 @@ def test_install_tekton_definitions_updates_definitions():
     assert detail == "v1.2.3"
 
 
-def test_submit_upgrade_pipeline_run_passes_effective_channel():
-    """Test _submitUpgradePipelineRun passes the effective current channel.
+def test_submit_upgrade_pipeline_run_passes_target_channel():
+    """Test _submitUpgradePipelineRun passes the target (next) channel.
 
     GIVEN an app in the post-prepareUpgrade state (9.1.x to 9.2.x)
     WHEN _submitUpgradePipelineRun is called
     THEN launchUpgradePipeline is called with the instance ID, skip flag and
-         masChannel=9.1.x, and the pipeline URL is returned as the detail.
+         masChannel=9.2.x (ansible-devops treats MAS_CHANNEL as the target),
+         and the pipeline URL is returned as the detail.
     """
     app = _make_app(
         masInstanceId="inst1",
@@ -705,20 +706,40 @@ def test_submit_upgrade_pipeline_run_passes_effective_channel():
     with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
         success, detail = app._submitUpgradePipelineRun()
 
-    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.1.x", params=app.params)
+    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.2.x", params=app.params)
     assert success is True
     assert detail == "https://example.com/pipelinerun"
 
 
-def test_submit_upgrade_pipeline_run_retry_passes_previous_channel():
-    """Test the retry scenario passes the previous channel to the pipeline.
+def test_submit_upgrade_pipeline_run_feature_to_ga_passes_ga_channel():
+    """Test upgrading a feature channel to its GA channel passes the GA channel.
+
+    GIVEN a core on 9.2.x-feature whose next channel is 9.2.x
+    WHEN _submitUpgradePipelineRun is called
+    THEN masChannel is 9.2.x, not 9.2.x-feature (which Ansible would treat as
+         the target and so do nothing).
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="9.2.x-feature",
+        nextChannel="9.2.x",
+        effectiveCurrentChannel="9.2.x-feature",
+    )
+
+    with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
+        app._submitUpgradePipelineRun()
+
+    assert mock_launch.call_args.kwargs["masChannel"] == "9.2.x"
+
+
+def test_submit_upgrade_pipeline_run_retry_passes_target_channel():
+    """Test the retry scenario passes the (already reached) target channel.
 
     GIVEN an app whose next channel equals its current channel (core already
         on 9.0.x, apps still behind)
     WHEN _submitUpgradePipelineRun is called
-    THEN masChannel is the channel that precedes the current one (the first
-         upgrade_path entry mapping to it, as in the classic launch logic),
-         so Ansible upgrades the remaining apps to the current channel.
+    THEN masChannel is 9.0.x; Ansible skips the core (already on target) and
+         the app roles upgrade the remaining apps.
     """
     app = _make_app(
         masInstanceId="inst1",
@@ -730,7 +751,23 @@ def test_submit_upgrade_pipeline_run_retry_passes_previous_channel():
     with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
         app._submitUpgradePipelineRun()
 
-    assert mock_launch.call_args.kwargs["masChannel"] == "8.11.x"
+    assert mock_launch.call_args.kwargs["masChannel"] == "9.0.x"
+
+
+@pytest.mark.parametrize("nextChannel", ["", "Unknown"])
+def test_submit_upgrade_pipeline_run_unknown_target_passes_empty_channel(nextChannel):
+    """Test an undetectable target leaves masChannel empty for Ansible to auto-select.
+
+    GIVEN an app whose instance could not be detected (next channel unknown)
+    WHEN _submitUpgradePipelineRun is called
+    THEN masChannel is an empty string.
+    """
+    app = _make_app(masInstanceId="inst1", currentChannel="Unknown", nextChannel=nextChannel)
+
+    with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
+        app._submitUpgradePipelineRun()
+
+    assert mock_launch.call_args.kwargs["masChannel"] == ""
 
 
 def test_submit_upgrade_pipeline_run_failure():
@@ -796,7 +833,7 @@ def test_launch_upgrade_reports_stages_and_submits_pipeline():
     assert all(e[2] is True for e in done.values())
     assert done["Submit PipelineRun"][3] == "https://example.com/pipelinerun"
 
-    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.1.x", params=app.params)
+    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.2.x", params=app.params)
 
 
 def test_launch_upgrade_applies_rbac_when_required():

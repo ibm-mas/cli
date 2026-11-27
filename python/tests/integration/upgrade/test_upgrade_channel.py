@@ -68,7 +68,7 @@ class TestUpgradeChannelLogic:
     def test_regular_upgrade_with_next_channel(self, mock_upgrade_app):
         """
         Test regular upgrade: current=8.11.x, next=9.0.x
-        Should pass masChannel="8.11.x" to ansible
+        Should pass masChannel="9.0.x" (the target channel) to ansible
         """
         with patch("mas.devops.mas.getMasChannel", return_value="8.11.x"):
             with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
@@ -92,12 +92,12 @@ class TestUpgradeChannelLogic:
                                 # Verify masChannel parameter
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs["masChannel"] == "8.11.x", f"Expected masChannel='8.11.x', got '{call_kwargs['masChannel']}'"
+                                    assert call_kwargs["masChannel"] == "9.0.x", f"Expected masChannel='9.0.x', got '{call_kwargs['masChannel']}'"
 
     def test_retry_scenario_with_next_channel(self, mock_upgrade_app):
         """
         Test retry scenario: current=9.1.x, next=9.1.x (core upgraded, apps stuck on 9.0.x)
-        Should pass masChannel="9.0.x" (previous channel) to ansible
+        Should pass masChannel="9.1.x" (the target channel, already reached by core) to ansible
         """
         with patch("mas.devops.mas.getMasChannel", return_value="9.1.x"):
             with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
@@ -118,17 +118,17 @@ class TestUpgradeChannelLogic:
                                         mock_upgrade_app.upgrade([])
                                     except Exception:
                                         pass
-                                # Verify masChannel parameter - should be previous channel (9.0.x)
+                                # Verify masChannel parameter - should be the target channel (9.1.x)
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
                                     assert (
-                                        call_kwargs["masChannel"] == "9.0.x"
-                                    ), f"Expected masChannel='9.0.x' (previous channel), got '{call_kwargs['masChannel']}'"
+                                        call_kwargs["masChannel"] == "9.1.x"
+                                    ), f"Expected masChannel='9.1.x' (target channel), got '{call_kwargs['masChannel']}'"
 
     def test_no_next_channel_auto_determine(self, mock_upgrade_app):
         """
-        Test auto-determine: no --next-channel provided
-        Should pass masChannel="" to let ansible auto-determine
+        Test auto-determine: no --next-channel provided, current=8.11.x
+        The CLI derives next=9.0.x from upgrade_path and passes it as the target channel
         """
         with patch("mas.devops.mas.getMasChannel", return_value="8.11.x"):
             with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
@@ -149,10 +149,10 @@ class TestUpgradeChannelLogic:
                                         mock_upgrade_app.upgrade([])
                                     except Exception:
                                         pass
-                                # Verify masChannel parameter is empty
+                                # Verify masChannel parameter is the derived target channel
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs["masChannel"] == "", f"Expected masChannel='' (auto-determine), got '{call_kwargs['masChannel']}'"
+                                    assert call_kwargs["masChannel"] == "9.0.x", f"Expected masChannel='9.0.x', got '{call_kwargs['masChannel']}'"
 
     def test_invalid_upgrade_path(self, mock_upgrade_app):
         """
@@ -223,7 +223,7 @@ class TestUpgradeChannelLogic:
                                             pass
                                     if mock_launch.called:
                                         call_kwargs = mock_launch.call_args[1]
-                                        assert call_kwargs["masChannel"] == "9.2.x"
+                                        assert call_kwargs["masChannel"] == "9.3.x-feature"
 
     def test_upgrade_from_9_2_x_auto_determine_next_channel(self, mock_upgrade_app):
         """
