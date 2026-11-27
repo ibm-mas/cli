@@ -2254,27 +2254,7 @@ class InstallApp(
 
                 # Special handling for ibm_entitlement_key: validate it
                 if key == "ibm_entitlement_key":
-                    isValid = self.validateEntitlementKey(value)
-                    if not isValid:
-                        if self.noConfirm:
-                            # Non-interactive with --no-confirm: warn but continue
-                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
-                        else:
-                            # Non-interactive without --no-confirm: offer options
-                            self.printWarning("IBM entitlement key validation failed")
-                            print()
-                            self.printDescription(
-                                [
-                                    "What would you like to do?",
-                                    "  1. Continue anyway (skip validation)",
-                                    "  2. Quit (exit the application)",
-                                ]
-                            )
-                            choice = self.promptForInt("Select an option", min=1, max=2)
-                            if choice == 2:
-                                logger.info("User chose to quit due to invalid entitlement key")
-                                exit(1)
-                            # If choice == 1, continue with the invalid key
+                    self.validateEntitlementKeyNonInteractive(value)
 
                 self.setParam(key, value)
 

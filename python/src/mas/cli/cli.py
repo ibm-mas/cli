@@ -31,8 +31,8 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO, getNodes
-from mas.devops.utils import validateIBMEntitlementKey
-
+from mas.devops.utils import validateIBMEntitlementKey, EntitlementKeySSLError
+from requests.exceptions import RequestException as RequestsException
 from .displayMixins import PrintMixin, PromptMixin
 from .rbac_utils import getPreinstallRBACRootDir
 
@@ -678,20 +678,126 @@ class BaseApp(PrintMixin, PromptMixin):
             timeout: Timeout in seconds for validation. Defaults to 30.
 
         Returns:
-            bool: True if valid, False if invalid
+            bool: True if the key is valid, False if cp.icr.io confirmed the key is invalid
+
+        Raises:
+            EntitlementKeySSLError: If an SSL error prevented validation (key may still be valid)
+            requests.exceptions.RequestException: If any other error prevented validation
+                (key may still be valid)
+        """
+        logger.info(f"Validating IBM entitlement key against repository: {repository}")
+        try:
+            isValid = validateIBMEntitlementKey(entitlementKey, repository, timeout)
+        except EntitlementKeySSLError as e:
+            logger.warning(f"IBM entitlement key could not be validated (SSL error): {e}")
+            raise
+        except RequestsException as e:
+            logger.warning(f"IBM entitlement key could not be validated (request error): {e}")
+            raise
+        if isValid:
+            logger.info("IBM entitlement key validation successful")
+        else:
+            logger.warning("IBM entitlement key validation failed: key was rejected")
+        return isValid
+
+    @staticmethod
+    def _unverifiedEntitlementKeyText(error: RequestsException):
+        """
+        Build the messages shown when the entitlement key could not be checked (as opposed to being rejected).
+
+        Returns:
+            tuple: (warning title, list of explanation lines, --no-confirm warning message)
+        """
+        if isinstance(error, EntitlementKeySSLError):
+            return (
+                "SSL certificate verification failed — could not validate the entitlement key",
+                ["This is likely caused by a corporate proxy or firewall using a self-signed certificate."],
+                "SSL certificate verification failed — could not validate the entitlement key. "
+                "This is likely caused by a corporate proxy or firewall using a self-signed certificate. "
+                "Your entitlement key may still be valid. Continuing due to --no-confirm flag.",
+            )
+        return (
+            "Could not validate the entitlement key",
+            ["The validation check could not be completed. This is often caused by a network, proxy or firewall problem."],
+            "Could not validate the entitlement key. "
+            "The validation check could not be completed, which is often caused by a network, proxy or firewall problem. "
+            "Your entitlement key may still be valid. Continuing due to --no-confirm flag.",
+        )
+
+    def handleEntitlementKeyUnverified(self, error: RequestsException) -> None:
+        """
+        Handle an error (SSL or any other request error) that prevented IBM entitlement key validation.
+        Used by the non-interactive flows.
+
+        With --no-confirm, warns and returns. Otherwise offers: 1) Continue anyway, 2) Quit.
+        """
+        title, reasons, noConfirmMessage = self._unverifiedEntitlementKeyText(error)
+        if self.noConfirm:
+            self.printWarning(noConfirmMessage)
+            return
+
+        self.printWarning(title)
+        print()
+        self.printDescription(
+            reasons
+            + [
+                "This does NOT necessarily mean your entitlement key is wrong.",
+                "Your key may be perfectly valid — the CLI simply could not connect to verify it.",
+                "",
+                "What would you like to do?",
+                "  1. Continue anyway (skip validation) — recommended if your key is correct",
+                "  2. Quit (exit the application)",
+            ]
+        )
+        choice = self.promptForInt("Select an option", min=1, max=2)
+        if choice == 2:
+            logger.info("User chose to quit because the entitlement key could not be validated")
+            exit(1)
+
+    def validateEntitlementKeyNonInteractive(self, entitlementKey: str) -> None:
+        """
+        Validate an IBM entitlement key supplied on the command line and handle any problem.
+
+        - Valid key: continues silently.
+        - Key rejected by cp.icr.io: warns that the key is not valid.
+        - Validation could not complete (SSL or other error): warns that the key could not be verified.
+
+        With --no-confirm the warning is shown and the install continues; otherwise the user
+        may choose to continue anyway or quit.
         """
         try:
-            logger.info(f"Validating IBM entitlement key against repository: {repository}")
-            isValid = validateIBMEntitlementKey(entitlementKey, repository, timeout)
-            if isValid:
-                logger.info("IBM entitlement key validation successful")
-            else:
-                logger.warning("IBM entitlement key validation failed")
-            return isValid
-        except Exception as e:
-            logger.error(f"Error validating IBM entitlement key: {e}")
-            logger.exception(e, stack_info=True)
-            return False
+            isValid = self.validateEntitlementKey(entitlementKey)
+        except RequestsException as e:
+            self.handleEntitlementKeyUnverified(e)
+            return
+        if not isValid:
+            self.handleEntitlementKeyInvalid()
+
+    def handleEntitlementKeyInvalid(self) -> None:
+        """
+        Handle an IBM entitlement key that cp.icr.io rejected. Used by the non-interactive flows.
+
+        With --no-confirm, warns and returns. Otherwise offers: 1) Continue anyway, 2) Quit.
+        """
+        if self.noConfirm:
+            self.printWarning("IBM entitlement key is not valid, but continuing due to --no-confirm flag")
+            return
+
+        self.printWarning("IBM entitlement key is not valid")
+        print()
+        self.printDescription(
+            [
+                "Please check that the entitlement key is correct and has not expired.",
+                "",
+                "What would you like to do?",
+                "  1. Continue anyway (skip validation)",
+                "  2. Quit (exit the application)",
+            ]
+        )
+        choice = self.promptForInt("Select an option", min=1, max=2)
+        if choice == 2:
+            logger.info("User chose to quit due to invalid entitlement key")
+            exit(1)
 
     @logMethodCall
     def promptForEntitlementKey(self, message: str, param: str, repository: str = "cp/mas/coreapi", timeout: int = 30) -> str:
@@ -700,11 +806,12 @@ class BaseApp(PrintMixin, PromptMixin):
 
         In interactive mode:
         - Validates the key after user input
-        - If invalid, offers: 1) Try again, 2) Continue anyway, 3) Quit
+        - If invalid, or if validation could not complete (SSL or other error), offers:
+          1) Try again, 2) Continue anyway, 3) Quit
         - Loops until valid key or user chooses to continue/quit
 
         In non-interactive mode with --no-confirm:
-        - Validates but only warns if invalid, does not block
+        - Validates but only warns if invalid or if validation could not complete, does not block
 
         Args:
             message: Prompt message to display
@@ -720,7 +827,14 @@ class BaseApp(PrintMixin, PromptMixin):
             entitlementKey = self.promptForString(message, param=None, isPassword=True)
 
             # Validate the key
-            isValid = self.validateEntitlementKey(entitlementKey, repository, timeout)
+            # Returns True (valid) or False (rejected). Raises if the check could not be completed
+            # (EntitlementKeySSLError for SSL errors, RequestException for any other error).
+            error = None
+            try:
+                isValid = self.validateEntitlementKey(entitlementKey, repository, timeout)
+            except RequestsException as e:
+                error = e
+                isValid = False
 
             if isValid:
                 # Key is valid, show success message and continue
@@ -728,24 +842,45 @@ class BaseApp(PrintMixin, PromptMixin):
                 self.setParam(param, entitlementKey)
                 return entitlementKey
 
-            # Key is invalid
+            # Validation could not complete (error) or the key was rejected (invalid)
             if self.noConfirm:
-                # Non-interactive mode with --no-confirm: warn but continue
-                self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                if error is not None:
+                    self.printWarning(self._unverifiedEntitlementKeyText(error)[2])
+                else:
+                    self.printWarning("IBM entitlement key is not valid, but continuing due to --no-confirm flag")
                 self.setParam(param, entitlementKey)
                 return entitlementKey
 
-            # Interactive mode or non-interactive without --no-confirm: offer options
-            self.printWarning("IBM entitlement key validation failed")
-            print()
-            self.printDescription(
-                [
-                    "What would you like to do?",
-                    "  1. Try again (re-enter the entitlement key)",
-                    "  2. Continue anyway (skip validation)",
-                    "  3. Quit (exit the application)",
-                ]
-            )
+            # Interactive mode: build the warning and offer options
+            if error is not None:
+                title, reasons, _ = self._unverifiedEntitlementKeyText(error)
+                self.printWarning(title)
+                print()
+                self.printDescription(
+                    reasons
+                    + [
+                        "This does NOT necessarily mean your entitlement key is wrong.",
+                        "Your key may be perfectly valid — the CLI simply could not connect to verify it.",
+                        "",
+                        "What would you like to do?",
+                        "  1. Try again (re-enter the entitlement key)",
+                        "  2. Continue anyway (skip validation) — recommended if your key is correct",
+                        "  3. Quit (exit the application)",
+                    ]
+                )
+            else:
+                self.printWarning("IBM entitlement key is not valid")
+                print()
+                self.printDescription(
+                    [
+                        "Please check that the entitlement key is correct and has not expired.",
+                        "",
+                        "What would you like to do?",
+                        "  1. Try again (re-enter the entitlement key)",
+                        "  2. Continue anyway (skip validation)",
+                        "  3. Quit (exit the application)",
+                    ]
+                )
 
             choice = self.promptForInt("Select an option", min=1, max=3)
 
@@ -754,10 +889,10 @@ class BaseApp(PrintMixin, PromptMixin):
                 continue
             elif choice == 2:
                 # Continue anyway
-                logger.warning("User chose to continue with invalid entitlement key")
+                logger.warning("User chose to continue with unverified entitlement key")
                 self.setParam(param, entitlementKey)
                 return entitlementKey
             else:  # choice == 3
                 # Quit
-                logger.info("User chose to quit due to invalid entitlement key")
+                logger.info("User chose to quit due to entitlement key validation failure")
                 exit(1)

@@ -28,6 +28,7 @@ THEN it should warn but continue when --no-confirm is set
 import pytest
 from unittest.mock import patch
 from mas.cli.cli import BaseApp
+from mas.devops.utils import EntitlementKeySSLError
 
 
 class TestValidateEntitlementKey:
@@ -82,34 +83,53 @@ class TestValidateEntitlementKey:
         mock_validate.assert_called_once_with("key-123", "custom/repo", 60)
 
     @patch("mas.cli.cli.validateIBMEntitlementKey")
-    def test_validate_with_network_error(self, mock_validate):
-        """Test validation when network error occurs.
+    def test_validate_with_ssl_error(self, mock_validate):
+        """Test validation when an SSL certificate error occurs.
 
-        GIVEN a network error during validation
+        GIVEN an SSL certificate error during validation (e.g. corporate proxy)
+        utils.py raises EntitlementKeySSLError.
         WHEN validateEntitlementKey is called
-        THEN it should return False and log the error.
+        THEN it should re-raise EntitlementKeySSLError so callers can tell it apart from an invalid key.
         """
-        mock_validate.side_effect = ConnectionError("Network error")
+        mock_validate.side_effect = EntitlementKeySSLError("self-signed certificate in certificate chain")
         app = BaseApp()
 
-        result = app.validateEntitlementKey("key-123")
+        with pytest.raises(EntitlementKeySSLError):
+            app.validateEntitlementKey("key-123")
 
-        assert result is False
+    @patch("mas.cli.cli.validateIBMEntitlementKey")
+    def test_validate_with_network_error(self, mock_validate):
+        """Test validation when a non-SSL network error occurs.
+
+        GIVEN a network error during validation
+        utils.py re-raises non-SSL RequestException.
+        WHEN validateEntitlementKey is called
+        THEN it should re-raise it (key status unknown) and NOT return False (which means key rejected).
+        """
+        from requests.exceptions import ConnectionError as RequestsConnectionError
+
+        mock_validate.side_effect = RequestsConnectionError("Network unreachable")
+        app = BaseApp()
+
+        with pytest.raises(RequestsConnectionError):
+            app.validateEntitlementKey("key-123")
 
     @patch("mas.cli.cli.validateIBMEntitlementKey")
     def test_validate_with_timeout(self, mock_validate):
-        """Test validation when timeout occurs.
+        """Test validation when a timeout occurs.
 
         GIVEN a timeout during validation
+        utils.py re-raises non-SSL RequestException.
         WHEN validateEntitlementKey is called
-        THEN it should return False and log the error.
+        THEN it should re-raise it (key status unknown) and NOT return False (which means key rejected).
         """
-        mock_validate.side_effect = TimeoutError("Validation timeout")
+        from requests.exceptions import Timeout as RequestsTimeout
+
+        mock_validate.side_effect = RequestsTimeout("Request timed out")
         app = BaseApp()
 
-        result = app.validateEntitlementKey("key-123")
-
-        assert result is False
+        with pytest.raises(RequestsTimeout):
+            app.validateEntitlementKey("key-123")
 
 
 class TestPromptForEntitlementKeyInteractive:
@@ -219,6 +239,89 @@ class TestPromptForEntitlementKeyInteractive:
         mock_prompt_int.assert_called_once()
 
 
+class TestPromptForEntitlementKeySSLError:
+    """Test promptForEntitlementKey when an SSL error prevents validation."""
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_ssl_error_continue_anyway(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_prompt_string, mock_validate):
+        """Test continuing when SSL error occurs and user chooses option 2.
+
+        GIVEN an SSL error during validation
+        WHEN promptForEntitlementKey is called and user chooses to continue anyway
+        THEN it should return the key and show an SSL-specific warning message.
+        """
+        mock_prompt_string.return_value = "valid-key-123"
+        mock_validate.side_effect = EntitlementKeySSLError("SSL error")
+        mock_prompt_int.return_value = 2  # Continue anyway
+
+        app = BaseApp()
+        app.noConfirm = False
+
+        result = app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert result == "valid-key-123"
+        assert app.getParam("ibm_entitlement_key") == "valid-key-123"
+        mock_validate.assert_called_once()
+        mock_prompt_int.assert_called_once()
+        # Warning should mention SSL, not "validation failed"
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "SSL" in warn_message
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    def test_ssl_error_with_no_confirm(self, mock_print_warn, mock_prompt_string, mock_validate):
+        """Test SSL error with --no-confirm flag.
+
+        GIVEN an SSL error and --no-confirm flag is set
+        WHEN promptForEntitlementKey is called
+        THEN it should warn with an SSL-specific message and continue without prompting.
+        """
+        mock_prompt_string.return_value = "valid-key-123"
+        mock_validate.side_effect = EntitlementKeySSLError("SSL error")
+
+        app = BaseApp()
+        app.noConfirm = True
+
+        result = app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert result == "valid-key-123"
+        assert app.getParam("ibm_entitlement_key") == "valid-key-123"
+        mock_validate.assert_called_once()
+        mock_print_warn.assert_called_once()
+        # Warning should mention SSL, not generic "validation failed"
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "SSL" in warn_message
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_ssl_error_quit(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_prompt_string, mock_validate):
+        """Test quitting when SSL error occurs and user chooses option 3.
+
+        GIVEN an SSL error during validation
+        WHEN promptForEntitlementKey is called and user chooses to quit
+        THEN it should raise SystemExit.
+        """
+        mock_prompt_string.return_value = "valid-key-123"
+        mock_validate.side_effect = EntitlementKeySSLError("SSL error")
+        mock_prompt_int.return_value = 3  # Quit
+
+        app = BaseApp()
+        app.noConfirm = False
+
+        with pytest.raises(SystemExit) as exc_info:
+            app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert exc_info.value.code == 1
+
+
 class TestPromptForEntitlementKeyNonInteractive:
     """Test promptForEntitlementKey in non-interactive mode."""
 
@@ -291,4 +394,177 @@ class TestPromptForEntitlementKeyNonInteractive:
 
         assert result == "invalid-key"
         mock_validate.assert_called_once()
+        mock_prompt_int.assert_called_once()
+
+
+class TestPromptForEntitlementKeyMessages:
+    """Test that the message shown matches the reason validation did not succeed."""
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_wrong_key_says_key_is_not_valid(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_prompt_string, mock_validate):
+        """GIVEN cp.icr.io rejected the key WHEN prompting THEN the warning says the key is not valid."""
+        mock_prompt_string.return_value = "wrong-key"
+        mock_validate.return_value = False
+        mock_prompt_int.return_value = 2
+
+        app = BaseApp()
+        app.noConfirm = False
+        app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "key is not valid" in warn_message
+        assert "SSL" not in warn_message
+        assert "Network" not in warn_message
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_network_error_says_could_not_connect(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_prompt_string, mock_validate):
+        """GIVEN a non-SSL network error WHEN prompting THEN the warning says the CLI could not connect, not that the key is wrong."""
+        from requests.exceptions import ConnectionError as RequestsConnectionError
+
+        mock_prompt_string.return_value = "maybe-valid-key"
+        mock_validate.side_effect = RequestsConnectionError("Network unreachable")
+        mock_prompt_int.return_value = 2
+
+        app = BaseApp()
+        app.noConfirm = False
+        result = app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert result == "maybe-valid-key"
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "Could not validate the entitlement key" in warn_message
+        assert "key is not valid" not in warn_message
+        assert "SSL" not in warn_message
+        # The explanation must also tell the user the key may still be fine
+        description = " ".join(mock_print_desc.call_args[0][0])
+        assert "does NOT necessarily mean your entitlement key is wrong" in description
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    def test_network_error_with_no_confirm(self, mock_print_warn, mock_prompt_string, mock_validate):
+        """GIVEN a network error and --no-confirm WHEN prompting THEN it warns (network, not wrong key) and continues."""
+        from requests.exceptions import Timeout as RequestsTimeout
+
+        mock_prompt_string.return_value = "maybe-valid-key"
+        mock_validate.side_effect = RequestsTimeout("Request timed out")
+
+        app = BaseApp()
+        app.noConfirm = True
+        result = app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert result == "maybe-valid-key"
+        mock_print_warn.assert_called_once()
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "Could not validate the entitlement key" in warn_message
+        assert "key is not valid" not in warn_message
+
+
+class TestValidateEntitlementKeyNonInteractive:
+    """Test validateEntitlementKeyNonInteractive, used by install / restore / aiservice-install."""
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    def test_valid_key_prints_nothing(self, mock_print_warn, mock_validate):
+        mock_validate.return_value = True
+        app = BaseApp()
+        app.noConfirm = False
+
+        app.validateEntitlementKeyNonInteractive("good-key")
+
+        mock_print_warn.assert_not_called()
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    def test_wrong_key_with_no_confirm_warns_key_not_valid(self, mock_print_warn, mock_validate):
+        mock_validate.return_value = False
+        app = BaseApp()
+        app.noConfirm = True
+
+        app.validateEntitlementKeyNonInteractive("bad-key")
+
+        mock_print_warn.assert_called_once()
+        assert "key is not valid" in mock_print_warn.call_args[0][0]
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_wrong_key_quit(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_validate):
+        mock_validate.return_value = False
+        mock_prompt_int.return_value = 2  # Quit
+        app = BaseApp()
+        app.noConfirm = False
+
+        with pytest.raises(SystemExit) as exc_info:
+            app.validateEntitlementKeyNonInteractive("bad-key")
+
+        assert exc_info.value.code == 1
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    def test_ssl_error_with_no_confirm_warns_ssl(self, mock_print_warn, mock_validate):
+        mock_validate.side_effect = EntitlementKeySSLError("SSL error")
+        app = BaseApp()
+        app.noConfirm = True
+
+        app.validateEntitlementKeyNonInteractive("maybe-valid-key")
+
+        mock_print_warn.assert_called_once()
+        assert "SSL" in mock_print_warn.call_args[0][0]
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    def test_network_error_with_no_confirm_warns_network(self, mock_print_warn, mock_validate):
+        from requests.exceptions import ConnectionError as RequestsConnectionError
+
+        mock_validate.side_effect = RequestsConnectionError("unreachable")
+        app = BaseApp()
+        app.noConfirm = True
+
+        app.validateEntitlementKeyNonInteractive("maybe-valid-key")
+
+        mock_print_warn.assert_called_once()
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "Could not validate the entitlement key" in warn_message
+        assert "key is not valid" not in warn_message
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_network_error_quit(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_validate):
+        from requests.exceptions import Timeout as RequestsTimeout
+
+        mock_validate.side_effect = RequestsTimeout("timed out")
+        mock_prompt_int.return_value = 2  # Quit
+        app = BaseApp()
+        app.noConfirm = False
+
+        with pytest.raises(SystemExit) as exc_info:
+            app.validateEntitlementKeyNonInteractive("maybe-valid-key")
+
+        assert exc_info.value.code == 1
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_network_error_continue_anyway(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_validate):
+        from requests.exceptions import Timeout as RequestsTimeout
+
+        mock_validate.side_effect = RequestsTimeout("timed out")
+        mock_prompt_int.return_value = 1  # Continue anyway
+        app = BaseApp()
+        app.noConfirm = False
+
+        app.validateEntitlementKeyNonInteractive("maybe-valid-key")  # must not raise or exit
+
         mock_prompt_int.assert_called_once()
