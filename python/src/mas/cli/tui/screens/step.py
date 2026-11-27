@@ -255,10 +255,16 @@ class StepScreen(Vertical):
         if field.type in ("select", "dynamic_select"):
             raw = field.options() if callable(field.options) else (field.options or [])
             options = [(opt, opt) for opt in raw]
+            # The default may be a callable so it can read state populated
+            # by an earlier step's validator (e.g. the auto-derived upgrade
+            # target); it is applied when present in the options, otherwise
+            # the first option is pre-selected
+            defaultValue = default() if callable(default) else default
+            initial = defaultValue if defaultValue in raw else (options[0][0] if options else Select.NULL)
             # Select.NULL (not the deprecated Select.BLANK alias, which is
             # literally False in this Textual release and fails validation
             # at mount) is the no-selection sentinel.
-            return Select(options, id=fid, value=options[0][0] if options else Select.NULL, allow_blank=True)
+            return Select(options, id=fid, value=initial, allow_blank=True)
 
         if field.type == "multi_select":
             raw = field.options() if callable(field.options) else (field.options or [])

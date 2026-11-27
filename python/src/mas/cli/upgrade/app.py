@@ -87,6 +87,10 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
         self.nextChannel: str = ""
         self.currentChannel: str = ""
         self.effectiveCurrentChannel: str = ""
+        # The target auto-derived by prepareUpgrade() (before any explicit
+        # choice on the target-channel step): the default selection for that
+        # step's field
+        self.autoNextChannel: str = ""
         # RBAC state populated by prepareUpgrade() / upgrade() and consumed
         # by launchUpgrade() / the launch section of upgrade()
         self.applyPreInstallMASRBAC: bool = False
@@ -113,8 +117,9 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
     def prepareUpgrade(self) -> None:
         """Detect the upgrade path and validate compatibility for the selected instance.
 
-        Called as the ``validator`` on the TUI instance-selection step.  Reads
-        ``mas_instance_id`` from ``self.params``, then runs the channel
+        Called as the ``validator`` on the TUI instance-selection step, and
+        again by the target-channel step once the user has chosen a target.
+        Reads ``mas_instance_id`` from ``self.params``, then runs the channel
         detection, compatibility validation, Monitor install order, Civil
         Kafka validation, routing-mode pre-flight check, RBAC evaluation,
         and pipeline storage class resolution that the classic ``upgrade()``
@@ -124,20 +129,29 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
         license-acceptance step collects it once the target channel is
         known (see ``licenseAcceptancePending``).
 
+        When the target-channel step has written a choice to the
+        ``upgrade_target_channel`` param, that choice is an explicit target
+        and takes precedence over the auto-derived one.  An explicit target
+        is a complete override: it is used as-is (validated to be either the
+        current core channel or the next hop) and never short-circuited with
+        "No action required" — the upgrade pipeline is idempotent, so
+        re-running the current channel's upgrade is the supported way to
+        complete an upgrade that failed part-way (e.g. core reached 9.1.x
+        but the Manage Foundation install never happened).
+
         On success, populates ``self.currentChannel``, ``self.nextChannel``,
-        ``self.effectiveCurrentChannel``, ``self.detectedMode``,
-        ``self.applyPreInstallMASRBAC`` and the pipeline storage class
-        attributes so the review screen and ``buildCommand()`` have the right
-        data.
+        ``self.autoNextChannel``, ``self.effectiveCurrentChannel``,
+        ``self.detectedMode``, ``self.applyPreInstallMASRBAC`` and the
+        pipeline storage class attributes so the review screen and
+        ``buildCommand()`` have the right data.
 
         Raises:
-            RuntimeError: If the instance is already fully upgraded, the
-                upgrade path is invalid, or apps are incompatible with the
-                target channel.  License acceptance and the Manage Foundation
-                inputs are not enforced here — the conditional
-                license-acceptance and manage-foundation steps collect them
-                after this validator has run (see ``licenseAcceptancePending``
-                and ``manageFoundationPending``).
+            RuntimeError: If the upgrade path is invalid, or apps are
+                incompatible with the target channel.  License acceptance
+                and the Manage Foundation inputs are not enforced here —
+                the conditional license-acceptance and manage-foundation
+                steps collect them after this validator has run (see
+                ``licenseAcceptancePending`` and ``manageFoundationPending``).
         """
         instanceId = self.params.get("mas_instance_id", "")
         self.masInstanceId = instanceId
@@ -155,26 +169,28 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
             # both channel resolution and compatibility validation below
             installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
 
-            if self.nextChannel != "":
-                # --next-channel was explicitly provided by the user
-                if self.nextChannel == currentChannel:
-                    # Retry scenario: MAS core already on target channel, but some apps may still be behind
+            # The target-channel step writes the user's choice here; an
+            # explicit target completely overrides the derivation below
+            explicitTarget = self.params.get("upgrade_target_channel", "")
+            if explicitTarget != "":
+                if explicitTarget == currentChannel:
+                    # Retry scenario: MAS core is already on the target channel.
+                    # The upgrade pipeline is idempotent, so re-running it is
+                    # safe (and is how an upgrade that failed part-way is
+                    # completed) — never short-circuit with "No action
+                    # required", even when every component is already there.
                     pass
-                elif self.nextChannel == self.upgrade_path.get(currentChannel):
-                    # Valid upgrade path: currentChannel -> nextChannel
+                elif explicitTarget == self.upgrade_path.get(currentChannel):
+                    # Valid upgrade path: currentChannel -> explicitTarget
                     pass
                 else:
-                    raise RuntimeError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
+                    raise RuntimeError(f"No upgrade path available from {currentChannel} to {explicitTarget}")
 
-                # Only block when Core AND every installed app are already on
-                # the target channel; if any app is behind, the pipeline
-                # launches normally.
-                if self.nextChannel == currentChannel and all(app["channel"] == self.nextChannel for app in installedAppsChannel):
-                    raise RuntimeError(f"No action required, {instanceId} is already fully upgraded. All components are on channel {self.nextChannel}.")
+                self.nextChannel = explicitTarget
             else:
-                # No --next-channel given: derive from upgrade_path using the
-                # oldest channel across Core + all installed apps (see the
-                # equivalent block in upgrade() for the rationale).
+                # No explicit target chosen: derive from upgrade_path using
+                # the oldest channel across Core + all installed apps (see
+                # the equivalent block in upgrade() for the rationale).
                 allChannels = [currentChannel] + [app["channel"] for app in installedAppsChannel]
 
                 def channelOrder(ch):
@@ -192,6 +208,11 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
                     raise RuntimeError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
 
                 self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
+
+                # Remember the auto-derived target: the default selection
+                # for the target-channel step (kept as-is when an explicit
+                # target was chosen — the choice wins)
+                self.autoNextChannel = self.nextChannel
 
             # Validate installed apps compatibility with the target channel
             if self.nextChannel in self.compatibilityMatrix:
@@ -222,6 +243,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
             # We still allow the upgrade to proceed even though we can't detect the MAS instance
             # (e.g. the upgrade may be queued up to run after install)
             currentChannel = "Unknown"
+            self.autoNextChannel = ""
             if self.nextChannel == "":
                 self.nextChannel = "Unknown"
 
@@ -300,6 +322,40 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
         # instance's namespaces so the review screen can report it and the
         # launch step passes the effective mode to the PipelineRun
         self.detectOLMApprovalMode(namespacePrefix=f"mas-{instanceId}-")
+
+    def prepareUpgradeForInstanceSelection(self) -> None:
+        """Clear any chosen target channel, then run ``prepareUpgrade``.
+
+        Used as the TUI instance-selection step's validator: re-entering
+        instance selection invalidates the target chosen on the
+        target-channel step (the newly selected instance may have different
+        upgrade paths), so the choice is cleared and the target re-derived
+        from the new instance's state.
+        """
+        self.setParam("upgrade_target_channel", "")
+        self.prepareUpgrade()
+
+    def targetChannelOptions(self) -> list:
+        """The valid targets for the target-channel step's select field.
+
+        Returns the auto-derived next hop followed by the current core
+        channel (an idempotent re-run of the current release's upgrade —
+        the supported way to complete an upgrade that failed part-way),
+        deduplicated.  The auto-derived target is first so it is the
+        pre-selected option.  Empty when the current channel could not be
+        detected (the target-channel step is not shown then).
+
+        Returns:
+            list: The selectable target channels, auto-derived first.
+        """
+        if self.currentChannel in (None, "", "Unknown"):
+            return []
+
+        options = []
+        for channel in (self.autoNextChannel, self.currentChannel):
+            if channel not in (None, "", "Unknown") and channel not in options:
+                options.append(channel)
+        return options
 
     def licenseAcceptancePending(self) -> bool:
         """Return True when the target release's license still needs accepting.
@@ -517,12 +573,15 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
           ``--next-channel``): ``nextChannel`` is derived from
           ``effectiveCurrentChannel`` (the oldest channel across Core and
           all installed apps) so the upgrade targets the correct hop.
-        - Explicit ``--next-channel``: ``nextChannel`` is the requested
-          target as-is.
-        - Retry scenario (Core already on the target channel, apps behind):
-          needs no special case — the target equals the current channel, the
-          role's core-upgrade recognises Core is already there, and the app
-          upgrade tasks bring the remaining applications up to it.
+        - Explicit ``--next-channel`` (or the TUI target-channel choice):
+          ``nextChannel`` is the requested target as-is.
+        - Retry scenario (Core already on the target channel): a
+          first-class explicit choice — the target equals the current
+          channel, the role's core-upgrade recognises Core is already
+          there, and the app upgrade tasks bring the remaining components
+          (including a pending Manage Foundation install) up to it.  The
+          pipeline is idempotent, so this never short-circuits with "No
+          action required".
         - Undetectable target: the param is left empty so the role
           auto-selects the next release from the live subscription.
         """
@@ -974,13 +1033,19 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
                 installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
 
                 if self.nextChannel != "":
-                    # --next-channel was explicitly provided by the user
+                    # --next-channel was explicitly provided by the user: a
+                    # complete override — the target is used as-is (validated
+                    # below to be the current channel or the next hop) and
+                    # never short-circuits with "No action required"
                     if self.nextChannel == currentChannel:
-                        # Retry scenario: MAS core already on target channel, but some apps may still be behind
+                        # Retry scenario: MAS core already on the target channel —
+                        # re-run the upgrade to complete any unfinished components
+                        # (the pipeline is idempotent, so this is safe even when
+                        # everything is already on the target channel)
                         print_formatted_text(
                             HTML(
                                 f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
-                                f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
+                                f"Re-running the {self.nextChannel} upgrade — apps or the Manage Foundation install may still need to be completed.</LightSlateGrey>"
                             )
                         )
                     elif self.nextChannel == self.upgrade_path.get(currentChannel):
@@ -1019,18 +1084,14 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmAppro
                         self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
                     self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
 
-                # Check if all components are already on the target channel.
-                # Covers both auto-detect and --next-channel paths.
-                # Only exits if Core AND every installed app are already on nextChannel.
-                # If any app is behind, this condition is False and pipeline launches normally.
-                if self.nextChannel == currentChannel and all(app["channel"] == self.nextChannel for app in installedAppsChannel):
-                    print_formatted_text(
-                        HTML(
-                            f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
-                            f"All components are on channel {self.nextChannel}.</LightSlateGrey>"
-                        )
-                    )
-                    return
+                # An explicit --next-channel equal to the current channel
+                # (re-running this release's upgrade, e.g. to complete one
+                # that failed part-way) deliberately does NOT short-circuit
+                # here: the upgrade pipeline is idempotent, so the re-run is
+                # submitted and simply completes whatever is left.  The
+                # auto-derived path can never reach this state (a derived
+                # target equals the current channel only when an app is
+                # behind, which means there is work to do).
 
                 # Validate installed apps compatibility with the target channel
                 if self.nextChannel in self.compatibilityMatrix:

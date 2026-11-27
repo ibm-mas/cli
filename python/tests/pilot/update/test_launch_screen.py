@@ -142,6 +142,50 @@ def test_copy_buttons_hidden_without_clipboard(monkeypatch):
     run_screen_pilot(screen, drive)
 
 
+def test_status_row_stays_empty_during_successful_launch():
+    """Test that the action-bar status row is unused during a successful launch.
+
+    GIVEN a stubbed app whose launchUpdate succeeds
+    WHEN the launch step becomes active
+    THEN the action-bar status row stays empty throughout the run — the
+        pipeline URL is already shown in the content above and the buttons
+        label themselves, so there is no guidance text to add.
+    """
+    screen, _ = _make_screen(_succeed)
+
+    async def drive(pilot, app):
+        status = app.query_one("#launch-prompt", Label)
+        while not app.query_one("#btn-done", Button).display:
+            assert str(status.render()).strip() == ""
+            await pilot.pause()
+        assert str(status.render()).strip() == ""
+
+    run_screen_pilot(screen, drive)
+
+
+def test_status_row_stays_empty_on_failed_launch():
+    """Test that the action-bar status row is unused when submission fails.
+
+    GIVEN a stubbed app whose launchUpdate raises
+    WHEN the launch step becomes active and fails
+    THEN the action-bar status row stays empty — there is no pipeline run
+        to view and the failure is reported in the step list.
+    """
+
+    def _fail(progressCallback=None, startCallback=None):
+        startCallback("Validate OpenShift Pipelines")
+        progressCallback("Validate OpenShift Pipelines", False, "pipelines not installed")
+        raise RuntimeError("Failed to validate OpenShift Pipelines")
+
+    screen, _ = _make_screen(_fail)
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#btn-dismiss-error", Button).display)
+        assert str(app.query_one("#launch-prompt", Label).render()).strip() == ""
+
+    run_screen_pilot(screen, drive)
+
+
 def test_failed_copy_does_not_flash_copied(monkeypatch):
     """Test that a failed copy does not claim success.
 

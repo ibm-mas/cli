@@ -39,7 +39,7 @@ def _mock_args(next_channel):
     return args
 
 
-def _run_upgrade(app, next_channel, current_channel, installed_apps=None):
+def _run_upgrade(app, next_channel, current_channel, installed_apps=None, verify_app_instance=True):
     """Run the classic upgrade() flow through to the PipelineRun submission.
 
     Patches every cluster-query function where upgrade/app.py binds it
@@ -56,9 +56,10 @@ def _run_upgrade(app, next_channel, current_channel, installed_apps=None):
         patch("mas.cli.upgrade.app.getPermissionMode", return_value="cluster"),
         patch("mas.cli.upgrade.app.evaluatePreinstallRBACAccess", return_value=False),
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value=None),
-        # Manage is installed (its subscription channel is what the scenario
-        # varies) so the 9.1.x Manage Foundation branch is not taken
-        patch("mas.cli.upgrade.app.verifyAppInstance", return_value=True),
+        # Manage installed unless the scenario varies it (its subscription
+        # channel is what the scenario varies otherwise) so the 9.1.x
+        # Manage Foundation branch is not taken
+        patch("mas.cli.upgrade.app.verifyAppInstance", return_value=verify_app_instance),
         patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch,
         patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True),
         patch("mas.cli.upgrade.app.updateTektonDefinitions"),
@@ -155,6 +156,51 @@ class TestUpgradeChannelLogic:
         mock_launch.assert_called_once()
         params = mock_launch.call_args[1]["params"]
         assert params["mas_channel"] == "9.1.x", f"Expected mas_channel='9.1.x' (target), got '{params['mas_channel']}'"
+
+    def test_retry_scenario_core_only_instance_installs_manage_foundation(self, mock_upgrade_app):
+        """
+        Test retry scenario on a core-only instance: current=9.1.x, next=9.1.x,
+        no app subscriptions and Manage not installed (a 9.0.x to 9.1.x upgrade
+        that failed after the core hop).  The explicit target is a complete
+        override: the upgrade is submitted targeting 9.1.x with the Manage
+        Foundation install flagged, exactly as if the instance were still on
+        9.0.x auto-detecting the 9.1.x upgrade.
+        """
+        with (
+            patch.object(UpgradeApp, "lookupEntitlementKey", return_value="test-key"),
+            patch.object(UpgradeApp, "configStorageClasses"),
+            patch.object(UpgradeApp, "configDb2"),
+        ):
+            mock_launch = _run_upgrade(
+                mock_upgrade_app,
+                next_channel="9.1.x",
+                current_channel="9.1.x",
+                installed_apps=[],
+                verify_app_instance=False,
+            )
+
+        mock_launch.assert_called_once()
+        params = mock_launch.call_args[1]["params"]
+        assert params["mas_channel"] == "9.1.x", f"Expected mas_channel='9.1.x' (target), got '{params['mas_channel']}'"
+        assert params["should_install_manage_foundation"] == "true"
+
+    def test_retry_scenario_fully_upgraded_instance_still_launches(self, mock_upgrade_app):
+        """
+        Test retry scenario on a fully-upgraded instance: current=9.2.x,
+        next=9.2.x, Manage also on 9.2.x.  The explicit target never
+        short-circuits with "No action required" — the PipelineRun is
+        submitted and the idempotent pipeline simply has nothing to do.
+        """
+        mock_launch = _run_upgrade(
+            mock_upgrade_app,
+            next_channel="9.2.x",
+            current_channel="9.2.x",
+            installed_apps=[{"appId": "manage", "channel": "9.2.x"}],
+        )
+
+        mock_launch.assert_called_once()
+        params = mock_launch.call_args[1]["params"]
+        assert params["mas_channel"] == "9.2.x", f"Expected mas_channel='9.2.x' (target), got '{params['mas_channel']}'"
 
     def test_no_next_channel_auto_determine(self, mock_upgrade_app):
         """

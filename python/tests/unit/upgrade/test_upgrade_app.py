@@ -178,6 +178,158 @@ def test_prepare_upgrade_oldest_app_channel_drives_target():
     assert app.nextChannel == "9.2.x"
 
 
+def test_prepare_upgrade_explicit_target_reruns_current_channel():
+    """Test that an explicit target equal to the current channel re-runs the upgrade.
+
+    GIVEN a core-only instance on 9.1.x (no app subscriptions, Manage not
+        installed — a 9.0.x to 9.1.x upgrade that failed after the core hop)
+        and the target-channel step's choice of 9.1.x in params
+    WHEN prepareUpgrade runs
+    THEN it completes without raising "No action required" (the explicit
+         target is a complete override — the pipeline is idempotent),
+         nextChannel and the mas_channel param are 9.1.x, and the Manage
+         Foundation install is detected so the conditional step collects
+         its inputs — behaving exactly like a 9.0.x instance auto-detected
+         as needing the 9.1.x upgrade.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.1.x"
+
+    patchers = _run_patches(_patch_cluster(getAppsSubscriptionChannel=[], verifyAppInstance=False))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.nextChannel == "9.1.x"
+    assert app.currentChannel == "9.1.x"
+    assert app.params["mas_channel"] == "9.1.x"
+    assert app.isManageFoundation is True
+    assert app.manageFoundationPending() is True
+
+
+def test_prepare_upgrade_auto_target_on_core_only_instance():
+    """Test the auto-derived target for a core-only instance on 9.1.x.
+
+    GIVEN the same core-only instance on 9.1.x (no apps, Manage missing)
+        with no target chosen on the target-channel step
+    WHEN prepareUpgrade runs
+    THEN the auto-derived target is 9.2.x (the derivation only considers
+         core and app subscription channels) and autoNextChannel records it
+         as the default for the target-channel step — the user's escape
+         hatch is choosing 9.1.x there.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getAppsSubscriptionChannel=[], verifyAppInstance=False))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.nextChannel == "9.2.x"
+    assert app.autoNextChannel == "9.2.x"
+    assert app.isManageFoundation is False
+
+
+def test_prepare_upgrade_explicit_target_on_fully_upgraded_proceeds():
+    """Test that an explicit target on a fully-upgraded instance still proceeds.
+
+    GIVEN an instance on 9.2.x with Manage also on 9.2.x (fully upgraded for
+        that release) and the target-channel step's choice of 9.2.x
+    WHEN prepareUpgrade runs
+    THEN it completes without raising "No action required" — the re-run is
+         submitted and the idempotent pipeline simply has nothing to do.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.2.x"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.2.x", getAppsSubscriptionChannel=[{"appId": "manage", "channel": "9.2.x"}]))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.nextChannel == "9.2.x"
+    assert app.params["mas_channel"] == "9.2.x"
+
+
+def test_prepare_upgrade_invalid_explicit_target_raises():
+    """Test that an explicit target with no upgrade path raises.
+
+    GIVEN a 9.1.x instance and a target-channel choice of 9.3.x-feature
+        (skipping the 9.2.x hop)
+    WHEN prepareUpgrade runs
+    THEN RuntimeError is raised naming the invalid path, so the choice is
+         rejected on the target-channel step.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.3.x-feature"
+
+    patchers = _run_patches(_patch_cluster())
+    try:
+        with pytest.raises(RuntimeError, match="No upgrade path available from 9.1.x to 9.3.x-feature"):
+            app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+
+def test_target_channel_options_orders_and_dedupes():
+    """Test targetChannelOptions lists the auto-derived target first.
+
+    GIVEN apps in post-prepareUpgrade states: auto target ahead of the
+        current channel, auto target equal to the current channel (apps
+        behind — the derived hop completes the current release), and an
+        undetectable channel
+    WHEN targetChannelOptions is called
+    THEN the auto-derived target is first followed by the current channel,
+         duplicates collapse to one entry, and an unknown channel yields an
+         empty list (the target-channel step is not shown).
+    """
+    app = _make_app(currentChannel="9.1.x", autoNextChannel="9.2.x")
+    assert app.targetChannelOptions() == ["9.2.x", "9.1.x"]
+
+    app = _make_app(currentChannel="9.1.x", autoNextChannel="9.1.x")
+    assert app.targetChannelOptions() == ["9.1.x"]
+
+    app = _make_app(currentChannel="Unknown", autoNextChannel="")
+    assert app.targetChannelOptions() == []
+
+
+def test_prepare_upgrade_for_instance_selection_clears_stale_target():
+    """Test the instance-selection validator clears a stale target choice.
+
+    GIVEN an app holding a target-channel choice from a previously selected
+        instance, and a newly selected 9.0.x instance
+    WHEN prepareUpgradeForInstanceSelection runs (the instance-selection
+        step validator)
+    THEN the choice is cleared before prepareUpgrade derives the target, so
+         the new instance's channels drive the derivation rather than the
+         stale selection.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.2.x"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.0.x"))
+    try:
+        app.prepareUpgradeForInstanceSelection()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.params["upgrade_target_channel"] == ""
+    assert app.nextChannel == "9.1.x"
+
+
 def test_prepare_upgrade_already_fully_upgraded_raises():
     """Test that a fully upgraded instance raises instead of advancing.
 

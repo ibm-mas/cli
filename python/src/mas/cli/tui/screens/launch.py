@@ -114,8 +114,11 @@ class LaunchScreen(Vertical):
             description, StepChecklist, pipeline URL label and (hidden until
             submission succeeds) the non-interactive command reference, then
             a fixed ActionBar (``.action-bar``) with the status row and the
-            Copy URL / Copy Command / Done / Dismiss buttons.  All four
-            buttons are hidden until work completes; revealing them never
+            Copy URL / Copy Command / Done / Dismiss buttons.  The status
+            row is normally empty on this screen (the pipeline URL is shown
+            in the content above and the buttons label themselves); it is
+            only used to report a clipboard failure.  All four buttons are
+            hidden until work completes; revealing them never
             shifts the layout.
         """
         with VerticalScroll(id="launch-content", classes="content-scroll"):
@@ -137,7 +140,7 @@ class LaunchScreen(Vertical):
             )
             yield Static("", id="launch-command-text", classes="command-text")
         yield ActionBar(
-            "View the pipeline run:",
+            "",
             status_id="launch-prompt",
             id="launch-footer",
             buttons=[

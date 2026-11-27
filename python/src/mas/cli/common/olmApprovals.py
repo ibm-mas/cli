@@ -12,9 +12,11 @@
 Two concerns live here:
 
 - **Resolution** (:func:`resolveOlmApprovalMode` / :func:`resolveOlmApprovalTimeout`):
-  the CLI mirrors the collection's precedence (ansible-devops
-  ``plugins/module_utils/olm_approvals.py``) -- flag > ``OLM_APPROVAL_MODE`` /
-  ``OLM_APPROVAL_TIMEOUT`` shell environment variable > omitted. Environment
+  thin delegates over the python-devops implementations
+  (``mas.devops.olm.resolveApprovalMode`` / ``resolveApprovalTimeout``), which
+  own the precedence -- flag > ``OLM_APPROVAL_MODE`` /
+  ``OLM_APPROVAL_TIMEOUT`` shell environment variable > omitted -- and the
+  validation. Environment
   variable values are validated up front so a bad value fails with a message
   naming the variable, before any cluster interaction or pipeline launch.
   When neither flag nor environment variable is set the params are omitted
@@ -34,14 +36,18 @@ import logging
 from os import environ
 from typing import Callable, Optional
 
-from mas.devops.olm import getClusterApprovalMode
+from mas.devops.olm import (
+    DEFAULT_APPROVAL_TIMEOUT,
+    getClusterApprovalMode,
+    resolveApprovalMode,
+    resolveApprovalTimeout,
+)
 
 logger = logging.getLogger(__name__)
 
-VALID_OLM_APPROVAL_MODES = ("Automatic", "Manual")
-
-# The collection's default per-wait approval budget (2 hours), in seconds
-DEFAULT_OLM_APPROVAL_TIMEOUT = 7200
+# The python-devops default per-wait approval budget (2 hours), in seconds;
+# kept under the CLI-facing name for the install prompt default
+DEFAULT_OLM_APPROVAL_TIMEOUT = DEFAULT_APPROVAL_TIMEOUT
 
 GetenvCallable = Callable[[str], Optional[str]]
 
@@ -49,8 +55,8 @@ GetenvCallable = Callable[[str], Optional[str]]
 def resolveOlmApprovalMode(flagValue: Optional[str], getenv: GetenvCallable = environ.get) -> Optional[str]:
     """Resolve the effective OLM install plan approval mode for install.
 
-    Precedence: flag > ``OLM_APPROVAL_MODE`` environment variable > None
-    (omitted from the PipelineRun; the pipeline default of Automatic applies).
+    Thin delegate over ``mas.devops.olm.resolveApprovalMode``; see that
+    function for the precedence and validation contract.
 
     Args:
         flagValue: The ``--olm-approval-mode`` flag value (None when unset).
@@ -62,26 +68,16 @@ def resolveOlmApprovalMode(flagValue: Optional[str], getenv: GetenvCallable = en
 
     Raises:
         ValueError: When the environment variable holds a value that is not
-            "Automatic" or "Manual" (the variable is named in the message,
-            mirroring the collection's validation).
+            "Automatic" or "Manual" (the variable is named in the message).
     """
-    if flagValue is not None:
-        return flagValue
-
-    envMode = getenv("OLM_APPROVAL_MODE")
-    if envMode:
-        if envMode not in VALID_OLM_APPROVAL_MODES:
-            raise ValueError(f"OLM_APPROVAL_MODE must be one of: {', '.join(VALID_OLM_APPROVAL_MODES)} (found '{envMode}')")
-        return envMode
-    return None
+    return resolveApprovalMode(explicit=flagValue, getenv=getenv)
 
 
 def resolveOlmApprovalTimeout(flagValue: Optional[int], getenv: GetenvCallable = environ.get) -> Optional[int]:
     """Resolve the per-wait OLM approval timeout, in seconds.
 
-    Precedence: flag > ``OLM_APPROVAL_TIMEOUT`` environment variable > None
-    (omitted from the PipelineRun; the collection's default of 7200 seconds
-    applies).
+    Thin delegate over ``mas.devops.olm.resolveApprovalTimeout``; see that
+    function for the precedence and validation contract.
 
     Args:
         flagValue: The ``--olm-approval-timeout`` flag value (None when unset).
@@ -95,16 +91,7 @@ def resolveOlmApprovalTimeout(flagValue: Optional[int], getenv: GetenvCallable =
         ValueError: When the environment variable does not hold an integer
             number of seconds (the variable is named in the message).
     """
-    if flagValue is not None:
-        return flagValue
-
-    envTimeout = getenv("OLM_APPROVAL_TIMEOUT")
-    if envTimeout:
-        try:
-            return int(envTimeout)
-        except ValueError:
-            raise ValueError(f"OLM_APPROVAL_TIMEOUT must be an integer number of seconds (found '{envTimeout}')")
-    return None
+    return resolveApprovalTimeout(explicit=flagValue, getenv=getenv)
 
 
 class OlmApprovalDetectionMixin:
