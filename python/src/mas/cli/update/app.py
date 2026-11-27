@@ -522,13 +522,19 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Nov 05 2026 Update (MAS 9.2.10, 9.1.29, 9.0.35, 8.11.34, &amp; 8.10.37)",
-                "  2) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
-                "  3) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
+                "  1) Nov 26 2026 Update (MAS 9.2.10, 9.1.29, 9.0.35, 8.11.34, &amp; 8.10.37)",
+                "  2) Nov 05 2026 Update (MAS 9.2.10, 9.1.29, 9.0.35, 8.11.34, &amp; 8.10.37)",
+                "  3) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
             ]
         )
         self.promptForListSelect("Select catalog version", self.getCatalogOptions(), "mas_catalog_version", default=1)
 
+        catalogOptions = [
+            "v9-261126-amd64",
+            "v9-261105-amd64",
+            "v9-261029-amd64",
+        ]
+        self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
     def checkCatalog(self) -> None:
         """Validate the chosen catalog against the current cluster state.
 
