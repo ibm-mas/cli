@@ -151,7 +151,6 @@ optionalParams = [
     "cos_bucket_name",
     # Attachments
     "mas_manage_attachments_provider",
-    "mas_manage_attachment_configuration_mode",
     # ECK
     "eck_action",
     "eck_enable_logstash",
