@@ -68,8 +68,8 @@ Not all functions supported in the container image are available in the standalo
 | [backup](guides/backup.md)                                          |    ✅    |   ✅  |
 | [restore](guides/restore.md)                                        |    ✅    |   ✅  |
 | [mirror](guides/mirroring-v2.md)                                 |    ✅    |   ✅  |
+| [pre-install](commands/pre-install.md)                              |    ✅    |   ✅  |
 | [configure-mcpi](commands/configure-mcpi.md)                        |    ✅    |   ✅  |
-| [mirror-images](guides/image-mirroring.md) (deprecated)             |    ✅    |   ❌  |
 | [mirror-redhat-images](commands/mirror-redhat-images.md)            |    ✅    |   ❌  |
 | [configure-airgap](guides/configure-airgap.md)                      |    ✅    |   ❌  |
 | [setup-registry](guides/private-registry.md#registry-removal)       |    ✅    |   ❌  |
@@ -78,3 +78,4 @@ Not all functions supported in the container image are available in the standalo
 | [provision-aws](guides/provision-aws.md)                            |    ✅    |   ❌  |
 | [provision-fyre](guides/provision-fyre.md)                          |    ✅    |   ❌  |
 | [provision-roks](guides/provision-roks.md)                          |    ✅    |   ❌  |
+| [provision-rosa](guides/provision-rosa.md)                          |    ✅    |   ❌  |

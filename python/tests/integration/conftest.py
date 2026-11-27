@@ -30,6 +30,18 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(autouse=True)
+def mock_preinstall_rbac_root_dir(tmp_path):
+    """Point the pre-install RBAC lookup at an empty directory for integration tests.
+
+    A source checkout has neither /opt/app-root/rbac nor the manifests bundled into the built package, so the real
+    lookup would fail. An empty directory keeps the previous behaviour of these tests, where no manifests were applied.
+    The lookup itself is covered by test_preinstall_rbac_root.py.
+    """
+    with mock.patch("mas.cli.cli.BaseApp.getPreinstallRBACRootDir", return_value=str(tmp_path)):
+        yield
+
+
+@pytest.fixture(autouse=True)
 def mock_validate_entitlement_key():
     """Mock validateEntitlementKey to always return True for integration tests.
 
