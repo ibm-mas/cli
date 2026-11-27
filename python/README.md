@@ -28,4 +28,3 @@ uv tool uninstall mas-cli
 
 !!! tip "Choosing a specific version"
     You can use a specific version of mas-cli by with ephemeral execution or installation using `mas-cli@@@CLI_LATEST_VERSION@@`
-
