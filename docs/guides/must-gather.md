@@ -148,6 +148,16 @@ uvx mas-cli must-gather -d /mnt/home/must-gather --collectors mas --mas-instance
 uvx mas-cli must-gather -d /mnt/home/must-gather --collectors mas,sls --mas-instance-ids "inst3" --mas-app-ids "manage"
 ```
 
+### Target Specific SLS Namespaces
+`--mas-instance-ids` does not apply to SLS, as SLS namespaces are not tied to MAS instance IDs. On a shared cluster, set `--sls-namespaces` to a comma-separated list of SLS namespaces to restrict the SLS collection to those namespaces only.
+
+```bash
+uvx mas-cli must-gather -d /mnt/home/must-gather --collectors mas,sls --mas-instance-ids "inst1" --sls-namespaces "mas-inst1-sls"
+```
+
+!!! note
+    This option limits the content collected, but it is not a security boundary. On multi-tenant clusters, run the must-gather with an account scoped to the namespaces that tenant is permitted to see.
+
 ### Containerized Execution
 You can also run the must-gather in a containerized environment:
 

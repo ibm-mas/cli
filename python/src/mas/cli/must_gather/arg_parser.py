@@ -148,6 +148,15 @@ masGroup.add_argument(
     help="Limit must-gather to a subset of MAS namespaces (comma-separated list)",
 )
 
+# SLS Content Controls group
+slsGroup = mustGatherArgParser.add_argument_group("SLS Content Controls")
+slsGroup.add_argument(
+    "--sls-namespaces",
+    type=str,
+    default=None,
+    help="Limit must-gather to a list of SLS namespaces (comma-separated list), note that --mas-instance-ids does not apply to SLS",
+)
+
 # AI Service Content Controls group
 aiserviceGroup = mustGatherArgParser.add_argument_group("AI Service Content Controls")
 aiserviceGroup.add_argument(

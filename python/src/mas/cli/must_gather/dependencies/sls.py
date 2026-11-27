@@ -81,7 +81,15 @@ def _generateSLSCollectionTasks(
     return tasks
 
 
-def addSLSToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None):
+def addSLSToCollectionPlan(
+    plan,
+    dynClient: DynamicClient,
+    outputDir: str,
+    noLogs: bool,
+    ibmCRDs: list,
+    masInstanceIds: Optional[List[str]] = None,
+    slsNamespaceFilter: Optional[List[str]] = None,
+):
     """Add SLS collection tasks to the collection plan.
 
     Discovers SLS namespaces and adds collection groups for each namespace
@@ -94,10 +102,17 @@ def addSLSToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLog
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
         masInstanceIds (list, optional): List of MAS instance IDs (kept for compatibility, not used). Defaults to None.
+        slsNamespaceFilter (list, optional): Restrict collection to these SLS namespaces. Defaults to None (all discovered).
     """
     logger.info("💭 Discovering SLS namespaces")
     try:
         slsNamespaces = _discoverSLSNamespaces(dynClient, masInstanceIds=masInstanceIds)
+        if slsNamespaceFilter:
+            requested = {ns.strip() for ns in slsNamespaceFilter if ns.strip()}
+            missing = requested - slsNamespaces
+            if missing:
+                logger.warning(f"⚠️ Requested SLS namespace(s) not found: {', '.join(sorted(missing))}")
+            slsNamespaces = slsNamespaces & requested
         if slsNamespaces:
             logger.debug(f"Discovered {len(slsNamespaces)} SLS namespace(s): {', '.join(sorted(slsNamespaces))}")
             for ns in sorted(slsNamespaces):
