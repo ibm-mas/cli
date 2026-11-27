@@ -1857,7 +1857,7 @@ class InstallApp(
 
             self.printH2("Storage Configuration")
 
-            cephSupported = (getattr(self, "chosenCatalog", None) or {}).get("aiservice_s3_provider_default") == "ceph"
+            cephSupported = self.devMode or (getattr(self, "chosenCatalog", None) or {}).get("aiservice_s3_provider_default") == "ceph"
 
             useExternalS3 = True
 

@@ -84,7 +84,7 @@ def _base_prompts(tmpdir):
         ".*Manage foundation server timezone.*": lambda msg: "GMT",
         ".*Base language.*": lambda msg: "EN",
         ".*Secondary language.*": lambda msg: "ES",
-        ".*Install Minio.*": lambda msg: "n",
+        ".*Install Ceph.*": lambda msg: "n",
         ".*Storage access key.*": lambda msg: "testAccessKey",
         ".*Storage secret key.*": lambda msg: "testSecretKey",
         ".*Storage host.*": lambda msg: "minio-service.minio.svc",

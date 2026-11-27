@@ -700,7 +700,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printH2("Storage Configuration")
 
         chosenCatalog = getattr(self, "chosenCatalog", None) or {}
-        cephSupported = chosenCatalog.get("aiservice_s3_provider_default") == "ceph"
+        cephSupported = self.devMode or chosenCatalog.get("aiservice_s3_provider_default") == "ceph"
 
         useExternalS3 = True
 
