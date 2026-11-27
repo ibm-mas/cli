@@ -19,19 +19,75 @@ metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:eck
   namespace: eck
 rules:
-  # User workload monitoring will be enabled during the install of Grafana (enableUserWorkload)
+  # Work with ECK namespace resources
   - apiGroups:
       - ""
     resources:
-      - namespaces
+      - secrets
+      - serviceaccounts
     verbs:
       - get
+      - list
+      - create
       - patch
-  # Work with the ECK resources
+  # Work with ECK custom resources
   - apiGroups:
       - elasticsearch.k8s.elastic.co
     resources:
       - elasticsearches
+    verbs:
+      - get
+      - list
+      - patch
+      - create
+      - watch
+  - apiGroups:
+      - kibana.k8s.elastic.co
+    resources:
+      - kibanas
+    verbs:
+      - get
+      - list
+      - patch
+      - create
+      - watch
+  - apiGroups:
+      - logstash.k8s.elastic.co
+    resources:
+      - logstashes
+    verbs:
+      - get
+      - list
+      - patch
+      - create
+      - watch
+  # DaemonSets for Filebeat
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+    verbs:
+      - get
+      - list
+      - patch
+      - create
+  # Cert-manager resources for ECK TLS
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - issuers
+      - certificates
+    verbs:
+      - get
+      - list
+      - patch
+      - create
+      - watch
+  # Routes for Elasticsearch and Kibana
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
     verbs:
       - get
       - list

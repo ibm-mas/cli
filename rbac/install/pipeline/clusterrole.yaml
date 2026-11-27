@@ -45,6 +45,14 @@ rules:
       - get
       - list
 
+  # kafka role lists OperatorConditions cluster-wide to detect a conflicting Strimzi / AMQ Streams install
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - operatorconditions
+    verbs:
+      - list
+
   # ocp_verify will query all deployments and statefulsets to check health of the cluster
   - apiGroups:
       - apps
@@ -107,6 +115,15 @@ rules:
       - patch
       - list
 
+  # Used by any role that includes common_tasks/default_storage_classes.yml, e.g. grafana, mongodb, kafka, minio)
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - storageclasses
+    verbs:
+      - get
+      - list
+
   # Creating routes with custom hostnames requires cluster-wide permission
   - apiGroups:
       - route.openshift.io
@@ -129,23 +146,6 @@ rules:
       - update
       - watch
 
-  # Cloud Pak for Data requires wildcard permissions to delegate to namespace roles
-  # This allows CPD operators to create roles with any permissions within their namespaces
-  - apiGroups:
-      - "*"
-    resources:
-      - "*"
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-      - deletecollection
-      - impersonate
-
   # Allow binding and escalating ClusterRoles (including admin) without having all their permissions
   # This is required for CPD to assign the admin role to service accounts
   - apiGroups:
@@ -159,3 +159,26 @@ rules:
       - admin
       - edit
       - view
+
+  # Cert-manager ClusterIssuer for cluster-wide TLS (MAS 9.2+)
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - clusterissuers
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - watch
+
+  # ConsoleLink creation for MAS Admin Dashboard in OpenShift Console
+  - apiGroups:
+      - console.openshift.io
+    resources:
+      - consolelinks
+    verbs:
+      - get
+      - create
+      - patch

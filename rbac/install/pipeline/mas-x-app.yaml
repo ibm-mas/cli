@@ -6,15 +6,6 @@ kind: ClusterRole
 metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
 rules:
-  # Application installation requires namespace management
-  - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - patch
-  
   # Application operator subscription
   - apiGroups:
       - operators.coreos.com
@@ -67,15 +58,79 @@ rules:
       - manageworkspaces
       - healthapps
       - predictapps
+      - predictworkspaces
       - assistapps
+      - assistworkspaces
       - visualinspectionapps
-      - iotapps
+      - visualinspectionappworkspaces
+      - monitorapps
+      - monitorworkspaces
+      - optimizerapps
+      - optimizerworkspaces
+      - facilitiesapps
+      - facilitiesworkspaces
+      - arcgisapps
+      - arcgisworkspaces
     verbs:
       - get
       - create
       - patch
       - list
       - watch
+
+  # IoT Application CRDs
+  - apiGroups:
+      - iot.ibm.com
+    resources:
+      - iots
+      - iotworkspaces
+    verbs:
+      - get
+      - create
+      - patch
+      - list
+      - watch
+
+  # Applications require routes
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+
+  # Applications require deployments (e.g. ArcGIS)
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - watch
+
+  # Security context constraints for applications
+  - apiGroups:
+      - security.openshift.io
+    resources:
+      - securitycontextconstraints
+    verbs:
+      - use
+  # Visualinspection requires this permissions
+  - apiGroups:
+      - security.openshift.io
+    resources:
+      - securitycontextconstraints
+    verbs:
+      - get
+      - create
+      - patch
 ---
 # Maximo Manage Application
 apiVersion: rbac.authorization.k8s.io/v1
@@ -173,6 +228,51 @@ kind: RoleBinding
 metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-iot
   namespace: mas-{{ mas_instance_id }}-iot
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo Facilities Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-facilities
+  namespace: mas-{{ mas_instance_id }}-facilities
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo Optimizer Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-optimizer
+  namespace: mas-{{ mas_instance_id }}-optimizer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo ArcGIS Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-arcgis
+  namespace: mas-{{ mas_instance_id }}-arcgis
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

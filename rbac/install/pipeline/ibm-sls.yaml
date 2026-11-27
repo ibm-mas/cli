@@ -20,13 +20,6 @@ metadata:
   namespace: ibm-sls
 rules:
   - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - patch
-  - apiGroups:
       - operators.coreos.com
     resources:
       - installplans
@@ -45,13 +38,22 @@ rules:
       - get
       - create
       - patch
+  # kubernetes.core.k8s (state: present) and sls-verify.yml k8s_info both need to read the LicenseService
   - apiGroups:
       - sls.ibm.com
     resources:
       - licenseservices
     verbs:
+      - get
       - create
       - patch
+  # sls-verify.yml looks up the <instance>-suite-registration ConfigMap
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -74,15 +76,6 @@ metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:sls-instance
   namespace: sls-{{ mas_instance_id }}
 rules:
-  # SLS instance namespace management
-  - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - patch
-  
   # SLS operator subscription requires operatorgroups
   - apiGroups:
       - operators.coreos.com

@@ -38,11 +38,15 @@ rules:
       - nodefeaturediscoveries
     verbs:
       - get
-      - list
       - create
       - patch
-      - update
-      - watch
+  # nfd_setup.yml checks for, and waits on, the nfd-worker DaemonSet
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+    verbs:
+      - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

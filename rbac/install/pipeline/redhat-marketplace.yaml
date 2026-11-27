@@ -21,13 +21,6 @@ metadata:
 rules:
   # DRO installs in this namespace (for some reason)
   - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - patch
-  - apiGroups:
       - operators.coreos.com
     resources:
       - installplans

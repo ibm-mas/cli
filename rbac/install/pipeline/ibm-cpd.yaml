@@ -127,3 +127,41 @@ rules:
       - create
       - patch
       - update
+  # Ibmcpd CR (OLM install path, CP4D < 5.4.0)
+  - apiGroups:
+      - cpd.ibm.com
+    resources:
+      - ibmcpds
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+  # authorize-user-cpd-admin.yml applies cp4d cpd_platform/rbac.yml.j2 into this namespace, creating Roles and
+  # RoleBindings, and `oc adm policy add-role-to-user admin` creates a RoleBinding to the admin ClusterRole
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - rolebindings
+    verbs:
+      - get
+      - create
+      - patch
+      - update
+  # Those Roles grant more than the pipeline holds (nss-managed-role-from-* has */*), so creating them requires escalate.
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+    verbs:
+      - escalate
+  # rbac.yml.j2 also creates a RoleBinding to nss-managed-role-from-* (a Role, not a ClusterRole), which needs bind on that Role.
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+    resourceNames:
+      - nss-managed-role-from-ibm-cpd-operators
+    verbs:
+      - bind

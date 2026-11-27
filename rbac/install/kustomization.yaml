@@ -15,7 +15,6 @@ resources:
   - pipeline/clusterrole.yaml
   - pipeline/clusterrole-dro.yaml
   - pipeline/clusterrole-grafana5.yaml
-  - pipeline/clusterrole-mas-x-core.yaml
   - pipeline/clusterrole-mongoce.yaml
   - pipeline/db2u.yaml
   - pipeline/eck.yaml
@@ -23,9 +22,11 @@ resources:
   - pipeline/ibm-cpd.yaml
   - pipeline/ibm-sls.yaml
   - pipeline/kube-system.yaml
+  - pipeline/kafka.yaml
   - pipeline/mas-x-app.yaml
   - pipeline/mas-x-core.yaml
   - pipeline/mas-x-pipelines.yaml
+  - pipeline/minio.yaml
   - pipeline/mongoce.yaml
   - pipeline/openshift-config.yaml
   - pipeline/openshift-ingress-operator.yaml
@@ -34,7 +35,8 @@ resources:
   - pipeline/openshift-monitoring.yaml
   - pipeline/openshift-nfd.yaml
   - pipeline/openshift-operators.yaml
-  - pipeline/openshift-user-workload-monitoring.yaml
+  - pipeline/openshift-serverless.yaml
   - pipeline/redhat-marketplace.yaml
+  - pipeline/redhat-ods-operator.yaml
   - pipeline/scc.yaml
   - pipeline/serviceaccount.yaml

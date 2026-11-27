@@ -19,11 +19,34 @@ metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:openshift-operators
   namespace: openshift-operators
 rules:
-  # The ECK operator subscription is created in openshift-operators
+  # The ECK operator subscription (eck role) and the AI Service RHOAI operators (authorino, servicemesh)
+  # are subscribed in openshift-operators. The subscription is applied (get/create/patch) and
+  # apply_subscription also lists operatorgroups/subscriptions/installplans while waiting for the install to complete
   - apiGroups:
       - operators.coreos.com
     resources:
+      - installplans
+      - operatorgroups
       - subscriptions
     verbs:
       - get
+      - list
       - create
+      - patch
+  # AI Service RHOAI "serverless" model deployment type creates the istio-operator service account for the ServiceMesh operator
+  # create cannot be restricted by name, so it is a separate rule
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    resourceNames:
+      - istio-operator
+    verbs:
+      - get
+      - patch

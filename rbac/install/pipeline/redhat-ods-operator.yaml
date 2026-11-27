@@ -18,6 +18,7 @@ metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-operator
 rules:
   # RHOAI requires scc patch for workaround to not update PVC settings by operator
+  # Only used when the RHOAI channel is "stable" (install-rhoai.yml)
   - apiGroups:
       - security.openshift.io
     resources:
@@ -26,7 +27,103 @@ rules:
       - openshift-ai-llminferenceservice-multi-node-scc
       - openshift-ai-llminferenceservice-scc
     verbs:
-      - list
       - get
       - patch
-      - update
+
+  # DSCInitialization (default-dsci) and DataScienceCluster (default-dsc) are cluster scoped
+  - apiGroups:
+      - dscinitialization.opendatahub.io
+    resources:
+      - dscinitializations
+    verbs:
+      - get
+      - create
+      - patch
+  - apiGroups:
+      - datasciencecluster.opendatahub.io
+    resources:
+      - datascienceclusters
+    verbs:
+      - get
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-operator
+  namespace: redhat-ods-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-operator
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-operator
+  namespace: redhat-ods-operator
+rules:
+  # RHOAI operator subscription (rhods-operator)
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - installplans
+      - operatorgroups
+      - subscriptions
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-applications
+  namespace: redhat-ods-applications
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-applications
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-applications
+  namespace: redhat-ods-applications
+rules:
+  # allow-rhods-model-controller network policy
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - networkpolicies
+    verbs:
+      - get
+      - create
+      - patch
+  # Istio auth rules, only used with the "serverless" model deployment type
+  - apiGroups:
+      - security.istio.io
+    resources:
+      - peerauthentications
+    verbs:
+      - get
+      - create
+      - patch
+  - apiGroups:
+      - networking.istio.io
+    resources:
+      - destinationrules
+    verbs:
+      - get
+      - create
+      - patch

@@ -21,13 +21,6 @@ metadata:
 rules:
   # Red Hat Certificate Manager is installed to this namespace
   - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - patch
-  - apiGroups:
       - operators.coreos.com
     resources:
       - installplans

@@ -28,6 +28,15 @@ rules:
       - get
       - create
       - patch
+  # authorize-user-cpd-admin.yml (cp4d role) applies the cpd-instance-admin-read-catsrc Role in this namespace
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+    verbs:
+      - get
+      - create
+      - patch
   # Pipeline will query available packages
   - apiGroups:
       - packages.operators.coreos.com
@@ -35,6 +44,7 @@ rules:
       - packagemanifests
     verbs:
       - get
+      - list
   # Pipeline needs to create secrets for image pull credentials (development catalogs)
   - apiGroups:
       - ""

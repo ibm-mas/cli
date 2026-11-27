@@ -20,9 +20,12 @@ metadata:
   namespace: openshift-ingress
 rules:
   # Required to lookup the default ingress TLS certificate
+  # get: lookup of a named secret (router-certs-default, cluster domain secret, IngressController defaultCertificate)
+  # list: last-resort fallback that lists all secrets in the namespace (ROSA, TechZone, and some IPI installs)
   - apiGroups:
       - ""
     resources:
       - secrets
     verbs:
       - get
+      - list

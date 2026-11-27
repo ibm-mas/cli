@@ -19,7 +19,7 @@ metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:openshift-config
   namespace: openshift-config
 rules:
-  # MAS install will create subscription for OpenShift Pipelines Operator
+  # Required to lookup the private root CA bundle (Proxy trustedCA) when determining the cluster ingress certificate
   - apiGroups:
       - ""
     resources:

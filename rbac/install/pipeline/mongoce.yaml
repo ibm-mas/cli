@@ -48,12 +48,6 @@ metadata:
   namespace: mongoce
 rules:
   - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - patch
-  - apiGroups:
       - mongodbcommunity.mongodb.com
     resources:
       - mongodbcommunity
@@ -74,6 +68,9 @@ rules:
     resources:
       - deployments
     verbs:
+      - get
+      - list
+      - watch
       - create
       - patch
   - apiGroups:
@@ -82,6 +79,9 @@ rules:
       - issuers
       - certificates
     verbs:
+      - get
+      - list
+      - watch
       - create
       - patch
   - apiGroups:
