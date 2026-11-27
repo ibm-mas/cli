@@ -3,6 +3,7 @@ resources:
   - namespaces.yaml
   # Update User
   - user/clusterrole.yaml
+  - user/mas-pipelines.yaml
   - user/openshift-console.yaml
   - user/openshift-marketplace.yaml
   - user/openshift-operators.yaml
@@ -16,4 +17,6 @@ resources:
   #   user/grafana.yaml  (only if the Grafana Operator v4 CRD exists, for Grafana v4 to v5 detection)
   #   user/kafka.yaml    (only if the Kafka CRD, kafkas.kafka.strimzi.io, exists, for Kafka detection)
   #   user/cp4d.yaml     (only if the Cloud Pak for Data CRD, ibmcpds.cpd.ibm.com, exists, for CP4D detection)
+  #   user/ibm-common-services.yaml  (only if the ibm-common-services namespace exists, for legacy IBM Certificate-Manager detection)
+  #   user/mas-pipelines-slack.yaml  (only if you run "mas update" with --slack-token and --slack-channel, to replace the Slack secret)
 

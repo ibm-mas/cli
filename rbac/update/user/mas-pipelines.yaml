@@ -1,0 +1,53 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:update-user:mas-pipelines
+  namespace: mas-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:update-user:mas-pipelines
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+# Rules are added here one at a time as each 403 is hit when running "mas update" as this user.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:update-user:mas-pipelines
+  namespace: mas-pipelines
+rules:
+  # The update pipeline needs the pipeline-db2-license secret to exist, so on every run the CLI deletes it
+  # and creates it again (empty unless a Db2 license file was provided)
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - delete
+    resourceNames:
+      - pipeline-db2-license
+
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+
+  # The CLI installs the MAS update Tekton definitions (Tasks and Pipelines) into mas-pipelines, then launches the
+  # update PipelineRun.  Each resource is read first (get), then patched if it already exists or created if it does not.
+  - apiGroups:
+      - tekton.dev
+    resources:
+      - tasks
+      - pipelines
+      - pipelineruns
+    verbs:
+      - get
+      - create
+      - patch
+

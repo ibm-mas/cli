@@ -1,0 +1,34 @@
+# OPTIONAL: apply this file only when you run "mas update" with --slack-token and --slack-channel.
+# It is deliberately not listed in kustomization.yaml, without those options the CLI never touches the Slack secret.
+#   oc apply -f mas-pipelines-slack.yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:update-user:mas-pipelines-slack
+  namespace: mas-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:update-user:mas-pipelines-slack
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:update-user:mas-pipelines-slack
+  namespace: mas-pipelines
+rules:
+  # When Slack notifications are requested the CLI deletes the mas-devops-slack secret and creates it again.
+  # Creating it is already allowed by the default mas-pipelines Role, only the delete is needed here.
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - delete
+    resourceNames:
+      - mas-devops-slack

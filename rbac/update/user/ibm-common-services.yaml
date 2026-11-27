@@ -1,0 +1,34 @@
+# OPTIONAL: apply this file only when the "ibm-common-services" namespace exists on the cluster (legacy IBM Common Services, e.g. left over from
+# other IBM Cloud Paks).  It is deliberately not listed in kustomization.yaml, applying a Role/RoleBinding into a missing namespace fails.
+# When the namespace does not exist, the ClusterRole rule that allows "get" on that namespace is enough and this file is not needed.
+#   oc apply -f ibm-common-services.yaml
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:update-user:ibm-common-services
+  namespace: ibm-common-services
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:update-user:ibm-common-services
+subjects:
+  - kind: ServiceAccount
+    name: mas-update-user
+    namespace: mas-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:update-user:ibm-common-services
+  namespace: ibm-common-services
+rules:
+  # MAS update lists the pods in ibm-common-services to look for the legacy IBM Certificate-Manager (cert-manager-cainjector).
+  # An installed IBM Certificate-Manager blocks the update.  A list cannot be limited with resourceNames.
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - list

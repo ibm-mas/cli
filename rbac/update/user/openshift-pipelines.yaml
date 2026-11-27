@@ -19,6 +19,18 @@ metadata:
   name: mas:update-user:openshift-pipelines
   namespace: openshift-pipelines
 rules:
+  # The CLI waits for the OpenShift Pipelines webhook deployment to be ready before it installs the Tekton definitions.
+  # On OpenShift Pipelines 1.24.3 any authenticated user can already read deployments in this namespace (default role
+  # "tekton-default-openshift-pipelines-view", created by the operator and not documented), this rule avoids relying on that default.
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+    resourceNames:
+      - tekton-pipelines-webhook
+
   # Workaround for a bug in OpenShift Pipelines/Tekton when there is no default storage class defined in the cluster:
   # the CLI checks the Tekton results PVC (get) and, if it is stuck Pending without a storage class, patches it (patch)
   - apiGroups:
