@@ -81,6 +81,15 @@
   description: flag to install rhoai
   default: ""
 
+- name: minio_root_user
+  type: string
+  description: root user for minio
+  default: ""
+- name: minio_root_password
+  type: string
+  description: password for minio root user
+  default: ""
+
 - name: install_ceph
   type: string
   description: Install Ceph (ODF) and create the AI Service S3 buckets (true/false)

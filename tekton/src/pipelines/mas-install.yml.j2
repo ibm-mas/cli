@@ -192,6 +192,12 @@ spec:
       runAfter:
         - ibm-catalogs
 
+    # 4.4 Install Minio ( for AI Service, catalogs without Ceph support only )
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/minio.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
     # 4.4 Install Ceph (ODF) and create the S3 buckets ( for AI Service )
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/ocs.yml.j2') | indent(4) }}
@@ -439,6 +445,7 @@ spec:
         - sls
         - dro
         - db2-aiservice
+        - minio
         - cos-bucket-km-tenants
         - cos-bucket-km-templates
         - aiservice-odh
