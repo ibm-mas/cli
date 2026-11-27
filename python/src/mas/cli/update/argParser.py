@@ -9,7 +9,6 @@
 # *****************************************************************************
 
 import argparse
-import sys
 
 from ..cli import getHelpFormatter
 
@@ -20,7 +19,7 @@ class UpdateArgumentParser(argparse.ArgumentParser):
     """Custom argument parser that validates --catalog requirement"""
 
     def format_usage(self):
-        """Custom usage message showing different modes"""
+        """Custom usage message showing the two execution paths"""
         prog = self.prog
         return (
             f"Usage (non-interactive mode):\n"
@@ -32,8 +31,8 @@ class UpdateArgumentParser(argparse.ArgumentParser):
             f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
             f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--no-confirm] [--skip-pre-check]\n"
             f"\n"
-            f"Usage (interactive mode):\n"
-            f"  {prog}\n"
+            f"Usage (interactive mode, the guided workflow):\n"
+            f"  {prog} [optional flags, passed through to the guided workflow]\n"
             f"\n"
             f"Usage (help):\n"
             f"  {prog} -h\n"
@@ -60,31 +59,6 @@ class UpdateArgumentParser(argparse.ArgumentParser):
         formatter.add_text(self.epilog)
 
         return formatter.format_help()
-
-    def parse_args(self, args=None, namespace=None):  # type: ignore[override]
-        parsedArgs = super().parse_args(args, namespace)
-
-        # Get all arguments that were actually provided by the user
-        providedArgs = []
-        if args is not None:
-            providedArgs = [arg for arg in args if arg.startswith("-")]
-        else:
-            providedArgs = [arg for arg in sys.argv[1:] if arg.startswith("-")]
-
-        # Check if any arguments were provided
-        hasAnyArgs = len(providedArgs) > 0
-
-        # Check if --catalog was provided
-        hasCatalog = parsedArgs.mas_catalog_version is not None
-
-        # Check if only help was requested
-        helpOnly = "--help" in providedArgs or "-h" in providedArgs
-
-        # Validation: If any arguments are provided (except help), --catalog must be present
-        if hasAnyArgs and not hasCatalog and not helpOnly:
-            self.error("non-interactive mode requires --catalog parameter, the interactive mode does not support any flags")
-
-        return parsedArgs
 
 
 updateArgParser = UpdateArgumentParser(

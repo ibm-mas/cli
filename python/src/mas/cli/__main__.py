@@ -92,10 +92,13 @@ def main() -> None:
             app.printBanner()
             raise SystemExit(app.uninstall(argv[2:]))
         if function == "update":
-            if not any(arg.startswith("-") for arg in argv[2:]):
-                # Bare invocation — launch the Textual TUI workflow. Any
-                # command-line flags fall through to the classic CLI path so
-                # that nothing the TUI does not yet support is silently ignored.
+            # Interactive mode is the Textual TUI: it launches whenever the required non-interactive parameter (--mas-catalog-version, the one thing the guided
+            # workflow exists to choose) is absent, with any optional flags passed through and applied to the app before the workflow runs (see serveTuiMode).
+            # Deciding by parsing with the real parser means every accepted spelling (space- or equals-separated, unambiguous prefixes) selects correctly,
+            # and unknown flags fail with usage here exactly as they would on the non-interactive path.
+            from mas.cli.update.argParser import updateArgParser
+
+            if updateArgParser.parse_args(args=argv[2:]).mas_catalog_version is None:
                 from mas.cli.tui.shell import serveTuiMode
 
                 serveTuiMode("update", argv[2:])
@@ -106,10 +109,13 @@ def main() -> None:
             app.printBanner()
             raise SystemExit(app.update(argv[2:]))
         if function == "upgrade":
-            if not any(arg.startswith("-") for arg in argv[2:]):
-                # Bare invocation — launch the Textual TUI workflow. Any
-                # command-line flags fall through to the classic CLI path so
-                # that nothing the TUI does not yet support is silently ignored.
+            # Interactive mode is the Textual TUI: it launches whenever the required non-interactive parameter (--mas-instance-id, the one thing the guided
+            # workflow exists to choose) is absent, with any optional flags passed through and applied to the app before the workflow runs (see serveTuiMode).
+            # Deciding by parsing with the real parser means every accepted spelling (space- or equals-separated, unambiguous prefixes) selects correctly,
+            # and unknown flags fail with usage here exactly as they would on the non-interactive path.
+            from mas.cli.upgrade.argParser import upgradeArgParser
+
+            if upgradeArgParser.parse_args(args=argv[2:]).mas_instance_id is None:
                 from mas.cli.tui.shell import serveTuiMode
 
                 serveTuiMode("upgrade", argv[2:])

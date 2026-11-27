@@ -45,7 +45,6 @@ def test_catalog_methods_present_on_update_app():
         "reviewAiServiceInstance",
         "reviewInstances",
         "getCatalogOptions",
-        "chooseCatalog",
         "checkCatalog",
         "validateCatalog",
         "validateCatalogSelection",

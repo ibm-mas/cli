@@ -19,7 +19,6 @@ from prompt_toolkit import print_formatted_text, HTML
 from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
-from ..common.commandBuilder import offerCommandScript
 from ..common.olmApprovals import OlmApprovalDetectionMixin, resolveOlmApprovalTimeout
 from .argBuilder import updateArgBuilderMixin
 from .argParser import updateArgParser
@@ -41,12 +40,18 @@ logger = logging.getLogger(__name__)
 class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmApprovalDetectionMixin):
     """Orchestrator for the ``mas-cli update`` command.
 
-    The ``update()`` method drives both the non-interactive path (``--catalog``
-    and friends) and the legacy interactive prompt path.  The Textual TUI path
-    (``mas-cli update`` with no arguments) drives the same logic through the
-    workflow definition in ``update/workflow.py`` via ``_postConnectChecks``,
-    ``checkCatalog``/``validateCatalogSelection``, ``runDependencyChecks`` and
-    ``launchUpdate``.
+    Two execution paths share this class, and both end in the same ``launchUpdate()``:
+
+    - **Interactive (the TUI)**: the mas-cli dispatch launches the Textual workflow (``update/workflow.py``) whenever ``--mas-catalog-version`` is absent -- including
+      invocations carrying optional flags, which ``serveTuiMode`` applies to the app first via ``applyCliArgs`` so a guided run carries them into the PipelineRun
+      exactly as a fully-specified command line would. The workflow drives this class through ``_postConnectChecks`` (the connect step),
+      ``validateCatalogSelection`` (the choose-catalog step), ``runDependencyChecks`` (the dependency-checks step), the ``*Pending``/``upgradeConfirmationsPending`` conditions
+      (the confirm-upgrades step) and ``launchUpdate`` (the launch screen).
+    - **Non-interactive**: ``mas update --mas-catalog-version ...`` runs ``update()``, which requires the command line to carry the parameters the wizard exists
+      to choose (``--mas-catalog-version`` above all) and prompts for nothing beyond the dependency-upgrade confirmations and the final review confirmation.
+
+    The sections below follow that structure: the shared command-line mapping first, then the non-interactive path, the TUI step validators, and the catalog
+    review / dependency detection / RBAC / launch logic both paths call.
     """
 
     # Ordered registry of pre-update dependency checks (see update/dependencies.py)
@@ -79,166 +84,17 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
         # scope (whole cluster), as returned by getClusterApprovalMode
         self.olmApprovalStatus: Optional[dict] = None
 
-    def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
+    # ------------------------------------------------------------------
+    # Command-line argument mapping (shared by both paths)
+    # ------------------------------------------------------------------
+    def applyCliArgs(self, args) -> None:
+        """Apply parsed command-line arguments to the app state.
+
+        The arg-to-state mapping shared by both execution paths: the non-interactive preamble in ``update()`` and the TUI bootstrap in ``serveTuiMode``, which routes optional flags (image pull policy, dependency namespaces and upgrade toggles, OLM approval timeout, slack integration, ...) into the guided workflow. Only pure state mapping lives here -- cluster interaction and prompts stay with the callers, and the required-parameter enforcement (``--mas-catalog-version``, the one thing the wizard exists to choose) stays with ``update()``.
         """
-        Determine if RBAC should be applied for a specific MAS instance during update.
-        Returns True if the instance is transitioning from pre-release to GA version.
-
-        This method checks:
-        1. Current version is a pre-release (e.g., "9.2.0-pre.stable+21734")
-        2. Target catalog contains a GA version (e.g., "9.2.0") for the instance's channel
-        3. The GA version is >= 9.2.0 (when RBAC was introduced)
-
-        Args:
-            instanceId: The MAS instance ID
-            currentVersion: The current reconciled version (e.g., "9.2.0-pre.stable+21734")
-            targetCatalog: The target catalog dictionary containing version mappings
-
-        Returns:
-            bool: True if RBAC should be applied for pre-release → GA transition, False otherwise
-        """
-        if not currentVersion or not targetCatalog:
-            return False
-
-        # Check if current version is a pre-release
-        if "-pre" not in currentVersion:
-            return False
-
-        # Get the channel this instance is subscribed to
-        channel = getMasChannel(self.dynamicClient, instanceId)
-        if not channel:
-            logger.warning(f"Could not determine channel for instance {instanceId}")
-            return False
-
-        # Get the target version from the catalog for this channel
-        targetVersion = targetCatalog.get("mas_core_version", {}).get(channel)
-        if not targetVersion:
-            logger.warning(f"No target version found in catalog for channel {channel}")
-            return False
-
-        # Check if target version is GA (not pre-release)
-        if "-pre" in targetVersion:
-            logger.info(f"Instance {instanceId} will stay on pre-release (current: {currentVersion}, target: {targetVersion}). Skipping RBAC.")
-            return False
-
-        # Only apply RBAC if target GA version is >= 9.2.0
-
-        if isVersionEqualOrAfter("9.2.0", targetVersion):
-            logger.info(f"Instance {instanceId} will transition from pre-release to GA (current: {currentVersion}, target: {targetVersion}).")
-            return True
-
-        logger.info(f"Instance {instanceId} target version {targetVersion} is < 9.2.0. Skipping RBAC.")
-        return False
-
-    def evaluatePreinstallRBACAccessForUpdate(self) -> None:
-        """
-        Evaluate if pre-install RBAC should be applied for instances transitioning from pre-release to GA.
-        Sets self.instancesNeedingRBAC list and self.applyPreInstallMASRBAC flag.
-
-        This method identifies instances needing RBAC and calls the shared evaluatePreinstallRBACAccess()
-        function from rbac_utils to check permissions for each instance needing RBAC.
-        """
-
-        self.instancesNeedingRBAC = []
-        self.applyPreInstallMASRBAC = False
-
-        try:
-            masInstances = listMasInstances(self.dynamicClient)
-
-            for instance in masInstances:
-                instanceId = instance["metadata"]["name"]
-                currentVersion = self.getReconciledVersion(instance)
-
-                if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
-                    channel = getMasChannel(self.dynamicClient, instanceId)
-                    targetVersion = self.chosenCatalog.get("mas_core_version", {}).get(channel, "")
-
-                    # Detect admin mode for this instance based on target version
-                    detectedMode = None
-                    if targetVersion == "9.2.0":
-                        # Transitioning to 9.2.0 GA (first release with admin modes): default to cluster mode
-                        detectedMode = "cluster"
-                        logger.info(msg=f"MAS instance {instanceId} transitioning to 9.2.0 GA: defaulting to cluster mode")
-                    elif isVersionEqualOrAfter("9.3.0", targetVersion):
-                        # Transitioning to 9.3.0 GA or later: detect existing mode
-                        detectedMode = getPermissionMode(self.dynamicClient, instanceId)
-                        logger.info(f"Detected admin mode '{detectedMode}' for MAS instance {instanceId} (target: {targetVersion})")
-
-                    self.instancesNeedingRBAC.append(
-                        {"id": instanceId, "currentVersion": currentVersion, "targetVersion": targetVersion, "channel": channel, "adminMode": detectedMode}
-                    )
-
-            if not self.instancesNeedingRBAC:
-                logger.info("No MAS instances require RBAC update (not transitioning from pre-release to GA)")
-                return
-
-            instancesNeedingRbacCheck = [inst for inst in self.instancesNeedingRBAC if inst["adminMode"] != "minimal"]
-
-            if not instancesNeedingRbacCheck:
-                logger.info("All instances are in minimal mode, no pre-install RBAC needed")
-                return
-
-            firstInstance = instancesNeedingRbacCheck[0]
-            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
-                dynamicClient=self.dynamicClient,
-                masChannel=firstInstance["targetVersion"],
-                adminMode=firstInstance["adminMode"],
-                instanceId=firstInstance["id"],
-                noConfirm=self.noConfirm,
-                printH1Func=self.printH1,
-                printDescriptionFunc=self.printDescription,
-                yesOrNoFunc=self.yesOrNo,
-                fatalErrorFunc=self.fatalError,
-                operation="update",
-            )
-
-        except Exception as e:
-            logger.error(f"Error while evaluating pre-install RBAC: {e}")
-            self.printWarning(f"Failed to evaluate pre-install RBAC: {e}\nContinuing with update, but RBAC may need to be applied manually.")
-
-    def checkRoutingModeForUpdate(self) -> None:
-        """Block the update when a MAS 9.2+ instance has routingMode "path" and is moving off a catalog without path routing support.
-
-        Catalogs listed in InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS do not support path-based routing, but a
-        routingMode of "path" may have been accidentally written to Suite CRs while on them. Updating to a catalog
-        that does support path-based routing would cause an unintended routing mode switch, so the update is stopped
-        with remediation guidance.
-
-        The check is skipped when the installed catalog is unknown, already supports path routing, or when the target
-        catalog also lacks path routing support.
-        """
-        unsupportedCatalogs = InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS
-        targetCatalog = self.getParam("mas_catalog_version")
-
-        if not self.installedCatalogId or not any(c in self.installedCatalogId for c in unsupportedCatalogs):
-            return
-        if any(c in targetCatalog for c in unsupportedCatalogs):
-            return
-
-        for instance in listMasInstances(self.dynamicClient):
-            instanceId = instance["metadata"]["name"]
-            if not isVersionEqualOrAfter("9.2.0", self.getReconciledVersion(instance)):
-                continue
-
-            if instance.get("spec", {}).get("settings", {}).get("routingMode") == "path":
-                self.fatalError(
-                    f'Cannot update from catalog {self.installedCatalogId} to {targetCatalog}: spec.settings.routingMode is set to "path" '
-                    f"on the Suite CR for instance {instanceId}.\n\n"
-                    f"Catalog {self.installedCatalogId} does not support path-based routing, so this value was set in error and the update\n"
-                    "would attempt an unintended routing mode switch.\n\n"
-                    "To resolve this, remove the field from the Suite CR before retrying the update:\n\n"
-                    f"  oc patch suite {instanceId} -n mas-{instanceId}-core --type=json \\\n"
-                    '    -p \'[{"op":"remove","path":"/spec/settings/routingMode"}]\'\n\n'
-                    "After applying the patch, re-run the update."
-                )
-
-    def update(self, argv):
-        """
-        Update MAS instance
-        """
-        self.args = updateArgParser.parse_args(args=argv)
-        self.noConfirm = self.args.no_confirm
-        self.devMode = self.args.dev_mode
+        self.args = args
+        self.noConfirm = args.no_confirm
+        self.devMode = args.dev_mode
         self.db2LicenseFileLocal = None
         self.instancesNeedingRBAC = []
         self.applyPreInstallMASRBAC = False
@@ -247,84 +103,80 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
         self.mongoTargetVersion = None
         self.db2CurrentMajorVersion = None
         self.db2TargetMajorVersion = None
-        self.isInteractiveMode = self.args.mas_catalog_version is None
 
-        # OLM approval timeout: flag > OLM_APPROVAL_TIMEOUT environment
-        # variable > omitted (the collection's 7200s default then applies).
-        # The approval mode itself is not a flag on update: it is a property
-        # of the cluster, detected over the whole update scope (the catalog
-        # digest change rolls every subscription) by detectOLMApprovalMode()
+        # Params that pass straight through to the PipelineRun when provided. The required mas_catalog_version is included: it is set here when the
+        # command line carries it (non-interactive) and left absent when the TUI's choose-catalog step provides it.
+        passthroughParams = [
+            "mas_catalog_version",
+            "db2_namespace",
+            "db2_v12_upgrade",
+            "mongodb_namespace",
+            "mongodb_v5_upgrade",
+            "mongodb_v6_upgrade",
+            "mongodb_v7_upgrade",
+            "mongodb_v8_upgrade",
+            "kafka_namespace",
+            "kafka_provider",
+            "dro_storage_class",
+            "dro_namespace",
+            "skip_pre_check",
+            "dev_mode",
+            "cpd_product_version",
+            "image_pull_policy",
+            # Dev Mode
+            "artifactory_username",
+            "artifactory_token",
+            # Slack Integration
+            "slack_token",
+            "slack_channel",
+        ]
+        for key, value in vars(args).items():
+            if key in passthroughParams:
+                if value is not None:
+                    self.setParam(key, value)
+
+            # Arguments that we don't need to do anything with
+            elif key in ["no_confirm", "help"]:
+                pass
+
+            # Handled by the OLM approval timeout resolver below (flag > environment variable > omitted)
+            elif key == "olm_approval_timeout":
+                pass
+
+            # Db2 License file has special handling
+            elif key == "db2_license_file":
+                if value is not None and value != "":
+                    self.db2LicenseFileLocal = value
+
+            # Fail if there's any arguments we don't know how to handle
+            else:
+                self.fatalError(f"Unknown option: {key} {value}")
+
+        # OLM approval timeout: flag > OLM_APPROVAL_TIMEOUT environment variable > omitted (the collection's 7200s default then applies). The approval
+        # mode itself is not a flag on update: it is a property of the cluster, detected over the whole update scope (the catalog digest change rolls
+        # every subscription) by detectOLMApprovalMode()
         try:
-            olmApprovalTimeout = resolveOlmApprovalTimeout(self.args.olm_approval_timeout)
+            olmApprovalTimeout = resolveOlmApprovalTimeout(args.olm_approval_timeout)
         except ValueError as e:
             self.fatalError(f"Error: {e}")
         if olmApprovalTimeout is not None:
             self.setParam("olm_approval_timeout", str(olmApprovalTimeout))
 
-        if self.args.mas_catalog_version:
-            # Non-interactive mode
-            logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
-            requiredParams = ["mas_catalog_version"]
-            optionalParams = [
-                "db2_namespace",
-                "db2_v12_upgrade",
-                "mongodb_namespace",
-                "mongodb_v5_upgrade",
-                "mongodb_v6_upgrade",
-                "mongodb_v7_upgrade",
-                "mongodb_v8_upgrade",
-                "kafka_namespace",
-                "kafka_provider",
-                "dro_storage_class",
-                "dro_namespace",
-                "skip_pre_check",
-                "dev_mode",
-                "cpd_product_version",
-                "image_pull_policy",
-                # Dev Mode
-                "artifactory_username",
-                "artifactory_token",
-                # Slack Integration
-                "slack_token",
-                "slack_channel",
-            ]
-            for key, value in vars(self.args).items():
-                # These fields we just pass straight through to the parameters and fail if they are not set
-                if key in requiredParams:
-                    if value is None:
-                        self.fatalError(f"{key} must be set")
-                    else:
-                        self.setParam(key, value)
+    # ------------------------------------------------------------------
+    # Non-interactive path
+    # ------------------------------------------------------------------
+    def update(self, argv):
+        """Non-interactive MAS update.
 
-                # These fields we just pass straight through to the parameters
-                elif key in optionalParams:
-                    if value is not None:
-                        self.setParam(key, value)
+        This is the non-interactive path: it runs when the required parameters are provided on the command line, of which ``--mas-catalog-version`` is the one the guided workflow exists to choose. The interactive mode is the Textual TUI, launched by the mas-cli dispatch whenever that parameter is absent (with any optional flags passed through to it) -- nothing finds its way through this method by prompts other than the dependency-upgrade confirmations and the final review confirmation.
+        """
+        args = updateArgParser.parse_args(args=argv)
+        if args.mas_catalog_version is None:
+            self.fatalError("--mas-catalog-version is required on the non-interactive path; run 'mas update' with no arguments for the guided workflow")
 
-                # Arguments that we don't need to do anything with
-                elif key in ["no_confirm", "help"]:
-                    pass
+        self.applyCliArgs(args)
 
-                # Handled by the OLM approval timeout resolver at the start
-                # of update() (flag > environment variable > omitted)
-                elif key == "olm_approval_timeout":
-                    pass
-
-                # Db2 License file has special handling
-                elif key == "db2_license_file":
-                    if value is not None and value != "":
-                        self.db2LicenseFileLocal = value
-
-                # Fail if there's any arguments we don't know how to handle
-                else:
-                    print(f"Unknown option: {key} {value}")
-                    self.fatalError(f"Unknown option: {key} {value}")
-        else:
-            # Interactive mode
-            self.printH1("Set Target OpenShift Cluster")
-            # Connect to the target cluster
-            self.connect()
-
+        # Non-interactive mode assumes the target cluster is already the active Kubernetes context
         if self.dynamicClient is None:
             self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
 
@@ -336,10 +188,6 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
         isAiServiceInstalled = self.reviewAiServiceInstance()
         if not isMasInstalled and not isAiServiceInstalled:
             self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
-
-        if self.args.mas_catalog_version is None:
-            # Interactive mode
-            self.chooseCatalog()
 
         # Validations
         if not self.devMode:
@@ -376,13 +224,11 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
         self.printH1("Non-Interactive Update Command")
         self.printDescription(
             [
-                "Save and re-use the following script to re-run this update without needing to answer the interactive prompts again",
+                "Save and re-use the following script to re-run this update non-interactively:",
                 "",
                 nonInteractiveCommand,
             ]
         )
-        if self.isInteractiveMode:
-            offerCommandScript(self, nonInteractiveCommand, f"mas-update-{self.getParam('mas_catalog_version')}.sh")
 
         self.printH1("Review Settings")
         self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
@@ -437,12 +283,7 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
             self.printH1("Launch Update")
             self.launchUpdate()
 
-            # ------------------------------------------------------------------
-            # Catalog selection and review
-            # ------------------------------------------------------------------
-
-            # Re-print the command so it is not lost in the scrollback above the
-            # pipeline launch output
+            # Re-print the command so it is not lost in the scrollback above the pipeline launch output
             self.printDescription(
                 [
                     "For reference, the non-interactive command equivalent to this update:",
@@ -451,6 +292,93 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
                 ]
             )
 
+    # ------------------------------------------------------------------
+    # Guided workflow (TUI): step validators and conditional steps
+    # ------------------------------------------------------------------
+    def _postConnectChecks(self) -> None:
+        """Run the post-connection cluster review for the TUI path.
+
+        Called as the connect-cluster step's ``post_connect`` callable: after
+        a successful connection it performs the airgap check, detects the
+        installed catalog, and verifies that at least one MAS or AI Service
+        instance exists.  Failures raise (via ``fatalError`` under TUI mode)
+        so the connect screen can display them inline.
+        """
+        self.isAirgap()
+        self.reviewCurrentCatalog()
+        isMasInstalled = self.reviewMASInstance()
+        isAiServiceInstalled = self.reviewAiServiceInstance()
+        if not isMasInstalled and not isAiServiceInstalled:
+            self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
+
+        # Detect the aggregate OLM install plan approval mode over the whole
+        # cluster so the TUI review screen can report it and the launch step
+        # passes the effective mode to the PipelineRun
+        self.detectOLMApprovalMode()
+
+    def validateCatalogSelection(self) -> None:
+        """Validate the catalog selection for the TUI choose-catalog step.
+
+        Runs ``checkCatalog()`` followed by ``checkRoutingModeForUpdate()``.
+        Both raise on failure so the TUI can display the error inline; on the
+        CLI path ``validateCatalog()`` and the direct
+        ``checkRoutingModeForUpdate()`` call in ``update()`` provide the same
+        checks with ``fatalError`` semantics.
+        """
+        self.checkCatalog()
+        self.checkRoutingModeForUpdate()
+
+    def mongoUpgradeConfirmationPending(self) -> bool:
+        """Return True when a MongoDB major-version upgrade still requires confirmation.
+
+        Returns:
+            bool: True when ``mongodb_action`` is "install", a target version is
+                known, and the ``mongodb_v{N}_upgrade`` param is not yet "true".
+        """
+        if self.getParam("mongodb_action") != "install" or not self.mongoTargetVersion:
+            return False
+        targetMajor = self.mongoTargetVersion.split(".")[0]
+        return self.getParam(f"mongodb_v{targetMajor}_upgrade") != "true"
+
+    def db2UpgradeConfirmationPending(self) -> bool:
+        """Return True when a Db2 major-version upgrade still requires confirmation.
+
+        Returns:
+            bool: True when the detected Db2 major version is below the target
+                and the ``db2_v{N}_upgrade`` param is not yet "true".
+        """
+        if self.db2CurrentMajorVersion is None or self.db2TargetMajorVersion is None:
+            return False
+        if self.db2CurrentMajorVersion >= self.db2TargetMajorVersion:
+            return False
+        return self.getParam(f"db2_v{self.db2TargetMajorVersion}_upgrade") != "true"
+
+    def db2LicenseFileNeeded(self) -> bool:
+        """Return True when a Db2 v11 to v12 upgrade still needs a license file.
+
+        Returns:
+            bool: True when the upgrade is v11 to v12 and no license file has
+                been provided via ``--db2-license-file`` or the TUI input.
+        """
+        if self.db2CurrentMajorVersion != 11 or self.db2TargetMajorVersion != 12:
+            return False
+        return self.db2LicenseFileLocal is None
+
+    def upgradeConfirmationsPending(self) -> bool:
+        """Return True when any interactive upgrade confirmation is still required.
+
+        Drives the ``condition`` of the TUI confirm-upgrades step: the step is
+        only shown when a MongoDB or Db2 major-version confirmation (or the
+        Db2 v11 to v12 license file) is still needed.
+
+        Returns:
+            bool: True when at least one confirmation is pending.
+        """
+        return self.mongoUpgradeConfirmationPending() or self.db2UpgradeConfirmationPending() or self.db2LicenseFileNeeded()
+
+    # ------------------------------------------------------------------
+    # Catalog review and validation (shared by both paths)
+    # ------------------------------------------------------------------
     def reviewCurrentCatalog(self) -> None:
         """Detect and display the currently installed Maximo Operator Catalog.
 
@@ -548,19 +476,6 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
             "v9-260924-amd64",
         ]
 
-    def chooseCatalog(self) -> None:
-        """Interactively prompt the user to select a target catalog version."""
-        self.printH1("Select IBM Maximo Operator Catalog Version")
-        self.printDescription(
-            [
-                "Select MAS Catalog",
-                "  1) Nov 05 2026 Update (MAS 9.2.10, 9.1.29, 9.0.35, 8.11.34, &amp; 8.10.37)",
-                "  2) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
-                "  3) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
-            ]
-        )
-        self.promptForListSelect("Select catalog version", self.getCatalogOptions(), "mas_catalog_version", default=1)
-
     def checkCatalog(self) -> None:
         """Validate the chosen catalog against the current cluster state.
 
@@ -599,43 +514,9 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
         except ValueError as e:
             self.fatalError(str(e))
 
-    def validateCatalogSelection(self) -> None:
-        """Validate the catalog selection for the TUI choose-catalog step.
-
-        Runs ``checkCatalog()`` followed by ``checkRoutingModeForUpdate()``.
-        Both raise on failure so the TUI can display the error inline; on the
-        CLI path ``validateCatalog()`` and the direct
-        ``checkRoutingModeForUpdate()`` call in ``update()`` provide the same
-        checks with ``fatalError`` semantics.
-        """
-        self.checkCatalog()
-        self.checkRoutingModeForUpdate()
-
-    def _postConnectChecks(self) -> None:
-        """Run the post-connection cluster review for the TUI path.
-
-        Called as the connect-cluster step's ``post_connect`` callable: after
-        a successful connection it performs the airgap check, detects the
-        installed catalog, and verifies that at least one MAS or AI Service
-        instance exists.  Failures raise (via ``fatalError`` under TUI mode)
-        so the connect screen can display them inline.
-        """
-        self.isAirgap()
-        self.reviewCurrentCatalog()
-        isMasInstalled = self.reviewMASInstance()
-        isAiServiceInstalled = self.reviewAiServiceInstance()
-        if not isMasInstalled and not isAiServiceInstalled:
-            self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
-
-        # Detect the aggregate OLM install plan approval mode over the whole
-        # cluster so the TUI review screen can report it and the launch step
-        # passes the effective mode to the PipelineRun
-        self.detectOLMApprovalMode()
-
     # ------------------------------------------------------------------
-    # Dependency detection
+    # Dependency detection (shared by both paths)
     # ------------------------------------------------------------------
-
     def isWatsonDiscoveryInstalled(self) -> DetectResult:
         """Check whether IBM Watson Discovery is installed.
 
@@ -1329,9 +1210,8 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
         return DetectResult(ok=True, message=f"Apache Kafka ({provider}) instances in namespace '{kafkaNamespace}' will be updated")
 
     # ------------------------------------------------------------------
-    # Dependency-check orchestration
+    # Dependency-check orchestration and confirmations (shared by both paths)
     # ------------------------------------------------------------------
-
     def runDependencyChecks(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
         """Run all pre-update dependency checks.
 
@@ -1379,54 +1259,6 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
             for item in self._DEPENDENCY_CHECKS:
                 self._runWithHalo(item.label, getattr(self, item.method))
             self.evaluatePreinstallRBACAccessForUpdate()
-
-    def mongoUpgradeConfirmationPending(self) -> bool:
-        """Return True when a MongoDB major-version upgrade still requires confirmation.
-
-        Returns:
-            bool: True when ``mongodb_action`` is "install", a target version is
-                known, and the ``mongodb_v{N}_upgrade`` param is not yet "true".
-        """
-        if self.getParam("mongodb_action") != "install" or not self.mongoTargetVersion:
-            return False
-        targetMajor = self.mongoTargetVersion.split(".")[0]
-        return self.getParam(f"mongodb_v{targetMajor}_upgrade") != "true"
-
-    def db2UpgradeConfirmationPending(self) -> bool:
-        """Return True when a Db2 major-version upgrade still requires confirmation.
-
-        Returns:
-            bool: True when the detected Db2 major version is below the target
-                and the ``db2_v{N}_upgrade`` param is not yet "true".
-        """
-        if self.db2CurrentMajorVersion is None or self.db2TargetMajorVersion is None:
-            return False
-        if self.db2CurrentMajorVersion >= self.db2TargetMajorVersion:
-            return False
-        return self.getParam(f"db2_v{self.db2TargetMajorVersion}_upgrade") != "true"
-
-    def db2LicenseFileNeeded(self) -> bool:
-        """Return True when a Db2 v11 to v12 upgrade still needs a license file.
-
-        Returns:
-            bool: True when the upgrade is v11 to v12 and no license file has
-                been provided via ``--db2-license-file`` or the TUI input.
-        """
-        if self.db2CurrentMajorVersion != 11 or self.db2TargetMajorVersion != 12:
-            return False
-        return self.db2LicenseFileLocal is None
-
-    def upgradeConfirmationsPending(self) -> bool:
-        """Return True when any interactive upgrade confirmation is still required.
-
-        Drives the ``condition`` of the TUI confirm-upgrades step: the step is
-        only shown when a MongoDB or Db2 major-version confirmation (or the
-        Db2 v11 to v12 license file) is still needed.
-
-        Returns:
-            bool: True when at least one confirmation is pending.
-        """
-        return self.mongoUpgradeConfirmationPending() or self.db2UpgradeConfirmationPending() or self.db2LicenseFileNeeded()
 
     def reviewDependencyUpgrades(self) -> None:
         """Prompt for or validate upgrade confirmations for MongoDB and Db2 major-version upgrades.
@@ -1493,9 +1325,167 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin, OlmAppro
                         )
 
     # ------------------------------------------------------------------
-    # Pipeline launch
+    # Pre-install RBAC evaluation (shared by both paths)
     # ------------------------------------------------------------------
+    def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
+        """
+        Determine if RBAC should be applied for a specific MAS instance during update.
+        Returns True if the instance is transitioning from pre-release to GA version.
 
+        This method checks:
+        1. Current version is a pre-release (e.g., "9.2.0-pre.stable+21734")
+        2. Target catalog contains a GA version (e.g., "9.2.0") for the instance's channel
+        3. The GA version is >= 9.2.0 (when RBAC was introduced)
+
+        Args:
+            instanceId: The MAS instance ID
+            currentVersion: The current reconciled version (e.g., "9.2.0-pre.stable+21734")
+            targetCatalog: The target catalog dictionary containing version mappings
+
+        Returns:
+            bool: True if RBAC should be applied for pre-release → GA transition, False otherwise
+        """
+        if not currentVersion or not targetCatalog:
+            return False
+
+        # Check if current version is a pre-release
+        if "-pre" not in currentVersion:
+            return False
+
+        # Get the channel this instance is subscribed to
+        channel = getMasChannel(self.dynamicClient, instanceId)
+        if not channel:
+            logger.warning(f"Could not determine channel for instance {instanceId}")
+            return False
+
+        # Get the target version from the catalog for this channel
+        targetVersion = targetCatalog.get("mas_core_version", {}).get(channel)
+        if not targetVersion:
+            logger.warning(f"No target version found in catalog for channel {channel}")
+            return False
+
+        # Check if target version is GA (not pre-release)
+        if "-pre" in targetVersion:
+            logger.info(f"Instance {instanceId} will stay on pre-release (current: {currentVersion}, target: {targetVersion}). Skipping RBAC.")
+            return False
+
+        # Only apply RBAC if target GA version is >= 9.2.0
+
+        if isVersionEqualOrAfter("9.2.0", targetVersion):
+            logger.info(f"Instance {instanceId} will transition from pre-release to GA (current: {currentVersion}, target: {targetVersion}).")
+            return True
+
+        logger.info(f"Instance {instanceId} target version {targetVersion} is < 9.2.0. Skipping RBAC.")
+        return False
+
+    def evaluatePreinstallRBACAccessForUpdate(self) -> None:
+        """
+        Evaluate if pre-install RBAC should be applied for instances transitioning from pre-release to GA.
+        Sets self.instancesNeedingRBAC list and self.applyPreInstallMASRBAC flag.
+
+        This method identifies instances needing RBAC and calls the shared evaluatePreinstallRBACAccess()
+        function from rbac_utils to check permissions for each instance needing RBAC.
+        """
+
+        self.instancesNeedingRBAC = []
+        self.applyPreInstallMASRBAC = False
+
+        try:
+            masInstances = listMasInstances(self.dynamicClient)
+
+            for instance in masInstances:
+                instanceId = instance["metadata"]["name"]
+                currentVersion = self.getReconciledVersion(instance)
+
+                if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
+                    channel = getMasChannel(self.dynamicClient, instanceId)
+                    targetVersion = self.chosenCatalog.get("mas_core_version", {}).get(channel, "")
+
+                    # Detect admin mode for this instance based on target version
+                    detectedMode = None
+                    if targetVersion == "9.2.0":
+                        # Transitioning to 9.2.0 GA (first release with admin modes): default to cluster mode
+                        detectedMode = "cluster"
+                        logger.info(msg=f"MAS instance {instanceId} transitioning to 9.2.0 GA: defaulting to cluster mode")
+                    elif isVersionEqualOrAfter("9.3.0", targetVersion):
+                        # Transitioning to 9.3.0 GA or later: detect existing mode
+                        detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+                        logger.info(f"Detected admin mode '{detectedMode}' for MAS instance {instanceId} (target: {targetVersion})")
+
+                    self.instancesNeedingRBAC.append(
+                        {"id": instanceId, "currentVersion": currentVersion, "targetVersion": targetVersion, "channel": channel, "adminMode": detectedMode}
+                    )
+
+            if not self.instancesNeedingRBAC:
+                logger.info("No MAS instances require RBAC update (not transitioning from pre-release to GA)")
+                return
+
+            instancesNeedingRbacCheck = [inst for inst in self.instancesNeedingRBAC if inst["adminMode"] != "minimal"]
+
+            if not instancesNeedingRbacCheck:
+                logger.info("All instances are in minimal mode, no pre-install RBAC needed")
+                return
+
+            firstInstance = instancesNeedingRbacCheck[0]
+            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+                dynamicClient=self.dynamicClient,
+                masChannel=firstInstance["targetVersion"],
+                adminMode=firstInstance["adminMode"],
+                instanceId=firstInstance["id"],
+                noConfirm=self.noConfirm,
+                printH1Func=self.printH1,
+                printDescriptionFunc=self.printDescription,
+                yesOrNoFunc=self.yesOrNo,
+                fatalErrorFunc=self.fatalError,
+                operation="update",
+            )
+
+        except Exception as e:
+            logger.error(f"Error while evaluating pre-install RBAC: {e}")
+            self.printWarning(f"Failed to evaluate pre-install RBAC: {e}\nContinuing with update, but RBAC may need to be applied manually.")
+
+    # ------------------------------------------------------------------
+    # Pre-flight checks (shared by both paths)
+    # ------------------------------------------------------------------
+    def checkRoutingModeForUpdate(self) -> None:
+        """Block the update when a MAS 9.2+ instance has routingMode "path" and is moving off a catalog without path routing support.
+
+        Catalogs listed in InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS do not support path-based routing, but a
+        routingMode of "path" may have been accidentally written to Suite CRs while on them. Updating to a catalog
+        that does support path-based routing would cause an unintended routing mode switch, so the update is stopped
+        with remediation guidance.
+
+        The check is skipped when the installed catalog is unknown, already supports path routing, or when the target
+        catalog also lacks path routing support.
+        """
+        unsupportedCatalogs = InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS
+        targetCatalog = self.getParam("mas_catalog_version")
+
+        if not self.installedCatalogId or not any(c in self.installedCatalogId for c in unsupportedCatalogs):
+            return
+        if any(c in targetCatalog for c in unsupportedCatalogs):
+            return
+
+        for instance in listMasInstances(self.dynamicClient):
+            instanceId = instance["metadata"]["name"]
+            if not isVersionEqualOrAfter("9.2.0", self.getReconciledVersion(instance)):
+                continue
+
+            if instance.get("spec", {}).get("settings", {}).get("routingMode") == "path":
+                self.fatalError(
+                    f'Cannot update from catalog {self.installedCatalogId} to {targetCatalog}: spec.settings.routingMode is set to "path" '
+                    f"on the Suite CR for instance {instanceId}.\n\n"
+                    f"Catalog {self.installedCatalogId} does not support path-based routing, so this value was set in error and the update\n"
+                    "would attempt an unintended routing mode switch.\n\n"
+                    "To resolve this, remove the field from the Suite CR before retrying the update:\n\n"
+                    f"  oc patch suite {instanceId} -n mas-{instanceId}-core --type=json \\\n"
+                    '    -p \'[{"op":"remove","path":"/spec/settings/routingMode"}]\'\n\n'
+                    "After applying the patch, re-run the update."
+                )
+
+    # ------------------------------------------------------------------
+    # Pipeline launch (shared by both paths)
+    # ------------------------------------------------------------------
     def _validateOpenShiftPipelines(self) -> tuple[bool, str]:
         """Validate OpenShift Pipelines installation.
 
