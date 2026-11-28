@@ -11,6 +11,7 @@
 
 import time
 import threading
+from contextlib import contextmanager
 from typing import Dict, Callable, Optional
 from unittest import mock
 from unittest.mock import MagicMock
@@ -20,6 +21,40 @@ from kubernetes.dynamic.exceptions import NotFoundError
 from mas.cli.install.catalogs import supportedCatalogs
 from mas.cli.install.app import InstallApp
 from utils.prompt_tracker import create_prompt_handler
+
+
+@contextmanager
+def patchStorageClassLookup(app_module, app_prompt):
+    """Patch the storage class lookups in both the app and shared modules.
+
+    The shared storage class selection (mas/cli/common/storageClasses.py)
+    resolves ``prompt``, ``getStorageClasses`` and ``getDefaultStorageClasses``
+    in its own module, while the app module (e.g. the facilities settings)
+    resolves its own imports — so both modules are patched with shared mock
+    objects and the prompt handlers / fixture return values apply to both.
+
+    Bundled into one context manager (yielding the two storage mocks)
+    because the install helper's ``with`` statement is already at
+    CPython's static block limit: a parenthesized ``with`` with 20+ items
+    fails to compile.
+
+    Args:
+        app_module (str): The app module path (e.g.
+            ``mas.cli.install.app``) whose own imports are patched.
+        app_prompt: The mock patching the app module's ``prompt``, shared
+            with the common module.
+
+    Yields:
+        tuple: (get_storage_classes mock, get_default_storage_classes mock).
+    """
+    with (
+        mock.patch(f"{app_module}.getStorageClasses") as get_storage_classes,
+        mock.patch("mas.cli.common.storageClasses.getStorageClasses", new=get_storage_classes),
+        mock.patch(f"{app_module}.getDefaultStorageClasses") as get_default_storage_classes,
+        mock.patch("mas.cli.common.storageClasses.getDefaultStorageClasses", new=get_default_storage_classes),
+        mock.patch("mas.cli.common.storageClasses.prompt", new=app_prompt),
+    ):
+        yield get_storage_classes, get_default_storage_classes
 
 
 class InstallTestConfig:
@@ -306,9 +341,14 @@ class InstallTestHelper:
                 mock.patch("mas.cli.displayMixins.prompt") as mixins_prompt,
                 mock.patch("mas.cli.displayMixins.PromptSession") as prompt_session_class,
                 mock.patch(f"{app_module}.prompt") as app_prompt,
-                mock.patch(f"{app_module}.getStorageClasses") as get_storage_classes,
-                mock.patch(f"{app_module}.getDefaultStorageClasses") as get_default_storage_classes,
+                # The storage class lookups are patched in both the app
+                # module and the shared StorageClassMixin module — bundled
+                # into one context manager to stay under CPython's static
+                # block limit for a single with statement.
+                patchStorageClassLookup(app_module, app_prompt) as storage_patches,
             ):
+
+                get_storage_classes, get_default_storage_classes = storage_patches
 
                 # Configure mock return values
                 dynamic_client_class.return_value = dynamic_client

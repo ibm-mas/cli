@@ -14,6 +14,10 @@ Covers: TextualShell registering and selecting the ``mas`` theme, the brand
 palette resolving into the app's CSS variables, and the theme definition
 specifying semantic colours explicitly (Textual would otherwise derive them
 from the primary colour, making state colours indistinguishable).
+
+Colour-system consistency between containers and local runs is handled by
+the container image's Dockerfile (``ENV TEXTUAL_COLOR_SYSTEM=truecolor``),
+not by app code — see tui/theme.py's module docstring.
 """
 
 import asyncio

@@ -207,6 +207,10 @@ def test_every_apply_call_passes_rbac_root_dir():
             if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "applyPreInstallMASRBAC":
                 calls.append((sourceFile.name, {keyword.arg for keyword in node.keywords}))
 
+    # Four call sites: one per command app (install, update, upgrade) plus
+    # the shared launchUpgrade stage helper -- the upgrade app's old
+    # non-interactive tail duplicated its call before the launch sequence
+    # was collapsed into launchUpgrade
     assert len(calls) == 4
     for fileName, keywords in calls:
         assert "rbacRootDir" in keywords, f"{fileName} calls applyPreInstallMASRBAC without rbacRootDir"

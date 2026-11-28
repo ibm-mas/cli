@@ -403,19 +403,19 @@ class TextualShell(App):
 def serveTuiMode(command: str, argv: List[str]) -> None:
     """Launch the Textual TUI for the given CLI command.
 
-    Lazily imports the command's workflow builder and app class, constructs
-    the workflow definition, and runs TextualShell to completion.
+    Lazily imports the command's workflow builder and app class, constructs the workflow definition, and runs TextualShell to completion.
 
     Args:
         command (str): CLI command name, e.g. "update".
-        argv (list[str]): Remaining command-line arguments (reserved for
-            future use; currently unused by the TUI flow).
+        argv (list[str]): Remaining command-line arguments. Optional flags are applied to the app before the workflow runs (see below); the guided flow then
+            carries them into the PipelineRun exactly as the non-interactive path's preamble would.
 
     Raises:
         ImportError: If textual is not installed.
         ModuleNotFoundError: If no workflow module exists for command.
     """
     import importlib
+    import sys
 
     workflow_module = importlib.import_module(f"mas.cli.{command}.workflow")
     build_fn_name = f"build{command.capitalize()}Workflow"
@@ -426,10 +426,21 @@ def serveTuiMode(command: str, argv: List[str]) -> None:
     app_class = getattr(app_module, app_class_name)
 
     mas_app = app_class()
-    # Flag the app as running under the TUI so that fatalError() raises
-    # RuntimeError (caught and displayed inline by the screens) instead of
-    # exiting the process, and print/prompt calls are suppressed.
+    # Flag the app as running under the TUI so that fatalError() raises RuntimeError (caught and displayed inline by the screens) instead of exiting the
+    # process, and print/prompt calls are suppressed.
     mas_app.tuiMode = True
+
+    # Apply the command-line arguments to the app before the workflow runs: optional flags (image pull policy, storage classes, ...) routed in by the
+    # dispatch pre-set the same state the non-interactive preamble sets, and the OLM approval timeout's environment variable resolution applies even on
+    # a bare invocation. Only commands whose app implements applyCliArgs get the treatment; the dispatch never routes flags to a command that does not.
+    if hasattr(mas_app, "applyCliArgs"):
+        commandArgParser = getattr(importlib.import_module(f"mas.cli.{command}.argParser"), f"{command}ArgParser")
+        try:
+            mas_app.applyCliArgs(commandArgParser.parse_args(args=argv))
+        except RuntimeError as e:
+            # fatalError under tuiMode raises RuntimeError; at bootstrap no screen exists yet to display it inline
+            sys.exit(f"Error: {e}")
+
     definition = build_fn(mas_app)
 
     shell = TextualShell(mas_app, definition, command=command)

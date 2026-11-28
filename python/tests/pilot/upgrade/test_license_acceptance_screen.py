@@ -11,14 +11,15 @@
 
 Mounts the real license-acceptance WorkflowStep (from buildUpgradeWorkflow)
 in a LicenseAcceptanceScreen against a scenario app whose target channel
-(9.2.x) carries a license, verifying that the license links are shown, that
-Confirm is blocked with an inline error until the acceptance checkbox is
-checked, and that Confirm records the acceptance on the app and advances
-the step.
+(9.2.x) carries a license, verifying that the license links render as
+ctrl+clickable hyperlinks directly under the description (no subcontainer)
+and that clicking Confirm & Continue records the acceptance on the app and
+advances the step — the button press is itself the acceptance, with no
+separate confirmation checkbox.
 """
 
 import pytest
-from textual.widgets import Checkbox, Label
+from textual.widgets import Label
 
 from mas.cli.upgrade.workflow import buildUpgradeWorkflow
 from pilot.harness import click_button, run_screen_pilot, wait_for
@@ -51,35 +52,58 @@ def test_license_screen_shows_target_channel_terms():
     GIVEN a scenario app whose target channel is 9.2.x (which carries
         license links)
     WHEN the license-acceptance step screen is shown
-    THEN the terms section names the target channel and renders the license
-        URLs as plain text (the prompt_toolkit <u> tags stripped), with the
-        acceptance checkbox unchecked.
+    THEN the description names the target channel (its {channel}
+        placeholder filled with nextChannel) and each license URL renders
+        as a bulleted ctrl+clickable hyperlink — a Rich Text whose link
+        style carries the URL, with the prompt_toolkit <u> tags stripped —
+        directly under the description with no subcontainer, and no
+        confirmation checkbox is rendered — the Confirm & Continue button
+        is the acceptance.
     """
     screen, _ = _make_screen()
 
     result = {}
 
     async def drive(pilot, app):
-        result["text"] = " ".join(str(widget.render()) for widget in app.query("#license-terms-section Label"))
-        result["checkbox"] = app.query_one("#accept-license", Checkbox).value
-        result["label"] = str(app.query_one("#accept-license", Checkbox).label)
+        result["description"] = " ".join(widget.content for widget in app.query(".description-para"))
+        result["links"] = [widget.content for widget in app.query(".license-link")]
+        result["sections"] = len(app.query(".confirm-section"))
+        result["checkboxes"] = len(app.query("Checkbox"))
 
     run_screen_pilot(screen, drive)
 
-    assert "9.2.x" in result["text"]
-    assert "https://ibm.biz/MAS92-License" in result["text"]
-    assert "<u>" not in result["text"]
-    assert result["checkbox"] is False
-    assert "9.2.x" in result["label"]
+    assert "9.2.x" in result["description"]
+    assert "<u>" not in result["description"]
+    assert result["sections"] == 0
+    assert result["checkboxes"] == 0
+
+    expected = [
+        "https://ibm.biz/MAS92-License",
+        "https://ibm.biz/MAXIT92-License",
+        "https://ibm.biz/MAXESRI92-License",
+    ]
+    assert [text.plain for text in result["links"]] == [f"- {url}" for url in expected]
+    for text, url in zip(result["links"], expected):
+        # Each URL is stylized as an OSC 8 hyperlink (the same linkText
+        # helper the connect screen uses for the server URL), so ctrl+click
+        # opens the full URL even where the text folds.  Rich stores the
+        # span style as a string ("link <url>") or a parsed Style depending
+        # on version — accept either.
+        assert any(
+            (isinstance(span.style, str) and f"link {url}" in span.style)
+            or (not isinstance(span.style, str) and span.style is not None and span.style.link == url)
+            for span in text.spans
+        ), f"Expected {url} to be hyperlinked, got spans: {text.spans}"
 
 
-def test_confirm_blocked_until_checkbox_checked():
-    """Test that Confirm is blocked with an inline error while unchecked.
+def test_confirm_advances_and_records_acceptance():
+    """Test that clicking Confirm & Continue records acceptance and advances.
 
     GIVEN a scenario app with a pending license
-    WHEN Confirm & Continue is clicked without checking the acceptance box
-    THEN the error appears in the reserved status row, no StepCompleted is
-        posted, and the app's licenseAccepted stays False.
+    WHEN Confirm & Continue is clicked
+    THEN licenseAccepted is set on the app (as --accept-license would) and
+        the step completes, advancing to the review step, with no inline
+        error shown.
     """
     screen, mas_app = _make_screen()
 
@@ -87,31 +111,10 @@ def test_confirm_blocked_until_checkbox_checked():
 
     async def drive(pilot, app):
         await click_button(pilot, "#btn-confirm-license")
-        await wait_for(lambda: "must accept" in str(app.query_one("#validator-error-license-acceptance", Label).render()))
-        result["posted"] = list(app.posted)
-
-    run_screen_pilot(screen, drive)
-
-    assert result["posted"] == []
-    assert mas_app.licenseAccepted is False
-
-
-def test_confirm_with_checkbox_advances_and_records_acceptance():
-    """Test that checking the box and confirming records acceptance and advances.
-
-    GIVEN a scenario app with a pending license
-    WHEN the acceptance checkbox is checked and Confirm & Continue clicked
-    THEN licenseAccepted is set on the app (as --accept-license would) and
-        the step completes, advancing to the review step.
-    """
-    screen, mas_app = _make_screen()
-
-    async def drive(pilot, app):
-        app.query_one("#accept-license", Checkbox).value = True
-        await pilot.pause()
-        await click_button(pilot, "#btn-confirm-license")
         await wait_for(lambda: app.posted == [("step_completed", 2)])
+        result["error"] = str(app.query_one("#validator-error-license-acceptance", Label).render())
 
     run_screen_pilot(screen, drive)
 
     assert mas_app.licenseAccepted is True
+    assert result["error"].strip() == ""

@@ -19,7 +19,7 @@ try:
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
-from mas.cli.common.commandBuilder import copyToClipboard, writeCommandScript
+from mas.cli.common.commandBuilder import clipboardAvailable, copyToClipboard, writeCommandScript
 from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
 from mas.cli.tui.widgets.action_bar import ActionBar
@@ -156,13 +156,21 @@ class ReviewScreen(Vertical):
         )
 
     def on_mount(self) -> None:
-        """Hide the command panel and its buttons when no builder was supplied."""
+        """Hide the command panel and its buttons when no builder was supplied.
+
+        Also hides Copy Command when no clipboard is usable in this
+        environment (containers, headless machines) unless
+        ``MAS_CLIPBOARD=osc52`` is set -- the button must not offer an
+        action that cannot succeed.
+        """
         if self._command_builder is None:
             self.query_one("#review-command-panel", Vertical).display = False
             self.query_one("#btn-copy-command", Button).display = False
             self.query_one("#btn-save-script", Button).display = False
         elif self._script_filename_builder is None:
             self.query_one("#btn-save-script", Button).display = False
+        if self._command_builder is not None and not clipboardAvailable():
+            self.query_one("#btn-copy-command", Button).display = False
 
     def start_dynamic_loaders(self) -> None:
         """Refresh the review Markdown and command when the step becomes active.

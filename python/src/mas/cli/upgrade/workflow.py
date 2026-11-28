@@ -17,7 +17,7 @@ from typing import Any
 
 from mas.cli.tui.models import WorkflowDefinition, WorkflowField, WorkflowStep, WorkflowSummaryItem
 from mas.cli.tui.screens import LaunchScreen, LicenseAcceptanceScreen, ReviewScreen
-from mas.cli.common.workflow import connectClusterStep
+from mas.cli.common.workflow import connectClusterStep, storageClassStep
 
 
 def _nonInteractiveCommand(appInstance: Any) -> str:
@@ -99,6 +99,10 @@ def buildUpgradeReview(appInstance: Any) -> str:
         _row("Storage Class", getattr(appInstance, "pipelineStorageClass", None)),
         _row("Access Mode", getattr(appInstance, "pipelineStorageAccessMode", None)),
         "",
+        "## OLM Install Plan Approval",
+        "",
+        _row("Approval Mode", appInstance.olmApprovalSummary()),
+        "",
     ]
     return "\n".join(lines)
 
@@ -109,31 +113,41 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
     Constructs the ordered list of steps shown in the TUI when the user
     invokes ``mas-cli upgrade`` without arguments.
 
-    The six steps are:
+    The seven steps are:
 
     1. **connect-cluster** — Collect OCP credentials and connect, then fetch
        the list of installed MAS instance IDs via ``post_connect``.  If no
        instances are found the error is shown on the connect screen.
     2. **instance-selection** — Select which MAS instance to upgrade.  On
-       Next, ``prepareUpgrade`` runs as the validator: it detects the current
-       and next channels, validates app compatibility, evaluates RBAC and
-       resolves the pipeline storage class — the same logic as the
-       non-interactive path.  Errors are shown inline.
-    3. **license-acceptance** — Conditional step shown only when the target
+       Next, ``prepareUpgradeForInstanceSelection`` runs as the validator:
+       it clears any previously chosen target channel, then detects the
+       current and next channels, validates app compatibility, evaluates
+       RBAC and resolves the pipeline storage class — the same logic as
+       the non-interactive path.  Errors are shown inline.
+    3. **target-channel** — Choose the release to upgrade to: the
+       auto-detected target (pre-selected) or the current channel, which
+       re-runs this release's upgrade — the supported way to complete an
+       upgrade that failed part-way (e.g. MAS core reached 9.1.x but the
+       Manage Foundation install never happened).  The upgrade pipeline
+       is idempotent, so a re-run is always safe.  On Next,
+       ``prepareUpgrade`` re-runs with the chosen target.
+    4. **license-acceptance** — Conditional step shown only when the target
        channel resolved by ``prepareUpgrade`` carries a license that has not
        been accepted yet (``licenseAcceptancePending``): the TUI equivalent
        of the classic wizard's license prompt and of ``--accept-license``.
-    4. **manage-foundation** — Conditional step shown only when the upgrade
+    5. **manage-foundation** — Conditional step shown only when the upgrade
        needs to install Manage Foundation (9.0.x to 9.1.x without Manage,
-       ``manageFoundationPending``): collects the Db2 storage classes
-       (blank = auto-detect) and runs the same configuration as the classic
+       ``manageFoundationPending``): collects the Db2 storage classes via
+       the shared storage class step — dropdowns of the cluster's storage
+       classes with the detected provider's classes pre-selected (blank =
+       auto-detect) — and runs the same configuration as the classic
        wizard's Manage Foundation block.  The IBM entitlement key is read
        back from the cluster's ``ibm-entitlement`` secret — it is not an
        input; a missing key is a fatal error.
-    5. **review** — Review all settings before proceeding, including the
+    6. **review** — Review all settings before proceeding, including the
        equivalent non-interactive ``mas upgrade`` command (with copy /
        save-as-script).  The Confirm button advances to the launch step.
-    6. **launch** — Submits the Tekton upgrade pipeline, then re-displays
+    7. **launch** — Submits the Tekton upgrade pipeline, then re-displays
        the non-interactive command for reference.  The Done button exits
        the app.
 
@@ -162,7 +176,50 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
                 options=lambda: appInstance._installedInstanceIds,
             ),
         ],
+        # The wrapper clears any target channel chosen on the target-channel
+        # step before re-deriving it for the newly selected instance
+        validator=appInstance.prepareUpgradeForInstanceSelection,
+        # Shown next to the busy spinner while prepareUpgrade runs — it
+        # makes blocking cluster calls (channel detection, compatibility
+        # checks, RBAC evaluation, pipeline storage class resolution) that
+        # can take a while.
+        validator_status="Preparing upgrade…",
+    )
+
+    # Choose the release to upgrade to.  Only shown when prepareUpgrade
+    # detected the instance's current channel (the field options and the
+    # pre-selected default — the auto-derived target — are read from the
+    # validator's state, so they compose after instance-selection
+    # completes).  Selecting the current channel re-runs that release's
+    # upgrade: an explicit target is a complete override that is never
+    # short-circuited with "No action required" — the pipeline is
+    # idempotent, so this is the supported way to complete an upgrade that
+    # failed part-way (e.g. core reached 9.1.x but the Manage Foundation
+    # install never happened).  The validator re-runs prepareUpgrade, which
+    # picks the choice up from the upgrade_target_channel param the field
+    # writes, re-validating compatibility and the manage-foundation /
+    # license conditions against the chosen target.
+    targetChannelStep = WorkflowStep(
+        id="target-channel",
+        heading="Select Target Channel",
+        heading_level="h1",
+        description=[
+            "Choose the release to upgrade to. The target detected from the current installation is pre-selected.",
+            "Selecting the current channel re-runs this release's upgrade: the pipeline is idempotent, so this is safe, and it is how you complete an upgrade that failed part-way (for example, when MAS core was upgraded but an application or the Manage Foundation install was not).",
+        ],
+        fields=[
+            WorkflowField(
+                id="upgrade_target_channel",
+                label="Target MAS Channel",
+                type="select",
+                required=True,
+                options=lambda: appInstance.targetChannelOptions(),
+                default=lambda: appInstance.autoNextChannel,
+            ),
+        ],
         validator=appInstance.prepareUpgrade,
+        validator_status="Validating target channel…",
+        condition=lambda p: appInstance.currentChannel not in (None, "", "Unknown"),
     )
 
     # Only shown when prepareUpgrade resolved a target channel carrying a
@@ -175,35 +232,39 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
         id="license-acceptance",
         heading="License Terms",
         heading_level="h1",
+        # The {channel} placeholder is filled in by the screen with the
+        # target channel resolved by prepareUpgrade, so the description
+        # names the release whose license links follow it directly.
         description=[
-            "To continue with the upgrade, you must accept the license terms for the target release.",
+            "To continue with the upgrade, you must accept the license terms for MAS {channel}:",
         ],
         screen_class=LicenseAcceptanceScreen,
         condition=lambda p: appInstance.licenseAcceptancePending(),
     )
 
     # Only shown when prepareUpgrade detected that this upgrade needs to
-    # install Manage Foundation (9.0.x to 9.1.x without Manage).  The storage
-    # class fields are optional: leaving them blank uses the classes
-    # auto-detected from the cluster.  The IBM entitlement key is not
-    # collected here — prepareManageFoundation reads it from the cluster's
-    # ibm-entitlement secret and fails fatally when it is missing.  The
-    # condition closes over the app instance so it reads the validator's
-    # state; once the step completes, should_install_manage_foundation is
-    # set and it is skipped on re-navigation.
-    manageFoundationStep = WorkflowStep(
+    # install Manage Foundation (9.0.x to 9.1.x without Manage).  Built by
+    # the shared storageClassStep (mas/cli/common/workflow.py): the storage
+    # class fields are dropdowns populated from the cluster in a worker
+    # thread, with the auto-detected provider's classes pre-selected and
+    # the provider shown in a context row.  They are optional — leaving
+    # them blank uses the classes auto-detected by the validator.  The IBM
+    # entitlement key is not collected here — prepareManageFoundation
+    # reads it from the cluster's ibm-entitlement secret and fails fatally
+    # when it is missing.  The condition closes over the app instance so
+    # it reads the validator's state; once the step completes,
+    # should_install_manage_foundation is set and it is skipped on
+    # re-navigation.
+    manageFoundationStep = storageClassStep(
+        appInstance,
         id="manage-foundation",
         heading="Configure Manage Foundation",
-        heading_level="h1",
         description=[
             "Upgrading to MAS 9.1.x will install Manage Foundation: the User, Security groups, Application configurator and Mobile configurator capabilities.",
-            "Provide the storage classes for the Manage Foundation Db2 instances — leave them blank to use the storage classes auto-detected from the cluster.",
-        ],
-        fields=[
-            WorkflowField(id="storage_class_rwo", label="ReadWriteOnce (RWO) Storage Class", type="string", required=False),
-            WorkflowField(id="storage_class_rwx", label="ReadWriteMany (RWX) Storage Class", type="string", required=False),
+            "Select the storage classes for the Manage Foundation Db2 instances from the cluster's available classes — the detected storage provider's classes are pre-selected. Leave them blank to use the storage classes auto-detected from the cluster.",
         ],
         validator=appInstance.prepareManageFoundation,
+        validator_status="Configuring Manage Foundation…",
         condition=lambda p: appInstance.manageFoundationPending(),
     )
 
@@ -243,6 +304,7 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
     return [
         connectStep,
         instanceSelectionStep,
+        targetChannelStep,
         licenseAcceptanceStep,
         manageFoundationStep,
         reviewStep,

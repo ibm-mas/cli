@@ -26,6 +26,7 @@ ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
 FACILITIES_SIZES = ["small", "medium", "large"]
 FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
+OLM_APPROVAL_MODES = ["Automatic", "Manual"]
 
 
 def isValidFile(parser: argparse.ArgumentParser, arg: str) -> str:
@@ -1663,6 +1664,38 @@ approvalsGroup.add_argument(
     "--approval-aiservice",
     default="",
     help="Require approval after the AI Service has been configured",
+)
+
+# OLM Install Plan Approval
+# -----------------------------------------------------------------------------
+olmApprovalsGroup = installArgParser.add_argument_group(
+    "OLM Install Plan Approval",
+    "Control whether OLM install plans await your approval during the install. This gates individual install plans inside the "
+    "pipeline tasks and is independent of the approval checkpoint workflow above (which gates whole pipeline stages via ConfigMaps).",
+)
+olmApprovalsGroup.add_argument(
+    "--olm-approval-mode",
+    dest="olm_approval_mode",
+    required=False,
+    help=(
+        "OLM install plan approval mode: Manual pauses the install at every install plan awaiting your approval "
+        "(approve with the oc command shown in the task logs or via the OpenShift Console). Automatic is the default, "
+        "whether set explicitly or omitted, and fails fast when a subscription managed by the install is already Manual "
+        "or install plans are pending. Can also be set via the OLM_APPROVAL_MODE environment variable. "
+        "See https://ibm-mas.github.io/ansible-devops/olm-manual-approvals/"
+    ),
+    choices=OLM_APPROVAL_MODES,
+    metavar="{Automatic,Manual}",
+)
+olmApprovalsGroup.add_argument(
+    "--olm-approval-timeout",
+    dest="olm_approval_timeout",
+    required=False,
+    help=(
+        "Seconds to wait for each individual install plan approval under Manual mode (default 7200 = 2 hours). "
+        "Can also be set via the OLM_APPROVAL_TIMEOUT environment variable"
+    ),
+    type=int,
 )
 
 # More Options

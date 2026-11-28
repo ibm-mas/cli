@@ -31,8 +31,11 @@ reference the variables, so a referenced-but-not-exported secret is
 impossible by construction.
 """
 
+import base64
 import logging
+import os
 import shlex
+import sys
 from dataclasses import dataclass
 from typing import Any, Callable, Optional, Sequence
 
@@ -171,14 +174,92 @@ def renderCommand(prog: str, args: Sequence[CommandArg], app: AppLike, parser: A
     return "\n".join(lines) + "\n"
 
 
+def clipboardAvailable() -> bool:
+    """
+    Whether a clipboard mechanism is usable in this environment.
+
+    Selected by the ``MAS_CLIPBOARD`` environment variable:
+
+    - ``off``: clipboard features are suppressed (never available).  For
+        scripted runs that must not show clipboard prompts at all.
+    - ``osc52``: the OSC 52 terminal escape sequence is used instead of
+        pyperclip (see :func:`_copyOsc52`) -- available whenever stdout is a
+        terminal.  This is how copying works inside containers and SSH
+        sessions: the terminal emulator on the user's workstation owns the
+        clipboard.
+    - unset / any other value: available when pyperclip finds a backend for
+        this platform.  On Linux that needs xclip/xsel and a display, so
+        containers and headless machines report unavailable.
+
+    Availability is a hint, not a guarantee: on the default mode the probe
+    can succeed while the actual copy later fails (e.g. xclip is installed
+    but ``DISPLAY`` is not set), which is why :func:`copyToClipboard` keeps
+    its own failure branch.
+    """
+    mode = os.environ.get("MAS_CLIPBOARD", "").strip().lower()
+    if mode == "off":
+        return False
+    if mode == "osc52":
+        return sys.stdout.isatty()
+    try:
+        import pyperclip
+
+        # Importing pyperclip never fails on a missing backend -- the first
+        # copy would.  determine_clipboard() raises PyperclipException when
+        # no backend exists for this platform, without touching the
+        # clipboard, making it a safe availability probe.
+        pyperclip.determine_clipboard()
+        return True
+    except Exception as e:
+        logger.debug(f"Clipboard is not available: {e}")
+        return False
+
+
+def _copyOsc52(text: str) -> bool:
+    """
+    Copy text using the OSC 52 terminal escape sequence.
+
+    The host terminal emulator (Windows Terminal, iTerm2, kitty, wezterm, ...)
+    interprets the sequence and writes to its own system clipboard, so this
+    works through ``docker exec -it`` and SSH sessions where the process has
+    no access to any clipboard.  Inside tmux the sequence is wrapped in the
+    DCS passthrough tmux requires (and tmux itself must have
+    ``set-clipboard on``).
+
+    Returns True when the sequence was written to a terminal.
+    """
+    try:
+        if not sys.stdout.isatty():
+            return False
+        payload = base64.b64encode(text.encode("utf-8")).decode("ascii")
+        sequence = f"\x1b]52;c;{payload}\x07"
+        if os.environ.get("TMUX"):
+            # tmux DCS passthrough: inner ESC bytes must be doubled
+            sequence = "\x1bPtmux;" + sequence.replace("\x1b", "\x1b\x1b") + "\x1b\\"
+        sys.stdout.write(sequence)
+        sys.stdout.flush()
+        return True
+    except Exception as e:
+        logger.debug(f"OSC 52 clipboard copy failed: {e}")
+        return False
+
+
 def copyToClipboard(text: str) -> bool:
     """
     Copy text to the system clipboard.
 
-    Returns True when the copy succeeded.  Clipboard support is optional:
-    when pyperclip is not installed (or has no backend for this platform)
-    this quietly returns False rather than disrupting the wizard.
+    Returns True when the copy succeeded.  The mechanism is selected by the
+    ``MAS_CLIPBOARD`` environment variable (see :func:`clipboardAvailable`):
+    ``osc52`` writes the OSC 52 escape sequence for containers/SSH, ``off``
+    disables copying, and the default uses pyperclip.  Clipboard support is
+    optional: when pyperclip is not installed (or has no backend for this
+    platform) this quietly returns False rather than disrupting the wizard.
     """
+    mode = os.environ.get("MAS_CLIPBOARD", "").strip().lower()
+    if mode == "off":
+        return False
+    if mode == "osc52":
+        return _copyOsc52(text)
     try:
         import pyperclip
 
@@ -215,9 +296,12 @@ def offerCommandScript(app: AppLike, command: str, defaultFilename: str) -> None
 
     Offers to copy the command to the clipboard and to save it as a shell
     script, so it is not lost in the console scrollback.  Uses the wizard's
-    own prompt methods (yesOrNo / promptForString / printDescription).
+    own prompt methods (yesOrNo / promptForString / printDescription).  The
+    clipboard offer is only made when :func:`clipboardAvailable` reports a
+    usable clipboard, so environments without one (containers, headless
+    machines) are not asked a question they cannot act on.
     """
-    if app.yesOrNo("Copy this command to your clipboard"):
+    if clipboardAvailable() and app.yesOrNo("Copy this command to your clipboard"):
         if copyToClipboard(command):
             app.printDescription(["Command copied to clipboard"])
         else:

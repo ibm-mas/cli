@@ -16,6 +16,11 @@ spec:
     - name: verify_subscriptions
       type: string
       default: "True"
+    # OLM approval gate: off in every verification-only context (the install
+    # pipeline never enables it)
+    - name: verify_subscription_approvals
+      type: string
+      default: "False"
     - name: verify_workloads
       type: string
       default: "True"
@@ -38,6 +43,8 @@ spec:
         value: $(params.verify_catalogsources)
       - name: VERIFY_SUBSCRIPTIONS
         value: $(params.verify_subscriptions)
+      - name: VERIFY_SUBSCRIPTION_APPROVALS
+        value: $(params.verify_subscription_approvals)
       - name: VERIFY_WORKLOADS
         value: $(params.verify_workloads)
       - name: VERIFY_INGRESS

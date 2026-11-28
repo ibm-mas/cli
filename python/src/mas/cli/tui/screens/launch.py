@@ -12,18 +12,11 @@
 
 from typing import Any, Callable, List, Optional
 
-try:
-    import pyperclip
-except ModuleNotFoundError:
-    # pyperclip is only used for the Copy URL button — the TUI remains
-    # fully functional without it (the button simply does nothing).
-    pyperclip = None
-
 from textual.app import ComposeResult
 from textual.containers import Vertical, VerticalScroll
 from textual.widgets import Button, Label, Static
 
-from mas.cli.common.commandBuilder import copyToClipboard
+from mas.cli.common.commandBuilder import clipboardAvailable, copyToClipboard
 from mas.cli.tui.links import linkText
 from mas.cli.tui.models import WorkflowStep
 from mas.cli.tui.widgets.action_bar import ActionBar
@@ -121,8 +114,11 @@ class LaunchScreen(Vertical):
             description, StepChecklist, pipeline URL label and (hidden until
             submission succeeds) the non-interactive command reference, then
             a fixed ActionBar (``.action-bar``) with the status row and the
-            Copy URL / Copy Command / Done / Dismiss buttons.  All four
-            buttons are hidden until work completes; revealing them never
+            Copy URL / Copy Command / Done / Dismiss buttons.  The status
+            row is normally empty on this screen (the pipeline URL is shown
+            in the content above and the buttons label themselves); it is
+            only used to report a clipboard failure.  All four buttons are
+            hidden until work completes; revealing them never
             shifts the layout.
         """
         with VerticalScroll(id="launch-content", classes="content-scroll"):
@@ -144,7 +140,7 @@ class LaunchScreen(Vertical):
             )
             yield Static("", id="launch-command-text", classes="command-text")
         yield ActionBar(
-            "View the pipeline run:",
+            "",
             status_id="launch-prompt",
             id="launch-footer",
             buttons=[
@@ -206,9 +202,12 @@ class LaunchScreen(Vertical):
             # the full URL even though the text wraps in a narrow panel.
             url_label.update(linkText(detail))
             url_label.display = True
-            # Store URL and show Copy URL button
+            # Store URL and show Copy URL button (only when a clipboard is
+            # usable — containers/headless machines have none unless
+            # MAS_CLIPBOARD=osc52 is set)
             self._pipeline_url = detail
-            self.query_one("#btn-copy-url", Button).display = True
+            if clipboardAvailable():
+                self.query_one("#btn-copy-url", Button).display = True
             return f"{GLYPH_DONE} {label}"
         return None
 
@@ -251,7 +250,8 @@ class LaunchScreen(Vertical):
         self.query_one("#launch-command-text", Static).update(self._command.rstrip("\n"))
         self.query_one("#launch-command-caption", Label).display = True
         self.query_one("#launch-command-text", Static).display = True
-        self.query_one("#btn-copy-command", Button).display = True
+        if clipboardAvailable():
+            self.query_one("#btn-copy-command", Button).display = True
 
     def _mark_error(self, message: str) -> None:
         """Mark all still-pending items as error on an unexpected exception.
@@ -269,6 +269,21 @@ class LaunchScreen(Vertical):
         """Reveal the Dismiss button after a failed pipeline submission."""
         self.query_one("#btn-dismiss-error", Button).display = True
 
+    def _copyAndFlash(self, button: Button, text: str) -> None:
+        """Copy text to the clipboard, flashing the button on success.
+
+        Uses the shared copyToClipboard helper (which honours the
+        ``MAS_CLIPBOARD`` environment variable).  "Copied!" is only shown
+        when the copy actually succeeded; a failure is reported in the
+        action-bar status row instead.
+        """
+        if copyToClipboard(text):
+            original_label = button.label
+            button.label = "Copied!"
+            self.set_timer(2.0, lambda: setattr(button, "label", original_label))
+        else:
+            self.query_one("#launch-footer", ActionBar).set_status("Clipboard is not available in this environment")
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle Copy URL, Copy Command, Done and Dismiss buttons.
 
@@ -277,23 +292,10 @@ class LaunchScreen(Vertical):
         """
         if event.button.id == "btn-copy-url":
             if self._pipeline_url:
-                try:
-                    pyperclip.copy(self._pipeline_url)
-                    # Provide visual feedback by temporarily updating button text
-                    button = event.button
-                    original_label = button.label
-                    button.label = "Copied!"
-                    self.set_timer(2.0, lambda: setattr(button, "label", original_label))
-                except Exception:
-                    # If clipboard fails, silently ignore (pyperclip may not be available on all systems)
-                    pass
+                self._copyAndFlash(event.button, self._pipeline_url)
         elif event.button.id == "btn-copy-command":
             if self._command:
-                copyToClipboard(self._command)
-                button = event.button
-                original_label = button.label
-                button.label = "Copied!"
-                self.set_timer(2.0, lambda: setattr(button, "label", original_label))
+                self._copyAndFlash(event.button, self._command)
         elif event.button.id == "btn-done":
             self.app.exit(0)
         elif event.button.id == "btn-dismiss-error":

@@ -136,6 +136,16 @@ Screen.-narrow #sidebar {
     text-wrap: wrap;
 }
 
+/* License URLs on the license-acceptance screen: a tight bulleted list of
+   ctrl+clickable links directly under the description paragraph. */
+.license-link {
+    color: $text-muted;
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+    text-wrap: wrap;
+}
+
 /* ---------- Shared screen layout (phase 3.1) ------------------------------- */
 
 /* Scrollable content area inside a step panel.  Every screen's scrollable

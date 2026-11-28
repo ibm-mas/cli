@@ -13,9 +13,21 @@ COPY usr/bin/ /usr/bin/
 
 # 2. Set up Environment
 # VIRTUAL_ENV_DISABLE_PROMPT will stop built-in PS1 munging, we already set it to what we want
+# MAS_CLIPBOARD=osc52 makes the interactive wizards copy generated commands via the OSC 52
+# terminal escape sequence, which the host terminal emulator turns into a clipboard write --
+# a container has no clipboard of its own. Override with -e MAS_CLIPBOARD=off where the
+# terminal does not support OSC 52.
+# TEXTUAL_COLOR_SYSTEM=truecolor makes the TUI emit 24-bit colour escape sequences instead of
+# downsampling to the terminal's detected colour system: container sessions (oc rsh / docker
+# exec) lose the COLORTERM hint and often carry a plain TERM, so detection falls back to the
+# 256-colour cube and renders the theme palette duller than the same terminal does locally.
+# The sequences pass through the container's pty untouched, so the host terminal's capability
+# is what matters. Override with -e TEXTUAL_COLOR_SYSTEM=256 (or NO_COLOR) where needed.
 ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.12/site-packages/ansible_collections \
     ANSIBLE_CONFIG=/opt/app-root/src/ansible.cfg \
+    MAS_CLIPBOARD=osc52 \
     PATH="/mascli:${PATH}" \
+    TEXTUAL_COLOR_SYSTEM=truecolor \
     VERSION=${VERSION_LABEL:-x.y.z} \
     VIRTUAL_ENV_DISABLE_PROMPT=1 \
     PYTHONWARNINGS="ignore:Unverified HTTPS request"

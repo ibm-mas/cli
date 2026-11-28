@@ -41,6 +41,11 @@ class AiServiceUpgradeApp(BaseApp):
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
 
+        # Skip pre-check flag: only rendered into the PipelineRun when set —
+        # the pipeline's own default (empty) runs the pre-checks
+        if args.skip_pre_check:
+            self.setParam("skip_pre_check", "true")
+
         if aiserviceInstanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
@@ -84,6 +89,10 @@ class AiServiceUpgradeApp(BaseApp):
                 validate_while_typing=False,
             )
 
+        # The instance ID is a PipelineRun param: write it into params as
+        # soon as it is resolved
+        self.setParam("aiservice_instance_id", aiserviceInstanceId)
+
         currentAiserviceChannel = getAiserviceChannel(self.dynamicClient, aiserviceInstanceId)
         if currentAiserviceChannel is not None:
             if self.devMode:
@@ -93,6 +102,11 @@ class AiServiceUpgradeApp(BaseApp):
                 if currentAiserviceChannel not in self.upgrade_path:
                     self.fatalError(f"No upgrade available, {aiserviceInstanceId} is are already on the latest release {currentAiserviceChannel}")
                 nextAiserviceChannel = self.upgrade_path[currentAiserviceChannel]
+
+            # The next channel is a PipelineRun param: write it into params
+            # here, where it is resolved — the launch path must make no
+            # decisions of its own
+            self.setParam("aiservice_channel", nextAiserviceChannel)
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
@@ -136,9 +150,10 @@ class AiServiceUpgradeApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for {aiserviceInstanceId} upgrade", spinner=self.spinner) as h:
-                pipelineURL = launchAiServiceUpgradePipeline(
-                    self.dynamicClient, aiserviceInstanceId, self.skipPreCheck, aiserviceChannel=nextAiserviceChannel, params=self.params
-                )
+                # Every PipelineRun param is already in self.params — written
+                # at its origin (instance selection / arg parse / channel
+                # resolution); no decisions are made here
+                pipelineURL = launchAiServiceUpgradePipeline(self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {aiserviceInstanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))

@@ -48,8 +48,16 @@ class WorkflowField:
             can be populated from app state that was not yet available when the
             WorkflowField was constructed.
         options_loader: Callable for dynamic_select; receives current params
-            dict, returns a list of option strings.  Run in a worker thread.
-        default: Pre-filled value shown in the widget.
+            dict, returns a list of option strings.  Run in a worker thread
+            by StepScreen.start_dynamic_loaders (when the step becomes
+            active) — use this for options that require a cluster lookup,
+            which cannot run on the UI thread.
+        default: Pre-filled value shown in the widget.  May be a zero-argument
+            callable, evaluated when dynamic options finish loading, so it
+            can read state the loader cached on the app (e.g. the
+            auto-detected storage provider's classes).  For dynamic_select
+            fields the default is only applied when present in the loaded
+            options.
         validator: Optional validator hint (reserved for future use).
         sensitive: When True the value is masked in the review summary.
         required: When True the Next button is blocked while the field is empty.
@@ -116,6 +124,10 @@ class WorkflowStep:
             user presses Next.  Called after params are written.  If it raises,
             the error is shown inline and the step does not advance.  Takes no
             arguments; read required values from the closed-over app instance.
+        validator_status: Status text shown next to the busy spinner while the
+            validator runs (e.g. "Preparing upgrade…" on the upgrade command's
+            instance-selection step, whose validator makes blocking cluster
+            calls).  Defaults to a generic "Validating…" message.
         condition: Optional callable that receives the current params dict and
             returns a bool.  When False the step is skipped.  Always use the
             signature ``lambda p: ...`` (single dict argument).
@@ -134,6 +146,7 @@ class WorkflowStep:
     summary: List[WorkflowSummaryItem] = field(default_factory=list)
     action: Optional[Callable] = None
     validator: Optional[Callable] = None
+    validator_status: str = ""
     condition: Optional[Callable[[dict], bool]] = None
     screen_class: Optional[Callable] = None
     screen_kwargs: dict = field(default_factory=dict)

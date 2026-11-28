@@ -2,6 +2,12 @@
 - name: image_pull_policy
   value: $(params.image_pull_policy)
 
+# OLM install plan approval (empty = Automatic)
+- name: olm_approval_mode
+  value: $(params.olm_approval_mode)
+- name: olm_approval_timeout
+  value: $(params.olm_approval_timeout)
+
 # Pipeline context information
 - name: pipelinerun_namespace
   value: $(context.pipelineRun.namespace)

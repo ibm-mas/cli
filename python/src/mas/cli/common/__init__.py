@@ -13,6 +13,7 @@
 from .commandBuilder import (
     CommandArg,
     boolValue,
+    clipboardAvailable,
     copyToClipboard,
     offerCommandScript,
     paramIsFalse,
@@ -20,4 +21,13 @@ from .commandBuilder import (
     renderCommand,
 )
 
-__all__ = ["CommandArg", "boolValue", "copyToClipboard", "offerCommandScript", "paramIsFalse", "paramIsTrue", "renderCommand"]
+__all__ = [
+    "CommandArg",
+    "boolValue",
+    "clipboardAvailable",
+    "copyToClipboard",
+    "offerCommandScript",
+    "paramIsFalse",
+    "paramIsTrue",
+    "renderCommand",
+]

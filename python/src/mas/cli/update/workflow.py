@@ -61,11 +61,13 @@ def buildUpdateReview(appInstance: Any) -> str:
     ``printSummary`` calls in ``UpdateApp.update()`` so the TUI review screen
     looks like its CLI counterpart.
 
-    Three sections:
+    Four sections:
     - **IBM Maximo Operator Catalog** — installed vs target catalog IDs.
     - **Supported Dependency Updates** — Db2, MongoDB, Kafka, CP4D with
       namespace detail when detected, "No action required" otherwise.
     - **Required Migrations** — Grafana v4 and ODH/RHOAI migration status.
+    - **OLM Install Plan Approval** — the aggregate approval mode detected
+      over the update scope (whole cluster).
 
     Args:
         appInstance (Any): A ``UpdateApp`` instance with populated params and
@@ -112,6 +114,10 @@ def buildUpdateReview(appInstance: Any) -> str:
             "Migrate to Grafana v5 Operator" if appInstance.params.get("grafana_v5_upgrade", "") else "No action required",
         ),
         _row("AI Service Data Science Platform", aiServiceDataScienceMigration),
+        "",
+        "## OLM Install Plan Approval",
+        "",
+        _row("Approval Mode", appInstance.olmApprovalSummary()),
         "",
     ]
     return "\n".join(lines)

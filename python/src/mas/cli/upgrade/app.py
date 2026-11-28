@@ -16,15 +16,13 @@ import logging
 import logging.handlers
 from typing import Callable, Optional
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from prompt_toolkit.completion import WordCompleter
-
-from halo import Halo
 
 from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
-from ..common.commandBuilder import offerCommandScript
-from ..validators import InstanceIDValidator, StorageClassValidator
+from ..common.olmApprovals import OlmApprovalDetectionMixin, resolveOlmApprovalTimeout
+from ..common.storageClasses import StorageClassMixin
+from ..validators import StorageClassValidator
 from .argBuilder import upgradeArgBuilderMixin
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
@@ -55,15 +53,29 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
+class NoUpgradeRequiredError(RuntimeError):
+    """The instance is already fully upgraded: there is nothing to submit.
+
+    A distinct subclass of RuntimeError so the two paths can treat it differently while sharing one resolver: the non-interactive path exits cleanly with the message,
+    and the TUI displays it on the step like any other validation outcome (today's behavior on both paths).
+    """
+
+
+class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin, OlmApprovalDetectionMixin, StorageClassMixin):
     """Orchestrator for the ``mas-cli upgrade`` command.
 
-    The ``upgrade()`` method drives both the non-interactive path
-    (``--mas-instance-id`` and friends) and the legacy interactive prompt
-    path.  The Textual TUI path (``mas-cli upgrade`` with no arguments)
-    drives the same logic through the workflow definition in
-    ``upgrade/workflow.py`` via ``fetchInstalledInstanceIds``,
-    ``prepareUpgrade``, ``prepareManageFoundation`` and ``launchUpgrade``.
+    Two execution paths share this class, and both end in the same ``launchUpgrade()``:
+
+    - **Interactive (the TUI)**: the mas-cli dispatch launches the Textual workflow (``upgrade/workflow.py``) whenever ``--mas-instance-id`` is absent -- including invocations
+      carrying optional flags, which ``serveTuiMode`` applies to the app first via ``applyCliArgs`` so a guided run carries them into the PipelineRun exactly as a fully-specified
+      command line would. The workflow drives this class through ``fetchInstalledInstanceIds`` (the connect step), ``prepareUpgrade`` /
+      ``prepareUpgradeForInstanceSelection`` (instance selection and target-channel validation), ``licenseAcceptancePending`` / ``manageFoundationPending`` /
+      ``prepareManageFoundation`` (the conditional license and Manage Foundation steps) and ``launchUpgrade`` (the launch screen).
+    - **Non-interactive**: ``mas upgrade --mas-instance-id ...`` runs ``upgrade()``, which requires the command line to carry the parameters the wizard exists to choose
+      (``--mas-instance-id`` above all) and prompts for nothing beyond the license acceptance and the final review confirmation.
+
+    The sections below follow that structure: the shared command-line mapping first, then the non-interactive path, the TUI step validators, and the validation / storage /
+    launch logic both paths call.
     """
 
     def __init__(self) -> None:
@@ -78,13 +90,16 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         self.skipPreCheck: bool = False
         self.licenseAccepted: bool = False
         self.devMode: bool = False
-        self.isInteractiveMode: bool = False
         self.masInstanceId: Optional[str] = None
         # Channel state populated by prepareUpgrade() on the TUI path (and
         # inline in upgrade() on the CLI path)
         self.nextChannel: str = ""
         self.currentChannel: str = ""
         self.effectiveCurrentChannel: str = ""
+        # The target auto-derived by prepareUpgrade() (before any explicit
+        # choice on the target-channel step): the default selection for that
+        # step's field
+        self.autoNextChannel: str = ""
         # RBAC state populated by prepareUpgrade() / upgrade() and consumed
         # by launchUpgrade() / the launch section of upgrade()
         self.applyPreInstallMASRBAC: bool = False
@@ -104,12 +119,226 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # Pipeline storage class resolved by configPipelineStorageClass()
         self.pipelineStorageClass: Optional[str] = None
         self.pipelineStorageAccessMode: Optional[str] = None
+        # Aggregate OLM install plan approval mode detected over the upgrade
+        # scope (the mas-{instance_id}-* namespaces)
+        self.olmApprovalStatus: Optional[dict] = None
 
+    # ------------------------------------------------------------------
+    # Command-line argument mapping (shared by both paths)
+    # ------------------------------------------------------------------
+    def applyCliArgs(self, args) -> None:
+        """
+        Apply parsed command-line arguments to the app state.
+
+        The arg-to-state mapping shared by both execution paths: the non-interactive preamble in ``upgrade()`` and the TUI bootstrap in ``serveTuiMode``, which routes optional flags (image pull policy, storage classes, OLM approval timeout, ...) into the guided workflow. Only pure state mapping lives here -- cluster interaction and prompts stay with the callers.
+        """
+        self.noConfirm = args.no_confirm
+        self.skipPreCheck = args.skip_pre_check
+        self.licenseAccepted = args.accept_license
+        self.nextChannel = args.next_channel
+        self.devMode = args.dev_mode
+        self.applyPreInstallMASRBAC = False
+        self.selectedAppsForRBAC = []
+
+        # Pre-populate pipeline storage class from CLI args so configPipelineStorageClass
+        self.pipelineStorageClass = args.storage_pipeline or None
+        self.pipelineStorageAccessMode = args.storage_accessmode or None
+
+        # Pre-populate RWO/RWX storage classes from CLI args (used for Manage Foundation Db2 instances)
+        if args.storage_class_rwo:
+            self.params["storage_class_rwo"] = args.storage_class_rwo
+        if args.storage_class_rwx:
+            self.params["storage_class_rwx"] = args.storage_class_rwx
+
+        # Set image_pull_policy if provided
+        if args.image_pull_policy and args.image_pull_policy != "":
+            self.setParam("image_pull_policy", args.image_pull_policy)
+
+        # Skip pre-check flag: only rendered into the PipelineRun when set —
+        # the pipeline's own default (empty) runs the pre-checks
+        if args.skip_pre_check:
+            self.setParam("skip_pre_check", "true")
+
+        # OLM approval timeout: flag > OLM_APPROVAL_TIMEOUT environment
+        # variable > omitted (the collection's 7200s default then applies).
+        # The approval mode itself is not a flag on upgrade: it is a property
+        # of the cluster, detected over the instance's namespaces by
+        # detectOLMApprovalMode()
+        try:
+            olmApprovalTimeout = resolveOlmApprovalTimeout(args.olm_approval_timeout)
+        except ValueError as e:
+            self.fatalError(f"Error: {e}")
+        if olmApprovalTimeout is not None:
+            self.setParam("olm_approval_timeout", str(olmApprovalTimeout))
+
+    # ------------------------------------------------------------------
+    # Non-interactive path
+    # ------------------------------------------------------------------
+    def upgrade(self, argv):
+        """
+        Non-interactive MAS instance upgrade.
+
+        This is the non-interactive path: it runs when the required parameters are provided on the command line, of which ``--mas-instance-id`` is the one the guided workflow exists to choose. The interactive mode is the Textual TUI, launched by the mas-cli dispatch whenever that parameter is absent (with any optional flags passed through to it) -- nothing finds its way through this method by prompts other than the license acceptance and the final review confirmation.
+        """
+        args = upgradeArgParser.parse_args(args=argv)
+        instanceId = args.mas_instance_id
+        if instanceId is None:
+            self.fatalError("--mas-instance-id is required on the non-interactive path; run 'mas upgrade' with no arguments for the guided workflow")
+
+        self.applyCliArgs(args)
+
+        # Non-interactive mode assumes the target cluster is already the
+        # active Kubernetes context. Look up the target architecture because
+        # configDb2 will try to access self.architecture
+        self.lookupTargetArchitecture()
+
+        if self.dynamicClient is None:
+            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
+            sys.exit(1)
+
+        # The instance ID is a PipelineRun param: write it into params as
+        # soon as it is resolved (the TUI path does the same via the
+        # instance-selection step field, which prepareUpgrade reads back)
+        self.setParam("mas_instance_id", instanceId)
+
+        # Resolve the upgrade path (shared with the TUI's prepareUpgrade):
+        # an explicit --next-channel is a complete override of the derived
+        # target, and dev mode carries an informative target with app
+        # compatibility validation deliberately skipped (core-upgrade uses
+        # its own compatibility matrix, so nextChannel is only informative
+        # for the core upgrade)
+        if self.devMode and self.nextChannel == "":
+            self.fatalError("--next-channel is required with --dev-mode on the non-interactive path (the guided workflow prompts for it)")
+
+        explicitTarget = self.nextChannel if self.nextChannel != "" else None
+        try:
+            self._resolveUpgradePath(instanceId, explicitTarget=explicitTarget, validateCompatibility=not self.devMode)
+        except NoUpgradeRequiredError as e:
+            # The instance is already fully upgraded: exit cleanly (the TUI
+            # surfaces the same condition as an error on its step)
+            print_formatted_text(HTML(f"<LightSlateGrey>{e}</LightSlateGrey>"))
+            return
+        except RuntimeError as e:
+            self.fatalError(str(e))
+
+        if explicitTarget is not None and self.nextChannel == self.currentChannel:
+            # Retry scenario: MAS core already on the target channel —
+            # re-run the upgrade to complete any unfinished components
+            # (the pipeline is idempotent, so this is safe even when
+            # everything is already on the target channel)
+            print_formatted_text(
+                HTML(
+                    f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {self.currentChannel}. "
+                    f"Re-running the {self.nextChannel} upgrade — apps or the Manage Foundation install may still need to be completed.</LightSlateGrey>"
+                )
+            )
+
+        # The mas_channel PipelineRun param is the upgrade's target channel:
+        # write it into params here, where the channel state is final — the
+        # launch path must make no channel decisions of its own
+        self.resolveMasChannelParam()
+
+        if not self.licenseAccepted and not self.devMode:
+            self.printH1("License Terms")
+            self.printDescription(["To continue with the upgrade, you must accept the license terms:", self.licenses[self.nextChannel]])
+
+            if self.noConfirm:
+                self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
+            else:
+                if not self.yesOrNo("Do you accept the license terms"):
+                    exit(1)
+
+        # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).
+        self.setParam("should_install_manage_foundation", "false")
+        if self.nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
+            self.isManageFoundation = True
+            self.printDescription(
+                ["Manage foundation installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."]
+            )
+
+            if self.devMode:
+                # The guided workflow collects Artifactory credentials in dev
+                # mode; the upgrade argument parser deliberately has no flags
+                # for them, so this combination cannot be run non-interactively
+                self.fatalError(
+                    "Dev mode with a Manage Foundation install requires the guided workflow for Artifactory credentials; run 'mas upgrade' with no arguments"
+                )
+
+            # Entitlement key, install flags, pipeline params and the Db2
+            # configuration (shared with the TUI's manage-foundation step)
+            self._configureManageFoundation(instanceId)
+
+        # Compute Monitor install order for upgrade
+        self.computeMonitorInstallOrderForUpgrade(instanceId)
+
+        # Validate Kafka requirements for Civil component during upgrade
+        self.validateKafkaForCivilUpgrade(instanceId)
+
+        # Block upgrade if Suite CR has a stale routingMode=path from a pre-9.2 install
+        self.checkRoutingModeForUpgrade(instanceId, self.currentChannel)
+
+        # Admin-mode detection and RBAC evaluation (shared with the TUI's
+        # prepareUpgrade); launchUpgrade's RBAC stage reads self.detectedMode
+        self._detectAdminModeAndEvaluateRBAC(instanceId, self.currentChannel)
+
+        self.configPipelineStorageClass(instanceId)
+
+        # Detect the aggregate OLM install plan approval mode over the
+        # instance's namespaces (the upgrade's blast radius) and pass the
+        # effective mode to the PipelineRun so the approval gates behave
+        # consistently with the cluster
+        self.detectOLMApprovalMode(namespacePrefix=f"mas-{instanceId}-")
+
+        # Show the equivalent non-interactive command before the review screen
+        self.masInstanceId = instanceId
+        nonInteractiveCommand = self.buildCommand()
+        self.printH1("Non-Interactive Upgrade Command")
+        self.printDescription(
+            [
+                "Save and re-use the following script to re-run this upgrade non-interactively:",
+                "",
+                nonInteractiveCommand,
+            ]
+        )
+
+        self.printH1("Review Settings")
+        print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {self.currentChannel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {self.nextChannel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Class .......... {self.pipelineStorageClass}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Access Mode .... {self.pipelineStorageAccessMode}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>OLM Approval Mode ............... {self.olmApprovalSummary()}</LightSlateGrey>"))
+
+        if not self.noConfirm:
+            print()
+            continueWithUpgrade = self.yesOrNo("Proceed with these settings")
+
+        if self.noConfirm or continueWithUpgrade:
+            # The shared launch sequence -- the same stages the TUI's launch
+            # screen runs, via the ProgressReporter abstraction (Halo
+            # spinners on this path, callbacks under the TUI)
+            self.launchUpgrade()
+
+            # Re-print the command so it is not lost in the scrollback above the
+            # pipeline launch output
+            self.printDescription(
+                [
+                    "For reference, the non-interactive command equivalent to this upgrade:",
+                    "",
+                    nonInteractiveCommand,
+                ]
+            )
+
+    # ------------------------------------------------------------------
+    # Guided workflow (TUI): step validators and conditional steps
+    # ------------------------------------------------------------------
     def prepareUpgrade(self) -> None:
         """Detect the upgrade path and validate compatibility for the selected instance.
 
-        Called as the ``validator`` on the TUI instance-selection step.  Reads
-        ``mas_instance_id`` from ``self.params``, then runs the channel
+        Called as the ``validator`` on the TUI instance-selection step, and
+        again by the target-channel step once the user has chosen a target.
+        Reads ``mas_instance_id`` from ``self.params``, then runs the channel
         detection, compatibility validation, Monitor install order, Civil
         Kafka validation, routing-mode pre-flight check, RBAC evaluation,
         and pipeline storage class resolution that the classic ``upgrade()``
@@ -119,20 +348,29 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         license-acceptance step collects it once the target channel is
         known (see ``licenseAcceptancePending``).
 
+        When the target-channel step has written a choice to the
+        ``upgrade_target_channel`` param, that choice is an explicit target
+        and takes precedence over the auto-derived one.  An explicit target
+        is a complete override: it is used as-is (validated to be either the
+        current core channel or the next hop) and never short-circuited with
+        "No action required" — the upgrade pipeline is idempotent, so
+        re-running the current channel's upgrade is the supported way to
+        complete an upgrade that failed part-way (e.g. core reached 9.1.x
+        but the Manage Foundation install never happened).
+
         On success, populates ``self.currentChannel``, ``self.nextChannel``,
-        ``self.effectiveCurrentChannel``, ``self.detectedMode``,
-        ``self.applyPreInstallMASRBAC`` and the pipeline storage class
-        attributes so the review screen and ``buildCommand()`` have the right
-        data.
+        ``self.autoNextChannel``, ``self.effectiveCurrentChannel``,
+        ``self.detectedMode``, ``self.applyPreInstallMASRBAC`` and the
+        pipeline storage class attributes so the review screen and
+        ``buildCommand()`` have the right data.
 
         Raises:
-            RuntimeError: If the instance is already fully upgraded, the
-                upgrade path is invalid, or apps are incompatible with the
-                target channel.  License acceptance and the Manage Foundation
-                inputs are not enforced here — the conditional
-                license-acceptance and manage-foundation steps collect them
-                after this validator has run (see ``licenseAcceptancePending``
-                and ``manageFoundationPending``).
+            RuntimeError: If the upgrade path is invalid, or apps are
+                incompatible with the target channel.  License acceptance
+                and the Manage Foundation inputs are not enforced here —
+                the conditional license-acceptance and manage-foundation
+                steps collect them after this validator has run (see
+                ``licenseAcceptancePending`` and ``manageFoundationPending``).
         """
         instanceId = self.params.get("mas_instance_id", "")
         self.masInstanceId = instanceId
@@ -144,83 +382,17 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
         self.lookupTargetArchitecture()
 
-        currentChannel = getMasChannel(self.dynamicClient, instanceId)
-        if currentChannel is not None:
-            # Fetch all installed app subscription channels once — used for
-            # both channel resolution and compatibility validation below
-            installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+        # Resolve the upgrade path (shared with the non-interactive
+        # upgrade()): the target-channel step's choice is an explicit target
+        # that completely overrides the derivation. RuntimeError propagates:
+        # the TUI displays it on the step and the step does not advance.
+        explicitTarget = self.params.get("upgrade_target_channel", "")
+        self._resolveUpgradePath(instanceId, explicitTarget=explicitTarget if explicitTarget != "" else None)
 
-            if self.nextChannel != "":
-                # --next-channel was explicitly provided by the user
-                if self.nextChannel == currentChannel:
-                    # Retry scenario: MAS core already on target channel, but some apps may still be behind
-                    pass
-                elif self.nextChannel == self.upgrade_path.get(currentChannel):
-                    # Valid upgrade path: currentChannel -> nextChannel
-                    pass
-                else:
-                    raise RuntimeError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
-
-                # Only block when Core AND every installed app are already on
-                # the target channel; if any app is behind, the pipeline
-                # launches normally.
-                if self.nextChannel == currentChannel and all(app["channel"] == self.nextChannel for app in installedAppsChannel):
-                    raise RuntimeError(f"No action required, {instanceId} is already fully upgraded. All components are on channel {self.nextChannel}.")
-            else:
-                # No --next-channel given: derive from upgrade_path using the
-                # oldest channel across Core + all installed apps (see the
-                # equivalent block in upgrade() for the rationale).
-                allChannels = [currentChannel] + [app["channel"] for app in installedAppsChannel]
-
-                def channelOrder(ch):
-                    keys = list(self.upgrade_path.keys())
-                    return keys.index(ch) if ch in keys else -1
-
-                self.effectiveCurrentChannel = max(allChannels, key=channelOrder)
-
-                if self.effectiveCurrentChannel not in self.upgrade_path and all(ch == self.effectiveCurrentChannel for ch in allChannels):
-                    raise RuntimeError(
-                        f"No action required, {instanceId} is already fully upgraded. All components are on channel {self.effectiveCurrentChannel}."
-                    )
-
-                if self.effectiveCurrentChannel not in self.upgrade_path:
-                    raise RuntimeError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
-
-                self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
-
-            # Validate installed apps compatibility with the target channel
-            if self.nextChannel in self.compatibilityMatrix:
-                incompatibleApps = []
-                for installedApp in installedAppsChannel:
-                    appId = installedApp["appId"]
-                    appChannel = installedApp["channel"]
-
-                    if appId not in self.compatibilityMatrix[self.nextChannel]:
-                        if "feature" in self.nextChannel:
-                            incompatibleApps.append(f"  - {appId}: Not available in feature channel {self.nextChannel}")
-                        elif appId == "assist":
-                            incompatibleApps.append(
-                                f"  - {appId}: Not supported in {self.nextChannel} (Assist has been replaced by the Collaborate add-on in MAS 9.2+)"
-                            )
-                        else:
-                            incompatibleApps.append(f"  - {appId}: Not supported in {self.nextChannel}")
-                    else:
-                        compatibleAppChannels = self.compatibilityMatrix[self.nextChannel][appId]
-                        if appChannel not in compatibleAppChannels:
-                            incompatibleApps.append(
-                                f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
-                            )
-
-                if incompatibleApps:
-                    raise RuntimeError(f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps))
-        else:
-            # We still allow the upgrade to proceed even though we can't detect the MAS instance
-            # (e.g. the upgrade may be queued up to run after install)
-            currentChannel = "Unknown"
-            if self.nextChannel == "":
-                self.nextChannel = "Unknown"
-
-        self.currentChannel = currentChannel
+        # The mas_channel PipelineRun param is the upgrade's target channel:
+        # write it into params here, where the channel state is final — the
+        # launch path must make no channel decisions of its own
+        self.resolveMasChannelParam()
 
         # The channel-based checks below compare versions, which cannot parse
         # the "Unknown" placeholder — skip them when the channel was not
@@ -254,37 +426,56 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
             self.validateKafkaForCivilUpgrade(instanceId)
 
             # Block upgrade if Suite CR has a stale routingMode=path from a pre-9.2 install
-            self.checkRoutingModeForUpgrade(instanceId, currentChannel)
+            self.checkRoutingModeForUpgrade(instanceId, self.currentChannel)
 
-        detectedMode = None
-
-        # Determine admin mode based on upgrade path
-        if knownChannel and isVersionEqualOrAfter("9.3.0", self.nextChannel) and currentChannel and isVersionEqualOrAfter("9.2.0", currentChannel):
-            detectedMode = getPermissionMode(self.dynamicClient, instanceId)
-        elif knownChannel and self.nextChannel.startswith("9.2"):
-            detectedMode = "cluster"
-
-        # Evaluate RBAC access — stored so launchUpgrade() can apply the
-        # pre-install RBAC when the pipeline is submitted
-        if detectedMode:
-            self.detectedMode = detectedMode
-            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
-                dynamicClient=self.dynamicClient,
-                masChannel=self.nextChannel,
-                adminMode=detectedMode,
-                instanceId=instanceId,
-                noConfirm=True,
-                printH1Func=self.printH1,
-                printDescriptionFunc=self.printDescription,
-                yesOrNoFunc=self.yesOrNo,
-                fatalErrorFunc=self.fatalError,
-                operation="upgrade",
-            )
+        # Admin-mode detection and RBAC evaluation (shared with the
+        # non-interactive upgrade()) — stored so launchUpgrade() can apply
+        # the pre-install RBAC when the pipeline is submitted
+        self._detectAdminModeAndEvaluateRBAC(instanceId, self.currentChannel)
 
         # Resolve the pipeline storage class now (normally read from the
         # existing config-pvc created at install time) so the review screen
         # summary and the generated non-interactive command include it
         self.configPipelineStorageClass(instanceId)
+
+        # Detect the aggregate OLM install plan approval mode over the
+        # instance's namespaces so the review screen can report it and the
+        # launch step passes the effective mode to the PipelineRun
+        self.detectOLMApprovalMode(namespacePrefix=f"mas-{instanceId}-")
+
+    def prepareUpgradeForInstanceSelection(self) -> None:
+        """Clear any chosen target channel, then run ``prepareUpgrade``.
+
+        Used as the TUI instance-selection step's validator: re-entering
+        instance selection invalidates the target chosen on the
+        target-channel step (the newly selected instance may have different
+        upgrade paths), so the choice is cleared and the target re-derived
+        from the new instance's state.
+        """
+        self.setParam("upgrade_target_channel", "")
+        self.prepareUpgrade()
+
+    def targetChannelOptions(self) -> list:
+        """The valid targets for the target-channel step's select field.
+
+        Returns the auto-derived next hop followed by the current core
+        channel (an idempotent re-run of the current release's upgrade —
+        the supported way to complete an upgrade that failed part-way),
+        deduplicated.  The auto-derived target is first so it is the
+        pre-selected option.  Empty when the current channel could not be
+        detected (the target-channel step is not shown then).
+
+        Returns:
+            list: The selectable target channels, auto-derived first.
+        """
+        if self.currentChannel in (None, "", "Unknown"):
+            return []
+
+        options = []
+        for channel in (self.autoNextChannel, self.currentChannel):
+            if channel not in (None, "", "Unknown") and channel not in options:
+                options.append(channel)
+        return options
 
     def licenseAcceptancePending(self) -> bool:
         """Return True when the target release's license still needs accepting.
@@ -379,43 +570,11 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # --no-confirm behaviour).
         self.noConfirm = True
 
-        # The entitlement key is read from the cluster's ibm-entitlement
-        # secret (written during the original installation).  There is no
-        # input for it: if it cannot be found the upgrade cannot proceed.
-        entitlementKey = self.lookupEntitlementKey(instanceId)
-        if entitlementKey is None:
-            self.fatalError(
-                f"Unable to read the IBM entitlement key from the cluster (no 'ibm-entitlement' secret with cp.icr.io "
-                f"credentials found in the mas-{instanceId}-core namespace).  Restore the secret and re-run the upgrade."
-            )
-        self.setParam("ibm_entitlement_key", entitlementKey)
-
-        # Attributes configDb2 reads (the same ones the classic wizard sets)
-        self.manageAppName = "Manage foundation"
-        self.showAdvancedOptions = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installFacilities = False
-        self.installManage = True
-
-        self.setParam("mas_appws_components", "")
-        self.setParam("mas_app_settings_aio_flag", "false")
-        self.setParam("mas_app_channel_manage", self.nextChannel)
-        self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
-
-        # Storage classes for the Manage Foundation Db2 instances: validates
-        # the provided values against the cluster, auto-detecting when left
-        # blank (or failing with guidance to enter them on this step)
-        self.configStorageClasses()
-
-        # Silent-mode Db2 configuration: defaults for everything the classic
-        # wizard prompts for (dedicated Db2 Warehouse instance for Manage)
-        self.configDb2(silentMode=True)
-
-        # Mark the Manage Foundation installation configured only now that
-        # every input has validated — a failure above leaves the step
-        # pending so the user can correct the inputs and retry
-        self.setParam("should_install_manage_foundation", "true")
+        # Entitlement key, install flags, pipeline params and the Db2
+        # configuration (shared with the non-interactive path's Manage
+        # Foundation block); fatalError under tuiMode raises RuntimeError,
+        # which the step displays inline
+        self._configureManageFoundation(instanceId)
 
     def fetchInstalledInstanceIds(self) -> None:
         """Fetch and cache the MAS instance IDs from the connected cluster.
@@ -436,159 +595,8 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         self._installedInstanceIds = instanceIds
 
     # ------------------------------------------------------------------
-    # Pipeline launch (TUI path)
+    # Storage configuration (shared by both paths)
     # ------------------------------------------------------------------
-
-    def _validateOpenShiftPipelines(self) -> tuple[bool, str]:
-        """Validate OpenShift Pipelines installation.
-
-        Returns:
-            tuple[bool, str]: (success, detail_message)
-        """
-        if installOpenShiftPipelines(self.dynamicClient):
-            return True, "OpenShift Pipelines Operator is installed and ready to use"
-        return False, "OpenShift Pipelines Operator installation failed"
-
-    def _prepareUpgradeNamespace(self, namespace: str, instanceId: str) -> tuple[bool, str]:
-        """Create and prepare the upgrade pipelines namespace and secrets.
-
-        Args:
-            namespace (str): Pipelines namespace (``mas-<instanceId>-pipelines``).
-            instanceId (str): The MAS instance being upgraded.
-
-        Returns:
-            tuple[bool, str]: (success, detail_message)
-        """
-        createNamespace(self.dynamicClient, namespace)
-        preparePipelinesNamespace(
-            dynClient=self.dynamicClient,
-            instanceId=instanceId,
-            storageClass=self.pipelineStorageClass,
-            accessMode=self.pipelineStorageAccessMode,
-        )
-        prepareUpgradeSecrets(
-            dynClient=self.dynamicClient,
-            namespace=namespace,
-            ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
-            artifactory_token=self.getParam("artifactory_token"),
-            artifactory_username=self.getParam("artifactory_username"),
-        )
-        return True, namespace
-
-    def _installTektonDefinitions(self, namespace: str) -> tuple[bool, str]:
-        """Install Tekton definitions.
-
-        Args:
-            namespace (str): Namespace to install definitions in
-
-        Returns:
-            tuple[bool, str]: (success, detail_message)
-        """
-        updateTektonDefinitions(self.dynamicClient, namespace, self.tektonDefsPath)
-        return True, f"v{self.version}"
-
-    def _submitUpgradePipelineRun(self) -> tuple[bool, str]:
-        """Submit the upgrade PipelineRun.
-
-        Determines the ``masChannel`` parameter the same way the classic
-        ``upgrade()`` method does: the retry scenario (next channel equals
-        current channel) passes the previous channel so Ansible upgrades the
-        remaining apps; otherwise the effective current channel (the oldest
-        channel across Core and all installed apps, computed by
-        ``prepareUpgrade``) is passed so Ansible targets the correct hop.
-
-        Returns:
-            tuple[bool, str]: (success, detail_message — the pipeline run URL on success)
-        """
-        if self.currentChannel not in ("", "Unknown") and self.nextChannel == self.currentChannel:
-            # Retry scenario: core already on target, apps need upgrading.
-            # Find the previous channel: which channel has upgrade_path[X] = currentChannel?
-            previousChannel = None
-            for prevCh, nextCh in self.upgrade_path.items():
-                if nextCh == self.currentChannel:
-                    previousChannel = prevCh
-                    break
-            masChannelParam = previousChannel if previousChannel else self.currentChannel
-        else:
-            masChannelParam = self.effectiveCurrentChannel
-
-        pipelineURL = launchUpgradePipeline(self.dynamicClient, self.masInstanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
-        if pipelineURL:
-            return True, pipelineURL
-        return False, "Failed — see log file for details"
-
-    def launchUpgrade(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
-        """Submit the Tekton upgrade pipeline with unified progress reporting.
-
-        Uses the ProgressReporter abstraction to share one execution path
-        between the CLI (Halo spinners) and TUI (callbacks) — the same
-        pattern as ``UpdateApp.launchUpdate``.  Stages: Tekton definitions
-        with digest, OpenShift Pipelines validation, optional pre-install
-        RBAC, namespace preparation, Tekton definitions install, and
-        PipelineRun submission.
-
-        Args:
-            progressCallback (Callable, optional): TUI callback (label, ok, detail) -> None
-            startCallback (Callable, optional): TUI start callback (label) -> None
-        """
-        from mas.cli.common.progress import HaloProgressReporter, CallbackProgressReporter
-
-        if progressCallback is not None:
-            reporter = CallbackProgressReporter(progressCallback, startCallback)
-        else:
-            reporter = HaloProgressReporter(self.spinner, self.successIcon, self.failureIcon)
-
-        # Tekton definitions with digest (no-op unless airgap / CLI digest);
-        # shared by both execution paths as in the classic launch section
-        self.createTektonFileWithDigest()
-
-        instanceId = self.params.get("mas_instance_id", "")
-        pipelinesNamespace = f"mas-{instanceId}-pipelines"
-
-        # Stage 1: Validate OpenShift Pipelines
-        reporter.start("Validate OpenShift Pipelines")
-        success, detail = self._validateOpenShiftPipelines()
-        if success:
-            reporter.success("Validate OpenShift Pipelines", detail)
-        else:
-            reporter.failure("Validate OpenShift Pipelines", detail)
-            self.fatalError("Installation failed")
-
-        # Stage 2: Apply pre-install RBAC (if needed)
-        if self.applyPreInstallMASRBAC and self.detectedMode:
-            label = "Apply pre-install MAS RBAC"
-            reporter.start(label)
-            self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
-            applyPreInstallMASRBAC(
-                dynClient=self.dynamicClient,
-                masVersion=".".join(self.nextChannel.split(".")[:2]),
-                masInstanceId=instanceId,
-                adminMode=self.detectedMode,
-                selectedApps=self.selectedAppsForRBAC,
-            )
-            reporter.success(label, f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {self.detectedMode})")
-
-        # Stage 3: Prepare pipelines namespace
-        reporter.start("Prepare pipelines namespace")
-        success, detail = self._prepareUpgradeNamespace(pipelinesNamespace, instanceId)
-        reporter.success("Prepare pipelines namespace", detail)
-
-        # Stage 4: Install Tekton definitions
-        reporter.start("Install Tekton definitions")
-        success, detail = self._installTektonDefinitions(pipelinesNamespace)
-        reporter.success("Install Tekton definitions", f"Latest Tekton definitions are installed ({detail})")
-
-        # Stage 5: Submit PipelineRun
-        reporter.start("Submit PipelineRun")
-        success, detail = self._submitUpgradePipelineRun()
-        if success:
-            # ``detail`` is the pipeline run URL: the TUI renders it beneath
-            # the step list and the Copy URL button copies it (see
-            # LaunchScreen._on_checklist_done).
-            reporter.success("Submit PipelineRun", detail)
-        else:
-            reporter.failure("Submit PipelineRun", f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
-
     def configPipelineStorageClass(self, instanceId: str) -> None:
         """
         Determine the storage class and access mode for the upgrade pipeline config-pvc.
@@ -686,77 +694,234 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         Determine storage_class_rwo and storage_class_rwx for Manage Foundation Db2/PVC provisioning.
         Only called when Manage Foundation is being installed during upgrade (9.0 → 9.1).
 
-        Priority:
-          1. CLI args (--storage-class-rwo / --storage-class-rwx) — already set in self.params
-          2. Auto-detected from getDefaultStorageClasses()
-          3. Interactive prompt (falls back to fatalError in --no-confirm mode)
+        Thin wrapper over the shared implementation (``StorageClassMixin`` in
+        ``mas/cli/common/storageClasses.py``) with the upgrade flavour
+        (CLI args / TUI dropdown selections win over auto-detection) and the
+        Manage Foundation-specific no-detection error messages.  See the
+        mixin for the resolution flow and its priorities.
         """
-        # 1. Validate any CLI args already provided (independently — partial args are allowed)
-        if self.getParam("storage_class_rwo"):
-            if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwo")) is None:
-                self.fatalError(f"Storage class '{self.getParam('storage_class_rwo')}' specified via --storage-class-rwo is not available on this cluster.")
-                return
-        if self.getParam("storage_class_rwx"):
-            if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwx")) is None:
-                self.fatalError(f"Storage class '{self.getParam('storage_class_rwx')}' specified via --storage-class-rwx is not available on this cluster.")
-                return
-
-        # Both provided and valid — nothing more to do
-        if self.getParam("storage_class_rwo") and self.getParam("storage_class_rwx"):
-            logger.debug(f"Using storage classes from CLI args: RWO={self.getParam('storage_class_rwo')} RWX={self.getParam('storage_class_rwx')}")
-            return
-
-        # 2. Try auto-detection
-        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
-        if defaultStorageClasses.provider is not None:
-            if not self.tuiMode:
-                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
-                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
-                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
-
-            useDetected = True
-            if not self.noConfirm:
-                useDetected = self.yesOrNo("Use the auto-detected storage classes")
-
-            if useDetected:
-                self.params["storage_class_rwo"] = defaultStorageClasses.rwo
-                self.params["storage_class_rwx"] = defaultStorageClasses.rwx
-                logger.debug(f"Using auto-detected storage classes: RWO={defaultStorageClasses.rwo} RWX={defaultStorageClasses.rwx}")
-                return
-
-        # 3. No provider detected or user declined — fail in non-interactive mode
-        if self.noConfirm:
-            if self.tuiMode:
-                # The manage-foundation step's storage class fields are the
-                # TUI equivalent of the CLI flags named in the classic message
-                self.fatalError(
-                    "No storage classes could be detected for the Manage Foundation Db2 instances. "
-                    "Enter the ReadWriteOnce and ReadWriteMany storage classes to use on this step."
-                )
-            self.fatalError(
+        StorageClassMixin.configStorageClasses(
+            self,
+            noDetectionTuiMessage=(
+                "No storage classes could be detected for the Manage Foundation Db2 instances. "
+                "Enter the ReadWriteOnce and ReadWriteMany storage classes to use on this step."
+            ),
+            noDetectionFatalMessage=(
                 "No storage classes could be detected for Manage Foundation Db2 instances and --no-confirm is set. "
                 "Please re-run with --storage-class-rwo and --storage-class-rwx."
-            )
-            return
+            ),
+        )
 
-        self.printDescription(["Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:"])
-        for storageClass in getStorageClasses(self.dynamicClient):
-            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-        print()
+    # ------------------------------------------------------------------
+    # Upgrade path resolution, validations and shared configuration (both paths)
+    # ------------------------------------------------------------------
+    def _resolveUpgradePath(self, instanceId: str, explicitTarget: Optional[str] = None, validateCompatibility: bool = True) -> None:
+        """Detect the current channel and resolve the upgrade's target channel.
 
-        validator = StorageClassValidator()
-        if not self.getParam("storage_class_rwo"):
-            self.params["storage_class_rwo"] = prompt(
-                HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
-                validator=validator,
-                validate_while_typing=False,
+        The single implementation of upgrade-path resolution, shared by the TUI's ``prepareUpgrade`` and the non-interactive ``upgrade()``: detects the instance's current channel, validates an explicit target against it (or derives the target from the oldest channel across Core + all installed apps, which handles partial upgrade resumption correctly), and validates installed apps' compatibility with the target.
+
+        On success sets ``self.currentChannel``, ``self.nextChannel`` and -- when the target was derived -- ``self.effectiveCurrentChannel`` and ``self.autoNextChannel``. An explicit target is a complete override: it is used as-is and never short-circuits with "No action required" -- the upgrade pipeline is idempotent, so re-running the current channel's upgrade is the supported way to complete an upgrade that failed part-way.
+
+        Args:
+            instanceId (str): The MAS instance ID.
+            explicitTarget (str, optional): The user-chosen target (the TUI target-channel step's choice, or ``--next-channel``); None derives the target from the instance's state.
+            validateCompatibility (bool, optional): Whether to validate the installed apps against the target channel. Dev mode passes False (core-upgrade consults its own compatibility matrix, so the target is only informative). Defaults to True.
+
+        Raises:
+            NoUpgradeRequiredError: Every component is on the latest channel -- there is nothing to submit (the non-interactive path exits cleanly on this; the TUI shows it on the step).
+            RuntimeError: No valid upgrade path to the explicit target, no upgrade available from the current channel, or an installed app is incompatible with the target.
+        """
+        currentChannel = getMasChannel(self.dynamicClient, instanceId)
+        if currentChannel is not None:
+            # Fetched when the target is derived or compatibility is
+            # validated (dev mode's informative target needs neither)
+            if explicitTarget in (None, "") or validateCompatibility:
+                installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+            else:
+                installedAppsChannel = []
+
+            if explicitTarget not in (None, ""):
+                if explicitTarget == currentChannel:
+                    # Retry scenario: MAS core is already on the target channel.
+                    # The upgrade pipeline is idempotent, so re-running it is
+                    # safe (and is how an upgrade that failed part-way is
+                    # completed) — never short-circuit with "No action
+                    # required", even when every component is already there.
+                    pass
+                elif explicitTarget == self.upgrade_path.get(currentChannel):
+                    # Valid upgrade path: currentChannel -> explicitTarget
+                    pass
+                else:
+                    raise RuntimeError(f"No upgrade path available from {currentChannel} to {explicitTarget}")
+
+                self.nextChannel = explicitTarget
+            else:
+                # Derive the target from upgrade_path using the oldest channel
+                # across Core + all installed apps: this handles partial
+                # upgrade resumption correctly — e.g. if Core reached 9.1.x
+                # but Manage is still on 9.0.x, effectiveCurrentChannel will
+                # be 9.0.x and the target will be 9.1.x instead of 9.2.x.
+                allChannels = [currentChannel] + [app["channel"] for app in installedAppsChannel]
+
+                def channelOrder(ch):
+                    keys = list(self.upgrade_path.keys())
+                    return keys.index(ch) if ch in keys else -1
+
+                self.effectiveCurrentChannel = max(allChannels, key=channelOrder)
+
+                # Early exit BEFORE the upgrade_path lookup: if every
+                # component is on the same channel and that channel has no
+                # further upgrade target, the instance is fully upgraded
+                # (no self-referencing entry like "9.2.x": "9.2.x" is needed
+                # in upgrade_path)
+                if self.effectiveCurrentChannel not in self.upgrade_path and all(ch == self.effectiveCurrentChannel for ch in allChannels):
+                    raise NoUpgradeRequiredError(
+                        f"No action required, {instanceId} is already fully upgraded. All components are on channel {self.effectiveCurrentChannel}."
+                    )
+
+                if self.effectiveCurrentChannel not in self.upgrade_path:
+                    raise RuntimeError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
+
+                self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
+
+                # Remember the auto-derived target: the default selection for
+                # the TUI's target-channel step (kept as-is when an explicit
+                # target was chosen — the choice wins)
+                self.autoNextChannel = self.nextChannel
+
+            # An explicit target equal to the current channel deliberately
+            # does NOT short-circuit above: the pipeline is idempotent, so
+            # the re-run is submitted and simply completes whatever is left.
+            # The auto-derived path can never reach that state (a derived
+            # target equals the current channel only when an app is behind,
+            # which means there is work to do).
+
+            if validateCompatibility and self.nextChannel in self.compatibilityMatrix:
+                incompatibleApps = []
+                for installedApp in installedAppsChannel:
+                    appId = installedApp["appId"]
+                    appChannel = installedApp["channel"]
+
+                    # Check if app is supported in the target channel
+                    if appId not in self.compatibilityMatrix[self.nextChannel]:
+                        if "feature" in self.nextChannel:
+                            incompatibleApps.append(f"  - {appId}: Not available in feature channel {self.nextChannel}")
+                        elif appId == "assist":
+                            # Assist was withdrawn in MAS 9.2; its functionality was migrated to the Collaborate add-on
+                            incompatibleApps.append(
+                                f"  - {appId}: Not supported in {self.nextChannel} (Assist has been replaced by the Collaborate add-on in MAS 9.2+)"
+                            )
+                        else:
+                            incompatibleApps.append(f"  - {appId}: Not supported in {self.nextChannel}")
+                    else:
+                        # Check if current app channel is compatible with target MAS channel
+                        compatibleAppChannels = self.compatibilityMatrix[self.nextChannel][appId]
+                        if appChannel not in compatibleAppChannels:
+                            incompatibleApps.append(
+                                f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
+                            )
+
+                if incompatibleApps:
+                    raise RuntimeError(f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps))
+        else:
+            # We still allow the upgrade to proceed even though we can't detect the MAS instance
+            # (e.g. the upgrade may be queued up to run after install)
+            currentChannel = "Unknown"
+            self.autoNextChannel = ""
+            if self.nextChannel == "":
+                self.nextChannel = "Unknown"
+
+        self.currentChannel = currentChannel
+
+    def _detectAdminModeAndEvaluateRBAC(self, instanceId: str, currentChannel: str) -> None:
+        """Detect the upgrade's admin mode and evaluate pre-install RBAC access.
+
+        The single implementation shared by the TUI's ``prepareUpgrade`` and the non-interactive ``upgrade()``: determines the permission mode the target channel requires (detecting the existing mode when upgrading to 9.3.x+ from 9.2.x+, defaulting to cluster mode for 9.2.x targets) and, when a mode applies, evaluates whether the pre-install MAS RBAC can be applied. Stores ``self.detectedMode`` and ``self.applyPreInstallMASRBAC`` for ``launchUpgrade()``'s RBAC stage and the review summary.
+
+        Args:
+            instanceId (str): The MAS instance ID.
+            currentChannel (str): The instance's current channel ("Unknown" when undetectable -- both mode conditions are no-ops then).
+        """
+        detectedMode = None
+
+        # The version comparisons below cannot parse the "Unknown"
+        # placeholder (isVersionEqualOrAfter raises on it) -- skip both
+        # branches when either channel is undetectable
+        knownChannel = self.nextChannel not in ("", "Unknown") and currentChannel not in (None, "", "Unknown")
+        if knownChannel and isVersionEqualOrAfter("9.3.0", self.nextChannel) and isVersionEqualOrAfter("9.2.0", currentChannel):
+            # Upgrading TO 9.3.x+ FROM 9.2.x+: detect existing permission mode
+            logger.info(f"Upgrading from {currentChannel} to {self.nextChannel}: detecting existing permission mode")
+            detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+        elif knownChannel and self.nextChannel.startswith("9.2"):
+            # Upgrading TO 9.2.x: default to cluster mode
+            # (covers both 9.1.x→9.2.x and 9.2.x-feature→9.2.x)
+            logger.info("Upgrading to 9.2.x: defaulting to cluster mode")
+            detectedMode = "cluster"
+
+        # launchUpgrade's RBAC stage reads the app attribute
+        self.detectedMode = detectedMode
+
+        if detectedMode:
+            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+                dynamicClient=self.dynamicClient,
+                masChannel=self.nextChannel,
+                adminMode=detectedMode,
+                instanceId=instanceId,
+                noConfirm=self.noConfirm,
+                printH1Func=self.printH1,
+                printDescriptionFunc=self.printDescription,
+                yesOrNoFunc=self.yesOrNo,
+                fatalErrorFunc=self.fatalError,
+                operation="upgrade",
             )
-        if not self.getParam("storage_class_rwx"):
-            self.params["storage_class_rwx"] = prompt(
-                HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
-                validator=validator,
-                validate_while_typing=False,
+
+    def _configureManageFoundation(self, instanceId: str) -> None:
+        """Configure the Manage Foundation installation an upgrade requires.
+
+        The single implementation shared by the TUI's ``prepareManageFoundation`` step validator and the non-interactive ``upgrade()``'s Manage Foundation block: reads the IBM entitlement key back from the cluster's ``ibm-entitlement`` secret (it is never prompted for or accepted as an input), sets the install flags and pipeline params, resolves the Db2 storage classes (validating any provided values against the cluster, auto-detecting the rest), runs the silent-mode Db2 configuration, and only then marks the installation configured -- a failure above leaves ``should_install_manage_foundation`` unset so the TUI step stays pending for a retry.
+
+        Args:
+            instanceId (str): The MAS instance ID.
+
+        Raises:
+            RuntimeError: When the entitlement key cannot be read from the cluster (fatal -- the key is a prerequisite, not an input), a provided storage class does not exist on the cluster, or no storage classes can be resolved (fatalError under tuiMode raises RuntimeError; on the non-interactive path it exits).
+        """
+        # The entitlement key is read from the cluster's ibm-entitlement
+        # secret (written during the original installation) — it is neither
+        # prompted for nor accepted as a CLI argument.
+        entitlementKey = self.lookupEntitlementKey(instanceId)
+        if entitlementKey is None:
+            self.fatalError(
+                f"Unable to read the IBM entitlement key from the cluster (no 'ibm-entitlement' secret with cp.icr.io "
+                f"credentials found in the mas-{instanceId}-core namespace).  Restore the secret and re-run the upgrade."
             )
+        self.setParam("ibm_entitlement_key", entitlementKey)
+
+        # Attributes configDb2 reads
+        self.manageAppName = "Manage foundation"
+        self.showAdvancedOptions = False
+        self.installIoT = False
+        self.installMonitor = False
+        self.installFacilities = False
+        self.installManage = True
+
+        self.setParam("mas_appws_components", "")
+        self.setParam("mas_app_settings_aio_flag", "false")
+        self.setParam("mas_app_channel_manage", self.nextChannel)
+        self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
+
+        # Storage classes for the Manage Foundation Db2 instances: validates
+        # any provided values against the cluster, auto-detecting the rest
+        self.configStorageClasses()
+
+        # Silent-mode Db2 configuration: defaults for everything the classic
+        # wizard prompts for (dedicated Db2 Warehouse instance for Manage)
+        self.configDb2(silentMode=True)
+
+        # Mark the Manage Foundation installation configured only now that
+        # every input has validated — a failure above leaves the TUI step
+        # pending so the user can correct the inputs and retry
+        self.setParam("should_install_manage_foundation", "true")
 
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """
@@ -896,384 +1061,175 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         except Exception as e:
             logger.warning(f"Could not query Suite CR to check routingMode for upgrade pre-flight check: {e}")
 
-    def upgrade(self, argv):
+    def resolveMasChannelParam(self) -> None:
+        """Write the ``mas_channel`` PipelineRun param: the upgrade's target channel.
+
+        Aligns with the ``suite_upgrade`` role's semantics — ``mas_channel``
+        is the destination channel (the channel we are upgrading TO; see
+        ansible-devops suite_upgrade, where an unset value auto-selects the
+        next release and an explicit value is used as-is).  Called once the
+        channel state is final — by ``prepareUpgrade`` on the TUI path and
+        after channel resolution in ``upgrade()`` on the classic path — so
+        that the launch path makes no channel decisions of its own:
+
+        - Derived target (the TUI's only mode, and the classic path without
+          ``--next-channel``): ``nextChannel`` is derived from
+          ``effectiveCurrentChannel`` (the oldest channel across Core and
+          all installed apps) so the upgrade targets the correct hop.
+        - Explicit ``--next-channel`` (or the TUI target-channel choice):
+          ``nextChannel`` is the requested target as-is.
+        - Retry scenario (Core already on the target channel): a
+          first-class explicit choice — the target equals the current
+          channel, the role's core-upgrade recognises Core is already
+          there, and the app upgrade tasks bring the remaining components
+          (including a pending Manage Foundation install) up to it.  The
+          pipeline is idempotent, so this never short-circuits with "No
+          action required".
+        - Undetectable target: the param is left empty so the role
+          auto-selects the next release from the live subscription.
         """
-        Upgrade MAS instance
+        masChannel = self.nextChannel if self.nextChannel not in ("", "Unknown") else ""
+        self.setParam("mas_channel", masChannel)
+
+    # ------------------------------------------------------------------
+    # Pipeline launch (shared by both paths)
+    # ------------------------------------------------------------------
+    def _validateOpenShiftPipelines(self) -> tuple[bool, str]:
+        """Validate OpenShift Pipelines installation.
+
+        Returns:
+            tuple[bool, str]: (success, detail_message)
         """
-        args = upgradeArgParser.parse_args(args=argv)
-        instanceId = args.mas_instance_id
-        self.noConfirm = args.no_confirm
-        self.skipPreCheck = args.skip_pre_check
-        self.licenseAccepted = args.accept_license
-        self.nextChannel = args.next_channel
-        self.devMode = args.dev_mode
-        self.applyPreInstallMASRBAC = False
-        self.selectedAppsForRBAC = []
-        self.isInteractiveMode = instanceId is None
+        if installOpenShiftPipelines(self.dynamicClient):
+            return True, "OpenShift Pipelines Operator is installed and ready to use"
+        return False, "OpenShift Pipelines Operator installation failed"
 
-        # Pre-populate pipeline storage class from CLI args so configPipelineStorageClass
-        self.pipelineStorageClass = args.storage_pipeline or None
-        self.pipelineStorageAccessMode = args.storage_accessmode or None
+    def _prepareUpgradeNamespace(self, namespace: str, instanceId: str) -> tuple[bool, str]:
+        """Create and prepare the upgrade pipelines namespace and secrets.
 
-        # Pre-populate RWO/RWX storage classes from CLI args (used for Manage Foundation Db2 instances)
-        if args.storage_class_rwo:
-            self.params["storage_class_rwo"] = args.storage_class_rwo
-        if args.storage_class_rwx:
-            self.params["storage_class_rwx"] = args.storage_class_rwx
+        Args:
+            namespace (str): Pipelines namespace (``mas-<instanceId>-pipelines``).
+            instanceId (str): The MAS instance being upgraded.
 
-        # Set image_pull_policy if provided
-        if args.image_pull_policy and args.image_pull_policy != "":
-            self.setParam("image_pull_policy", args.image_pull_policy)
-
-        if instanceId is None:
-            self.printH1("Set Target OpenShift Cluster")
-            # Connect to the target cluster
-            self.connect()
-        else:
-            logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
-            # Need to lookup target architecture because configDb2 will try to access self.architecture
-            self.lookupTargetArchitecture()
-
-        if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
-            sys.exit(1)
-
-        if instanceId is None:
-            # Interactive mode
-            self.printH1("Instance Selection")
-            print_formatted_text(HTML("<LightSlateGrey>Select a MAS instance to upgrade from the list below:</LightSlateGrey>"))
-            suites = listMasInstances(self.dynamicClient)
-            suiteOptions = []
-
-            if len(suites) == 0:
-                print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
-                sys.exit(1)
-
-            for suite in suites:
-                instanceId = suite["metadata"]["name"]
-                reconciledVersion = self.getReconciledVersion(suite)
-
-                print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
-                suiteOptions.append(instanceId)
-
-            suiteCompleter = WordCompleter(suiteOptions)
-            print()
-            instanceId = prompt(
-                HTML("<Yellow>Enter MAS instance ID: </Yellow>"), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False
-            )
-
-        currentChannel = getMasChannel(self.dynamicClient, instanceId)
-        if currentChannel is not None:
-            if self.devMode:
-                # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
-                # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
-                self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
-            else:
-                # Fetch all installed app subscription channels once — used for both
-                # channel resolution and compatibility validation below
-                installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
-
-                if self.nextChannel != "":
-                    # --next-channel was explicitly provided by the user
-                    if self.nextChannel == currentChannel:
-                        # Retry scenario: MAS core already on target channel, but some apps may still be behind
-                        print_formatted_text(
-                            HTML(
-                                f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
-                                f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
-                            )
-                        )
-                    elif self.nextChannel == self.upgrade_path.get(currentChannel):
-                        # Valid upgrade path: currentChannel -> nextChannel
-                        pass
-                    else:
-                        self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
-                else:
-                    # No --next-channel given: derive from upgrade_path using the
-                    # oldest channel across Core + all installed apps.
-                    # This handles partial upgrade resumption correctly — e.g. if Core
-                    # reached 9.1.x but Manage is still on 9.0.x, effectiveCurrentChannel
-                    # will be 9.0.x and the target will be 9.1.x instead of 9.2.x.
-                    allChannels = [currentChannel] + [app["channel"] for app in installedAppsChannel]
-
-                    def channelOrder(ch):
-                        keys = list(self.upgrade_path.keys())
-                        return keys.index(ch) if ch in keys else -1
-
-                    self.effectiveCurrentChannel = max(allChannels, key=channelOrder)
-
-                    # Early-exit BEFORE upgrade_path lookup:
-                    # If every component is on the same channel and that channel has no
-                    # further upgrade target, the instance is fully upgraded — exit cleanly
-                    # without needing a self-referencing entry (e.g. "9.2.x":"9.2.x") in upgrade_path.
-                    if self.effectiveCurrentChannel not in self.upgrade_path and all(ch == self.effectiveCurrentChannel for ch in allChannels):
-                        print_formatted_text(
-                            HTML(
-                                f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
-                                f"All components are on channel {self.effectiveCurrentChannel}.</LightSlateGrey>"
-                            )
-                        )
-                        return
-
-                    if self.effectiveCurrentChannel not in self.upgrade_path:
-                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
-                    self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
-
-                # Check if all components are already on the target channel.
-                # Covers both auto-detect and --next-channel paths.
-                # Only exits if Core AND every installed app are already on nextChannel.
-                # If any app is behind, this condition is False and pipeline launches normally.
-                if self.nextChannel == currentChannel and all(app["channel"] == self.nextChannel for app in installedAppsChannel):
-                    print_formatted_text(
-                        HTML(
-                            f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
-                            f"All components are on channel {self.nextChannel}.</LightSlateGrey>"
-                        )
-                    )
-                    return
-
-                # Validate installed apps compatibility with the target channel
-                if self.nextChannel in self.compatibilityMatrix:
-                    incompatibleApps = []
-
-                    for installedApp in installedAppsChannel:
-                        appId = installedApp["appId"]
-                        appChannel = installedApp["channel"]
-
-                        # Check if app is supported in the target channel
-                        if appId not in self.compatibilityMatrix[self.nextChannel]:
-                            if "feature" in self.nextChannel:
-                                incompatibleApps.append(f"  - {appId}: Not available in feature channel {self.nextChannel}")
-                            elif appId == "assist":
-                                # Assist was withdrawn in MAS 9.2; its functionality was migrated to the Collaborate add-on
-                                incompatibleApps.append(
-                                    f"  - {appId}: Not supported in {self.nextChannel} (Assist has been replaced by the Collaborate add-on in MAS 9.2+)"
-                                )
-                            else:
-                                incompatibleApps.append(f"  - {appId}: Not supported in {self.nextChannel}")
-                        else:
-                            # Check if current app channel is compatible with target MAS channel
-                            compatibleAppChannels = self.compatibilityMatrix[self.nextChannel][appId]
-                            if appChannel not in compatibleAppChannels:
-                                incompatibleApps.append(
-                                    f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
-                                )
-
-                    if len(incompatibleApps) > 0:
-                        errorMsg = f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps)
-                        self.fatalError(errorMsg)
-
-        else:
-            # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
-            # queued up to run after install for instance
-            currentChannel = "Unknown"
-            if self.nextChannel == "":
-                self.nextChannel = "Unknown"
-
-        if not self.licenseAccepted and not self.devMode:
-            self.printH1("License Terms")
-            self.printDescription(["To continue with the upgrade, you must accept the license terms:", self.licenses[self.nextChannel]])
-
-            if self.noConfirm:
-                self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
-            else:
-                if not self.yesOrNo("Do you accept the license terms"):
-                    exit(1)
-
-        # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).
-        self.setParam("should_install_manage_foundation", "false")
-        if self.nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
-            self.manageAppName = "Manage foundation"
-            self.showAdvancedOptions = False
-            self.installIoT = False
-            self.installMonitor = False
-            self.installFacilities = False
-            self.installManage = True
-            self.isManageFoundation = True
-            self.printDescription(
-                [f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."]
-            )
-
-            # The IBM entitlement key is read from the cluster's ibm-entitlement
-            # secret (written during the original installation) — it is neither
-            # prompted for nor accepted as a CLI argument.
-            entitlementKey = self.lookupEntitlementKey(instanceId)
-            if entitlementKey is None:
-                self.fatalError(
-                    f"Unable to read the IBM entitlement key from the cluster (no 'ibm-entitlement' secret with cp.icr.io "
-                    f"credentials found in the mas-{instanceId}-core namespace).  Restore the secret and re-run the upgrade."
-                )
-            self.setParam("ibm_entitlement_key", entitlementKey)
-
-            if self.devMode:
-                self.promptForString("Artifactory username", "artifactory_username")
-                self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
-
-            self.setParam("should_install_manage_foundation", "true")
-            self.setParam("mas_appws_components", "")
-            self.setParam("mas_app_settings_aio_flag", "false")
-            self.setParam("mas_app_channel_manage", self.nextChannel)
-            self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
-            self.configStorageClasses()
-            self.configDb2(silentMode=True)
-
-        # Compute Monitor install order for upgrade
-        self.computeMonitorInstallOrderForUpgrade(instanceId)
-
-        # Validate Kafka requirements for Civil component during upgrade
-        self.validateKafkaForCivilUpgrade(instanceId)
-
-        # Block upgrade if Suite CR has a stale routingMode=path from a pre-9.2 install
-        self.checkRoutingModeForUpgrade(instanceId, currentChannel)
-
-        detectedMode = None
-
-        # Determine admin mode based on upgrade path
-        if self.nextChannel and isVersionEqualOrAfter("9.3.0", self.nextChannel) and currentChannel and isVersionEqualOrAfter("9.2.0", currentChannel):
-            # Upgrading TO 9.3.x+ FROM 9.2.x+: detect existing permission mode
-            logger.info(f"Upgrading from {currentChannel} to {self.nextChannel}: detecting existing permission mode")
-            detectedMode = getPermissionMode(self.dynamicClient, instanceId)
-
-        elif self.nextChannel and self.nextChannel.startswith("9.2"):
-            # Upgrading TO 9.2.x: default to cluster mode
-            # (covers both 9.1.x→9.2.x and 9.2.x-feature→9.2.x)
-            logger.info("Upgrading to 9.2.x: defaulting to cluster mode")
-            detectedMode = "cluster"
-
-        # Evaluate RBAC access
-        if detectedMode:
-            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
-                dynamicClient=self.dynamicClient,
-                masChannel=self.nextChannel,
-                adminMode=detectedMode,
-                instanceId=instanceId,
-                noConfirm=self.noConfirm,
-                printH1Func=self.printH1,
-                printDescriptionFunc=self.printDescription,
-                yesOrNoFunc=self.yesOrNo,
-                fatalErrorFunc=self.fatalError,
-                operation="upgrade",
-            )
-
-        self.configPipelineStorageClass(instanceId)
-
-        # Show the equivalent non-interactive command before the review screen
-        self.masInstanceId = instanceId
-        nonInteractiveCommand = self.buildCommand()
-        self.printH1("Non-Interactive Upgrade Command")
-        self.printDescription(
-            [
-                "Save and re-use the following script to re-run this upgrade without needing to answer the interactive prompts again",
-                "",
-                nonInteractiveCommand,
-            ]
+        Returns:
+            tuple[bool, str]: (success, detail_message)
+        """
+        createNamespace(self.dynamicClient, namespace)
+        preparePipelinesNamespace(
+            dynClient=self.dynamicClient,
+            instanceId=instanceId,
+            storageClass=self.pipelineStorageClass,
+            accessMode=self.pipelineStorageAccessMode,
         )
-        if self.isInteractiveMode:
-            offerCommandScript(self, nonInteractiveCommand, f"mas-upgrade-{instanceId}.sh")
+        prepareUpgradeSecrets(
+            dynClient=self.dynamicClient,
+            namespace=namespace,
+            ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
+            artifactory_token=self.getParam("artifactory_token"),
+            artifactory_username=self.getParam("artifactory_username"),
+        )
+        return True, namespace
 
-        self.printH1("Review Settings")
-        print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {self.nextChannel}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Class .......... {self.pipelineStorageClass}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Access Mode .... {self.pipelineStorageAccessMode}</LightSlateGrey>"))
+    def _installTektonDefinitions(self, namespace: str) -> tuple[bool, str]:
+        """Install Tekton definitions.
 
-        if not self.noConfirm:
-            print()
-            continueWithUpgrade = self.yesOrNo("Proceed with these settings")
+        Args:
+            namespace (str): Namespace to install definitions in
 
-        if self.noConfirm or continueWithUpgrade:
-            self.createTektonFileWithDigest()
+        Returns:
+            tuple[bool, str]: (success, detail_message)
+        """
+        updateTektonDefinitions(self.dynamicClient, namespace, self.tektonDefsPath)
+        return True, f"v{self.version}"
 
-            self.printH1("Launch Upgrade")
-            pipelinesNamespace = f"mas-{instanceId}-pipelines"
+    def _submitUpgradePipelineRun(self) -> tuple[bool, str]:
+        """Submit the upgrade PipelineRun.
 
-            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
-                successfullyInstalledPipelines = installOpenShiftPipelines(self.dynamicClient)
-                if successfullyInstalledPipelines:
-                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
-                    self.fatalError("Installation failed")
+        Every PipelineRun param is already in ``self.params`` by this point:
+        ``mas_instance_id`` and ``skip_pre_check`` were written at their
+        origin, and ``mas_channel`` was resolved by ``prepareUpgrade`` when
+        the channel state was final — no decisions are made here.
 
-            # Apply pre-install RBAC if user has permissions
-            if self.applyPreInstallMASRBAC and detectedMode:
-                self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
-                rbacRootDir = self.getPreinstallRBACRootDir()
-                with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(self.nextChannel.split(".")[:2]),
-                        masInstanceId=instanceId,
-                        adminMode=detectedMode,
-                        selectedApps=self.selectedAppsForRBAC,
-                        rbacRootDir=rbacRootDir,
-                    )
-                    h.stop_and_persist(
-                        symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {detectedMode})"
-                    )
+        Returns:
+            tuple[bool, str]: (success, detail_message — the pipeline run URL on success)
+        """
+        pipelineURL = launchUpgradePipeline(self.dynamicClient, params=self.params)
+        if pipelineURL:
+            return True, pipelineURL
+        return False, "Failed — see log file for details"
 
-            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
-                createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(
-                    dynClient=self.dynamicClient,
-                    instanceId=instanceId,
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
-                )
-                prepareUpgradeSecrets(
-                    dynClient=self.dynamicClient,
-                    namespace=pipelinesNamespace,
-                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
-                    artifactory_token=self.getParam("artifactory_token"),
-                    artifactory_username=self.getParam("artifactory_username"),
-                )
-                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+    def launchUpgrade(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
+        """Submit the Tekton upgrade pipeline with unified progress reporting.
 
-            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
-                h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
+        Uses the ProgressReporter abstraction to share one execution path
+        between the CLI (Halo spinners) and TUI (callbacks) — the same
+        pattern as ``UpdateApp.launchUpdate``.  Stages: Tekton definitions
+        with digest, OpenShift Pipelines validation, optional pre-install
+        RBAC, namespace preparation, Tekton definitions install, and
+        PipelineRun submission.
 
-            with Halo(text="Submitting PipelineRun for {instanceId} upgrade", spinner=self.spinner) as h:
-                # Determine masChannel parameter based on scenario:
-                # - Regular upgrade: pass currentChannel so ansible looks up the next channel
-                # - Retry scenario: pass previous channel so ansible upgrades apps to current channel
-                # - No --next-channel: pass empty string to let ansible auto-determine
-                if args.next_channel != "" and currentChannel != "Unknown":
-                    if self.nextChannel == currentChannel:
-                        # Retry scenario: core already on target, apps need upgrading
-                        # Find previous channel: which channel has upgrade_path[X] = currentChannel?
-                        previousChannel = None
-                        for prevCh, nextCh in self.upgrade_path.items():
-                            if nextCh == currentChannel:
-                                previousChannel = prevCh
-                                break
-                        # Pass previous channel so ansible upgrades apps from previous to current
-                        masChannelParam = previousChannel if previousChannel else currentChannel
-                    else:
-                        # Regular upgrade with explicit --next-channel
-                        masChannelParam = currentChannel
-                else:
-                    # No --next-channel provided: pass the effectiveCurrentChannel computed
-                    # earlier so Ansible targets the correct hop based on all component
-                    # channels, not just Core's channel.
-                    masChannelParam = self.effectiveCurrentChannel if hasattr(self, "effectiveCurrentChannel") else ""
+        Args:
+            progressCallback (Callable, optional): TUI callback (label, ok, detail) -> None
+            startCallback (Callable, optional): TUI start callback (label) -> None
+        """
+        from mas.cli.common.progress import HaloProgressReporter, CallbackProgressReporter
 
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
-                if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
-                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
-                    print()
+        if progressCallback is not None:
+            reporter = CallbackProgressReporter(progressCallback, startCallback)
+        else:
+            reporter = HaloProgressReporter(self.spinner, self.successIcon, self.failureIcon)
 
-            # Re-print the command so it is not lost in the scrollback above the
-            # pipeline launch output
-            self.printDescription(
-                [
-                    "For reference, the non-interactive command equivalent to this upgrade:",
-                    "",
-                    nonInteractiveCommand,
-                ]
+        # Tekton definitions with digest (no-op unless airgap / CLI digest);
+        # shared by both execution paths as in the classic launch section
+        self.createTektonFileWithDigest()
+
+        instanceId = self.params.get("mas_instance_id", "")
+        pipelinesNamespace = f"mas-{instanceId}-pipelines"
+
+        # Stage 1: Validate OpenShift Pipelines
+        reporter.start("Validate OpenShift Pipelines")
+        success, detail = self._validateOpenShiftPipelines()
+        if success:
+            reporter.success("Validate OpenShift Pipelines", detail)
+        else:
+            reporter.failure("Validate OpenShift Pipelines", detail)
+            self.fatalError("Installation failed")
+
+        # Stage 2: Apply pre-install RBAC (if needed)
+        if self.applyPreInstallMASRBAC and self.detectedMode:
+            # Resolve before any output so a failure is reported cleanly
+            rbacRootDir = self.getPreinstallRBACRootDir()
+
+            label = "Apply pre-install MAS RBAC"
+            reporter.start(label)
+            self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
+            applyPreInstallMASRBAC(
+                dynClient=self.dynamicClient,
+                masVersion=".".join(self.nextChannel.split(".")[:2]),
+                masInstanceId=instanceId,
+                adminMode=self.detectedMode,
+                selectedApps=self.selectedAppsForRBAC,
+                rbacRootDir=rbacRootDir,
             )
+            reporter.success(label, f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {self.detectedMode})")
+
+        # Stage 3: Prepare pipelines namespace
+        reporter.start("Prepare pipelines namespace")
+        success, detail = self._prepareUpgradeNamespace(pipelinesNamespace, instanceId)
+        reporter.success("Prepare pipelines namespace", detail)
+
+        # Stage 4: Install Tekton definitions
+        reporter.start("Install Tekton definitions")
+        success, detail = self._installTektonDefinitions(pipelinesNamespace)
+        reporter.success("Install Tekton definitions", f"Latest Tekton definitions are installed ({detail})")
+
+        # Stage 5: Submit PipelineRun
+        reporter.start("Submit PipelineRun")
+        success, detail = self._submitUpgradePipelineRun()
+        if success:
+            # ``detail`` is the pipeline run URL: the TUI renders it beneath
+            # the step list and the Copy URL button copies it (see
+            # LaunchScreen._on_checklist_done).
+            reporter.success("Submit PipelineRun", detail)
+        else:
+            reporter.failure("Submit PipelineRun", f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")

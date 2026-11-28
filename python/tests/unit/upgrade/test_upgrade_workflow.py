@@ -43,10 +43,18 @@ def test_build_upgrade_workflow_step_ids():
     GIVEN an app instance mock
     WHEN buildUpgradeWorkflow(app) is called
     THEN the step IDs are 'connect-cluster', 'instance-selection',
-         'license-acceptance', 'manage-foundation', 'review', 'launch' in
-         that order.
+         'target-channel', 'license-acceptance', 'manage-foundation',
+         'review', 'launch' in that order.
     """
-    expected_ids = ["connect-cluster", "instance-selection", "license-acceptance", "manage-foundation", "review", "launch"]
+    expected_ids = [
+        "connect-cluster",
+        "instance-selection",
+        "target-channel",
+        "license-acceptance",
+        "manage-foundation",
+        "review",
+        "launch",
+    ]
     definition = buildUpgradeWorkflow(_make_app())
     step_ids = [step.id for step in definition]
     assert step_ids == expected_ids, f"Expected step ids {expected_ids}, got {step_ids}"
@@ -82,20 +90,22 @@ def test_connect_cluster_post_connect_is_fetch_installed_instance_ids():
 
 
 def test_instance_selection_step_has_validator_and_select_field():
-    """Test the instance-selection step has prepareUpgrade as validator and a lazy select field.
+    """Test the instance-selection step has the wrapper validator and a lazy select field.
 
     GIVEN an app instance mock
     WHEN buildUpgradeWorkflow(app) is called
     THEN the 'instance-selection' step has a callable validator
-         (prepareUpgrade), no custom screen_class, and a mas_instance_id
-         select field whose options is a zero-argument callable resolved at
-         widget-build time (after post_connect has populated the list).
+         (prepareUpgradeForInstanceSelection, which clears any target chosen
+         on the target-channel step before re-deriving it), no custom
+         screen_class, and a mas_instance_id select field whose options is a
+         zero-argument callable resolved at widget-build time (after
+         post_connect has populated the list).
     """
     app = _make_app()
     definition = buildUpgradeWorkflow(app)
     step = next(s for s in definition if s.id == "instance-selection")
     assert step.screen_class is None
-    assert step.validator is app.prepareUpgrade
+    assert step.validator is app.prepareUpgradeForInstanceSelection
     field = next(f for f in step.fields if f.id == "mas_instance_id")
     assert field.type == "select"
     assert field.required is True
@@ -117,6 +127,76 @@ def test_instance_selection_options_callable_reads_installed_instances():
     step = next(s for s in definition if s.id == "instance-selection")
     field = next(f for f in step.fields if f.id == "mas_instance_id")
     assert field.options() == ["inst1", "inst2"]
+
+
+def test_target_channel_step_has_validator_and_select_field():
+    """Test the target-channel step offers the target choice and re-validates.
+
+    GIVEN an app instance mock
+    WHEN buildUpgradeWorkflow(app) is called
+    THEN the 'target-channel' step sits between instance-selection and
+         license-acceptance, has prepareUpgrade as its validator (re-running
+         the detection with the chosen target), and an upgrade_target_channel
+         select field whose options and default are zero-argument callables
+         resolved at widget-build time from the instance-selection
+         validator's state (targetChannelOptions / autoNextChannel).
+    """
+    app = _make_app()
+    definition = buildUpgradeWorkflow(app)
+    ids = [step.id for step in definition]
+    step = next(s for s in definition if s.id == "target-channel")
+    assert ids.index("instance-selection") < ids.index("target-channel") < ids.index("license-acceptance")
+    assert step.screen_class is None
+    assert step.validator is app.prepareUpgrade
+    field = next(f for f in step.fields if f.id == "upgrade_target_channel")
+    assert field.type == "select"
+    assert field.required is True
+    assert field.options_loader is None
+    assert callable(field.options), "options must be a callable resolved at render time"
+    assert callable(field.default), "default must be a callable resolved at render time"
+
+
+def test_target_channel_step_condition_reads_current_channel():
+    """Test the target-channel step condition hides the step for unknown channels.
+
+    GIVEN an app instance whose currentChannel is detected (9.1.x), then
+        not detected ("Unknown")
+    WHEN the step condition is evaluated with a params dict
+    THEN it is True (the choice is offered) and then False (the step is
+         skipped — there is nothing to derive a choice from).
+    """
+    app = _make_app()
+    app.currentChannel = "9.1.x"
+    definition = buildUpgradeWorkflow(app)
+    step = next(s for s in definition if s.id == "target-channel")
+    assert step.condition is not None
+    assert step.condition({}) is True
+
+    app.currentChannel = "Unknown"
+    assert step.condition({}) is False
+
+
+def test_target_channel_step_condition_with_real_scenario_apps():
+    """Test the target-channel step condition against real app states.
+
+    GIVEN real UpgradeApp scenario apps: one in the post-prepareUpgrade
+        state for a 9.1.x to 9.2.x upgrade, and one whose channel could not
+        be detected
+    WHEN the target-channel step condition is evaluated
+    THEN it is True for the first (the choice is offered after
+         instance-selection) and False for the second.
+    """
+    from scenarios.upgrade import upgrade_scenario
+
+    resolved = upgrade_scenario("upgrade-9-1-to-9-2")
+    definition = buildUpgradeWorkflow(resolved)
+    step = next(s for s in definition if s.id == "target-channel")
+    assert step.condition({}) is True
+
+    unknown = upgrade_scenario("unknown-channel")
+    unknown_definition = buildUpgradeWorkflow(unknown)
+    unknown_step = next(s for s in unknown_definition if s.id == "target-channel")
+    assert unknown_step.condition({}) is False
 
 
 def test_all_conditions_accept_params_dict():

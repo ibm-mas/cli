@@ -18,6 +18,19 @@ spec:
       type: string
       default: ""
 
+    # OLM install plan approval: "Manual" pauses roles at every install plan
+    # awaiting human approval. Empty = Automatic (with the approval mode
+    # mismatch fast-fail active by default)
+    # -------------------------------------------------------------------------
+    - name: olm_approval_mode
+      type: string
+      default: ""
+      description: OLM install plan approval mode (Automatic or Manual); empty defaults to Automatic
+    - name: olm_approval_timeout
+      type: string
+      default: ""
+      description: Seconds to wait for each individual install plan approval under Manual mode (collection default 7200)
+
     # Registry Credentials Secret
     # -------------------------------------------------------------------------
     - name: pipeline_registry_secret_name
@@ -235,9 +248,15 @@ spec:
 
     # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
+    # This is the one place the OLM approval gate is enabled: the catalog
+    # digest update rolls every subscription on the cluster implicitly, and
+    # this task waits for the manual approvals (full scope disclosed up front,
+    # approvals in any order) and for every subscription to reach its channel
+    # head, before any dependency update task is allowed to start.
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-update-verify',
-        'devops_suite_name': 'post-update-verify'
+        'devops_suite_name': 'post-update-verify',
+        'verify_subscription_approvals': 'True'
       }) | indent(4) }}
       runAfter:
         - update-catalog

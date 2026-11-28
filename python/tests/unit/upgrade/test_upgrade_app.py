@@ -117,9 +117,15 @@ def _patch_cluster(**kwargs):
 
 
 def _run_patches(patches):
-    """Enter every patch and return the started mock patchers."""
-    started = [p.start() for p in patches]
-    return started
+    """Enter every patch and return the patchers so tests can stop them.
+
+    Returns the patcher objects (not the started mocks): callers invoke
+    ``p.stop()`` on what this returns, and calling ``stop()`` on a started
+    mock is a silent no-op that leaks the patch for the rest of the session.
+    """
+    for p in patches:
+        p.start()
+    return patches
 
 
 def test_prepare_upgrade_happy_path_derives_next_channel():
@@ -170,6 +176,158 @@ def test_prepare_upgrade_oldest_app_channel_drives_target():
 
     assert app.effectiveCurrentChannel == "9.1.x"
     assert app.nextChannel == "9.2.x"
+
+
+def test_prepare_upgrade_explicit_target_reruns_current_channel():
+    """Test that an explicit target equal to the current channel re-runs the upgrade.
+
+    GIVEN a core-only instance on 9.1.x (no app subscriptions, Manage not
+        installed — a 9.0.x to 9.1.x upgrade that failed after the core hop)
+        and the target-channel step's choice of 9.1.x in params
+    WHEN prepareUpgrade runs
+    THEN it completes without raising "No action required" (the explicit
+         target is a complete override — the pipeline is idempotent),
+         nextChannel and the mas_channel param are 9.1.x, and the Manage
+         Foundation install is detected so the conditional step collects
+         its inputs — behaving exactly like a 9.0.x instance auto-detected
+         as needing the 9.1.x upgrade.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.1.x"
+
+    patchers = _run_patches(_patch_cluster(getAppsSubscriptionChannel=[], verifyAppInstance=False))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.nextChannel == "9.1.x"
+    assert app.currentChannel == "9.1.x"
+    assert app.params["mas_channel"] == "9.1.x"
+    assert app.isManageFoundation is True
+    assert app.manageFoundationPending() is True
+
+
+def test_prepare_upgrade_auto_target_on_core_only_instance():
+    """Test the auto-derived target for a core-only instance on 9.1.x.
+
+    GIVEN the same core-only instance on 9.1.x (no apps, Manage missing)
+        with no target chosen on the target-channel step
+    WHEN prepareUpgrade runs
+    THEN the auto-derived target is 9.2.x (the derivation only considers
+         core and app subscription channels) and autoNextChannel records it
+         as the default for the target-channel step — the user's escape
+         hatch is choosing 9.1.x there.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getAppsSubscriptionChannel=[], verifyAppInstance=False))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.nextChannel == "9.2.x"
+    assert app.autoNextChannel == "9.2.x"
+    assert app.isManageFoundation is False
+
+
+def test_prepare_upgrade_explicit_target_on_fully_upgraded_proceeds():
+    """Test that an explicit target on a fully-upgraded instance still proceeds.
+
+    GIVEN an instance on 9.2.x with Manage also on 9.2.x (fully upgraded for
+        that release) and the target-channel step's choice of 9.2.x
+    WHEN prepareUpgrade runs
+    THEN it completes without raising "No action required" — the re-run is
+         submitted and the idempotent pipeline simply has nothing to do.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.2.x"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.2.x", getAppsSubscriptionChannel=[{"appId": "manage", "channel": "9.2.x"}]))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.nextChannel == "9.2.x"
+    assert app.params["mas_channel"] == "9.2.x"
+
+
+def test_prepare_upgrade_invalid_explicit_target_raises():
+    """Test that an explicit target with no upgrade path raises.
+
+    GIVEN a 9.1.x instance and a target-channel choice of 9.3.x-feature
+        (skipping the 9.2.x hop)
+    WHEN prepareUpgrade runs
+    THEN RuntimeError is raised naming the invalid path, so the choice is
+         rejected on the target-channel step.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.3.x-feature"
+
+    patchers = _run_patches(_patch_cluster())
+    try:
+        with pytest.raises(RuntimeError, match="No upgrade path available from 9.1.x to 9.3.x-feature"):
+            app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+
+def test_target_channel_options_orders_and_dedupes():
+    """Test targetChannelOptions lists the auto-derived target first.
+
+    GIVEN apps in post-prepareUpgrade states: auto target ahead of the
+        current channel, auto target equal to the current channel (apps
+        behind — the derived hop completes the current release), and an
+        undetectable channel
+    WHEN targetChannelOptions is called
+    THEN the auto-derived target is first followed by the current channel,
+         duplicates collapse to one entry, and an unknown channel yields an
+         empty list (the target-channel step is not shown).
+    """
+    app = _make_app(currentChannel="9.1.x", autoNextChannel="9.2.x")
+    assert app.targetChannelOptions() == ["9.2.x", "9.1.x"]
+
+    app = _make_app(currentChannel="9.1.x", autoNextChannel="9.1.x")
+    assert app.targetChannelOptions() == ["9.1.x"]
+
+    app = _make_app(currentChannel="Unknown", autoNextChannel="")
+    assert app.targetChannelOptions() == []
+
+
+def test_prepare_upgrade_for_instance_selection_clears_stale_target():
+    """Test the instance-selection validator clears a stale target choice.
+
+    GIVEN an app holding a target-channel choice from a previously selected
+        instance, and a newly selected 9.0.x instance
+    WHEN prepareUpgradeForInstanceSelection runs (the instance-selection
+        step validator)
+    THEN the choice is cleared before prepareUpgrade derives the target, so
+         the new instance's channels drive the derivation rather than the
+         stale selection.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["upgrade_target_channel"] = "9.2.x"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.0.x"))
+    try:
+        app.prepareUpgradeForInstanceSelection()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.params["upgrade_target_channel"] == ""
+    assert app.nextChannel == "9.1.x"
 
 
 def test_prepare_upgrade_already_fully_upgraded_raises():
@@ -383,8 +541,8 @@ def test_prepare_manage_foundation_configures_installation():
 
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1") as mock_workspace,
-        patch("mas.cli.upgrade.app.getStorageClass", return_value=object()) as mock_get_sc,
-        patch("mas.cli.upgrade.app.getDefaultStorageClasses") as mock_defaults,
+        patch("mas.cli.common.storageClasses.getStorageClass", return_value=object()) as mock_get_sc,
+        patch("mas.cli.common.storageClasses.getDefaultStorageClasses") as mock_defaults,
         patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key") as mock_lookup,
     ):
         app.prepareManageFoundation()
@@ -429,7 +587,7 @@ def test_prepare_manage_foundation_auto_detects_blank_storage_classes():
     defaults.rwx = "auto-rwx"
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
-        patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=defaults) as mock_defaults,
+        patch("mas.cli.common.storageClasses.getDefaultStorageClasses", return_value=defaults) as mock_defaults,
         patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
     ):
         app.prepareManageFoundation()
@@ -453,7 +611,7 @@ def test_prepare_manage_foundation_invalid_storage_class_raises():
 
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
-        patch("mas.cli.upgrade.app.getStorageClass", return_value=None),
+        patch("mas.cli.common.storageClasses.getStorageClass", return_value=None),
         patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
     ):
         with pytest.raises(RuntimeError, match="missing-sc"):
@@ -687,13 +845,33 @@ def test_install_tekton_definitions_updates_definitions():
     assert detail == "v1.2.3"
 
 
-def test_submit_upgrade_pipeline_run_passes_effective_channel():
-    """Test _submitUpgradePipelineRun passes the effective current channel.
+def test_resolve_mas_channel_param_derived_target():
+    """Test resolveMasChannelParam for a derived (auto-detected) target.
 
-    GIVEN an app in the post-prepareUpgrade state (9.1.x to 9.2.x)
-    WHEN _submitUpgradePipelineRun is called
-    THEN launchUpgradePipeline is called with the instance ID, skip flag and
-         masChannel=9.1.x, and the pipeline URL is returned as the detail.
+    GIVEN an app in the post-prepareUpgrade state (Core 9.1.x, apps behind on
+        9.0.x, so effectiveCurrentChannel is 9.0.x and the derived target is
+        9.1.x)
+    WHEN resolveMasChannelParam is called
+    THEN mas_channel is the derived target channel (9.1.x) — mas_channel is
+         the destination channel per the suite_upgrade role's semantics.
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="9.1.x",
+        nextChannel="9.1.x",
+        effectiveCurrentChannel="9.0.x",
+    )
+    app.resolveMasChannelParam()
+    assert app.params["mas_channel"] == "9.1.x"
+
+
+def test_resolve_mas_channel_param_explicit_target():
+    """Test resolveMasChannelParam for a regular upgrade with --next-channel.
+
+    GIVEN an app with a known current channel and an explicit target channel
+        one hop ahead
+    WHEN resolveMasChannelParam is called
+    THEN mas_channel is the requested target channel (9.2.x).
     """
     app = _make_app(
         masInstanceId="inst1",
@@ -701,24 +879,20 @@ def test_submit_upgrade_pipeline_run_passes_effective_channel():
         nextChannel="9.2.x",
         effectiveCurrentChannel="9.1.x",
     )
-
-    with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
-        success, detail = app._submitUpgradePipelineRun()
-
-    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.1.x", params=app.params)
-    assert success is True
-    assert detail == "https://example.com/pipelinerun"
+    app.resolveMasChannelParam()
+    assert app.params["mas_channel"] == "9.2.x"
 
 
-def test_submit_upgrade_pipeline_run_retry_passes_previous_channel():
-    """Test the retry scenario passes the previous channel to the pipeline.
+def test_resolve_mas_channel_param_retry_scenario():
+    """Test resolveMasChannelParam for the retry scenario.
 
-    GIVEN an app whose next channel equals its current channel (core already
-        on 9.0.x, apps still behind)
-    WHEN _submitUpgradePipelineRun is called
-    THEN masChannel is the channel that precedes the current one (the first
-         upgrade_path entry mapping to it, as in the classic launch logic),
-         so Ansible upgrades the remaining apps to the current channel.
+    GIVEN an app whose target channel equals its current channel (core
+        already on 9.0.x, apps still behind)
+    WHEN resolveMasChannelParam is called
+    THEN mas_channel is the target channel (9.0.x): the suite_upgrade role
+         recognises Core is already on it and the app upgrade tasks bring
+         the remaining applications up to it — no previous-channel lookup
+         is needed.
     """
     app = _make_app(
         masInstanceId="inst1",
@@ -726,11 +900,59 @@ def test_submit_upgrade_pipeline_run_retry_passes_previous_channel():
         nextChannel="9.0.x",
         effectiveCurrentChannel="8.11.x",
     )
+    app.resolveMasChannelParam()
+    assert app.params["mas_channel"] == "9.0.x"
+
+
+def test_resolve_mas_channel_param_unknown_target():
+    """Test resolveMasChannelParam when the target is undetectable.
+
+    GIVEN an app whose current channel could not be detected (the upgrade may
+        be queued to run after install)
+    WHEN resolveMasChannelParam is called
+    THEN mas_channel is empty, so the suite_upgrade role auto-selects the
+         next release from the live subscription.
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="Unknown",
+        nextChannel="Unknown",
+        effectiveCurrentChannel="",
+    )
+    app.resolveMasChannelParam()
+    assert app.params["mas_channel"] == ""
+
+
+def test_submit_upgrade_pipeline_run_launches_with_resolved_params():
+    """Test _submitUpgradePipelineRun submits the params untouched.
+
+    GIVEN an app in the post-prepareUpgrade state, with every PipelineRun
+        param already in params (mas_instance_id from the instance-selection
+        step field, mas_channel from resolveMasChannelParam)
+    WHEN _submitUpgradePipelineRun is called
+    THEN launchUpgradePipeline is called with the params dict verbatim — the
+         launch makes no decisions of its own — and the pipeline URL is
+         returned as the detail.
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="9.1.x",
+        nextChannel="9.2.x",
+        effectiveCurrentChannel="9.1.x",
+    )
+    app.params["mas_instance_id"] = "inst1"
+    app.resolveMasChannelParam()
 
     with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
-        app._submitUpgradePipelineRun()
+        success, detail = app._submitUpgradePipelineRun()
 
-    assert mock_launch.call_args.kwargs["masChannel"] == "8.11.x"
+    mock_launch.assert_called_once_with(app._dynClient, params=app.params)
+    assert app.params["mas_channel"] == "9.2.x"
+    # skip_pre_check is written at arg parse only when set; the TUI default
+    # (False) leaves it out so the pipeline's own default applies
+    assert "skip_pre_check" not in app.params
+    assert success is True
+    assert detail == "https://example.com/pipelinerun"
 
 
 def test_submit_upgrade_pipeline_run_failure():
@@ -772,6 +994,7 @@ def test_launch_upgrade_reports_stages_and_submits_pipeline():
         pipelineStorageAccessMode="ReadWriteMany",
     )
     app.params["mas_instance_id"] = "inst1"
+    app.resolveMasChannelParam()
     app.createTektonFileWithDigest = MagicMock()
 
     events = []
@@ -796,7 +1019,9 @@ def test_launch_upgrade_reports_stages_and_submits_pipeline():
     assert all(e[2] is True for e in done.values())
     assert done["Submit PipelineRun"][3] == "https://example.com/pipelinerun"
 
-    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.1.x", params=app.params)
+    mock_launch.assert_called_once_with(app._dynClient, params=app.params)
+    assert app.params["mas_instance_id"] == "inst1"
+    assert app.params["mas_channel"] == "9.2.x"
 
 
 def test_launch_upgrade_applies_rbac_when_required():
@@ -819,6 +1044,7 @@ def test_launch_upgrade_applies_rbac_when_required():
     )
     app.params["mas_instance_id"] = "inst1"
     app.createTektonFileWithDigest = MagicMock()
+    app.getPreinstallRBACRootDir = MagicMock(return_value="/rbac/root")
 
     events = []
 
@@ -841,6 +1067,8 @@ def test_launch_upgrade_applies_rbac_when_required():
     assert mock_apply.call_args.kwargs["masVersion"] == "9.2"
     assert mock_apply.call_args.kwargs["adminMode"] == "cluster"
     assert mock_apply.call_args.kwargs["selectedApps"] == ["manage"]
+    assert mock_apply.call_args.kwargs["rbacRootDir"] == "/rbac/root"
+    app.getPreinstallRBACRootDir.assert_called_once()
     mock_apps.assert_called_once()
 
     started = [e[1] for e in events if e[0] == "start"]

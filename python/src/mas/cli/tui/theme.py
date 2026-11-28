@@ -19,6 +19,18 @@ colour (success / warning / error) is specified explicitly: Textual
 derives unspecified theme colours from ``primary``, which would turn
 state colours blue and make them indistinguishable.
 
+Colour *system* consistency: the theme pins exact hex values, but Textual
+emits ANSI downsampled to the terminal's detected colour system.  Inside
+a container session (``oc rsh`` / ``docker exec -it``) ``COLORTERM`` is
+dropped and ``TERM`` is often plain ``xterm``, so detection falls back to
+256-colour and quantizes the palette to the xterm cube — visibly duller
+than a local truecolour terminal.  Rather than forcing anything from the
+app, the container image sets ``TEXTUAL_COLOR_SYSTEM=truecolor`` in its
+Dockerfile ``ENV`` (see ``image/cli/Dockerfile``): the escape sequences
+pass through the container's pty untouched, so the host terminal's
+capability is what matters, and local runs keep pure detection.  Override
+with ``-e TEXTUAL_COLOR_SYSTEM=256`` (or ``NO_COLOR``) where needed.
+
 Rollback note: this module plus its registration in ``TextualShell`` is
 the entire custom-theme change.  Reverting the phase 3.4 commit (new
 files ``tui/theme.py`` / ``tests/unit/tui/test_tui_theme.py``, plus the
